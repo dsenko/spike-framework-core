@@ -4,10 +4,7 @@
     "main": "dist/spike-framework.min.js",
     "ignore": [
         "node_modules",
-        "bower.json",
-        "gruntfile.js",
-        "package.json",
-        "dist"
+		"bower_components"
     ],
     "dependencies": {
     }
