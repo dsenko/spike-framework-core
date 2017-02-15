@@ -45,6 +45,29 @@ app.util = {
      * System util used by application core
      */
     System: {
+
+        /**
+         * Transforms string into camel case notation
+         * Example: category-id => categoryId
+         * Example category id => categoryId
+         *
+         * @param str
+         */
+        toCamelCase: function (str) {
+
+            if (app.util.System.isEmpty(str)) {
+                return str;
+            }
+
+            str = str.split('-').join(' ');
+
+            return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
+                if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+                return index == 0 ? match.toLowerCase() : match.toUpperCase();
+            });
+
+        },
+
         /**
          * @public
          *

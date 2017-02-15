@@ -107,16 +107,28 @@ app.component = {
 
             app.com[componentObject.__name].__loadTemplate();
 
-            app.debug('Binding component {0} template to DOM', [app.com[componentObject.__name].__name]);
-
-            $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]').replaceWith(app.com[componentObject.__name].__template);
-
-            //Translate DOM
-            app.message.__translate();
-
             if(!componentDataPassed){
                 componentDataPassed = {};
             }
+
+            app.debug('Binding component {0} template to DOM', [app.com[componentObject.__name].__name]);
+
+            var componentSelector = $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]');
+
+            app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
+
+            var inlineAttributes = componentSelector.attrs()
+            componentDataPassed = $.extend(true, componentDataPassed, inlineAttributes);
+
+            app.log('componentDataPassed');
+
+
+            app.log(componentDataPassed);
+
+            componentSelector.replaceWith(app.com[componentObject.__name].__template);
+
+            //Translate DOM
+            app.message.__translate();
 
             componentDataPassed = $.extend(true, componentDataPassed, app.router.__getCurrentViewData().data);
 

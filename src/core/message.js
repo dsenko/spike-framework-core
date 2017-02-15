@@ -157,7 +157,7 @@ app.message = {
             $('[' + app.__attributes.TRANSLATION + ']').each(function () {
 
                 var messageName = $(this).attr(app.__attributes.TRANSLATION);
-                $(this).html(app.message.__messages[app.config.lang][messageName])
+                $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
 
             });
 

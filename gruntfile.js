@@ -57,6 +57,7 @@ var spike = {
 
         './src/jquery/serializeObject.js',
         './src/jquery/set.js',
+        './src/jquery/attrs.js',
 
         './src/overrides/modal-bootstrap.js',
     ]
@@ -124,7 +125,7 @@ module.exports = function (grunt) {
                         expand: true,
                         cwd: './dist',
                         src: ['spike-framework.js', 'spike-framework.min.js'],
-                        dest: '../starter/dist/libs/dist'
+                        dest: 'D:/xampp/htdocs/spike-framework-starter/dist/libs/spike-framework-core/dist'
                     }
                 ],
             }

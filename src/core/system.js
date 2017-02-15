@@ -273,6 +273,7 @@ app.system = {
      */
     __messages: {
 
+        REDIRECT_NO_PATH: 'Try redirect to path but path argument is not defined',
         TRANSLATION_PARSING: 'Translation parsing error for language {0}',
         LISTER_DATA_NOT_ARRAY: 'Lister input data must be an Array object, error evaluating lister named {0}',
         LISTER_ELEMENT_EMPTY: 'Lister element {0} is empty',
@@ -330,6 +331,34 @@ app.system = {
     /**
      * @private
      *
+     * Counter for selectors cache for
+     * debug proposes
+     *
+     */
+    __cacheUsageCounter: 0,
+
+    /**
+     * @private
+     *
+     * Storage for cached once used selectors
+     *
+     */
+    __selectorsCache: {},
+
+    /**
+     * @private
+     *
+     * Clears selectors cache, should be executed before
+     * new controller rendering
+     *
+     */
+    __clearSelectorsCache: function(){
+        app.system.__selectorsCache = {};
+    },
+
+    /**
+     * @private
+     *
      * Function creates selectors for passed HTML @string based
      * on @attr id and @attr name.
      * Function returns set of methods as @jQuery selectors getters
@@ -368,8 +397,16 @@ app.system = {
             //Creating handler function for identifier with optional basic events binding by @jQuery
             selectors[id] = function (eventsToBind) {
 
-                var selector = $('#' + newId);
-                selector.plainId = newId;
+                var selector = app.system.__selectorsCache[newId];
+
+                if(!selector){
+                    selector =  $('#' + newId);
+                    selector.plainId = newId;
+                    app.system.__selectorsCache[newId] = selector;
+                }else{
+                    app.system.__cacheUsageCounter++;
+                }
+
 
                 $.each(eventsToBind, function (eventName, eventCallback) {
 
@@ -398,6 +435,7 @@ app.system = {
         };
 
     },
+
 
     /**
      * @private
@@ -506,7 +544,10 @@ app.system = {
             controllerInitialData = null;
         }
 
-        //Renders modal
+        //Clears selectors cache
+        app.system.__clearSelectorsCache();
+
+        //Renders controller
         controllerObject.__render(controllerInitialData);
 
         app.system.__onRenderEvent();
@@ -514,6 +555,8 @@ app.system = {
         if (afterRenderCallback) {
             afterRenderCallback();
         }
+
+        app.ok('Selectors cache usage during app lifecycle: '+app.system.__cacheUsageCounter);
 
     },
 

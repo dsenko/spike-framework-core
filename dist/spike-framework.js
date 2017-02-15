@@ -273,6 +273,7 @@ app.system = {
      */
     __messages: {
 
+        REDIRECT_NO_PATH: 'Try redirect to path but path argument is not defined',
         TRANSLATION_PARSING: 'Translation parsing error for language {0}',
         LISTER_DATA_NOT_ARRAY: 'Lister input data must be an Array object, error evaluating lister named {0}',
         LISTER_ELEMENT_EMPTY: 'Lister element {0} is empty',
@@ -330,6 +331,34 @@ app.system = {
     /**
      * @private
      *
+     * Counter for selectors cache for
+     * debug proposes
+     *
+     */
+    __cacheUsageCounter: 0,
+
+    /**
+     * @private
+     *
+     * Storage for cached once used selectors
+     *
+     */
+    __selectorsCache: {},
+
+    /**
+     * @private
+     *
+     * Clears selectors cache, should be executed before
+     * new controller rendering
+     *
+     */
+    __clearSelectorsCache: function(){
+        app.system.__selectorsCache = {};
+    },
+
+    /**
+     * @private
+     *
      * Function creates selectors for passed HTML @string based
      * on @attr id and @attr name.
      * Function returns set of methods as @jQuery selectors getters
@@ -368,8 +397,16 @@ app.system = {
             //Creating handler function for identifier with optional basic events binding by @jQuery
             selectors[id] = function (eventsToBind) {
 
-                var selector = $('#' + newId);
-                selector.plainId = newId;
+                var selector = app.system.__selectorsCache[newId];
+
+                if(!selector){
+                    selector =  $('#' + newId);
+                    selector.plainId = newId;
+                    app.system.__selectorsCache[newId] = selector;
+                }else{
+                    app.system.__cacheUsageCounter++;
+                }
+
 
                 $.each(eventsToBind, function (eventName, eventCallback) {
 
@@ -398,6 +435,7 @@ app.system = {
         };
 
     },
+
 
     /**
      * @private
@@ -506,7 +544,10 @@ app.system = {
             controllerInitialData = null;
         }
 
-        //Renders modal
+        //Clears selectors cache
+        app.system.__clearSelectorsCache();
+
+        //Renders controller
         controllerObject.__render(controllerInitialData);
 
         app.system.__onRenderEvent();
@@ -514,6 +555,8 @@ app.system = {
         if (afterRenderCallback) {
             afterRenderCallback();
         }
+
+        app.ok('Selectors cache usage during app lifecycle: '+app.system.__cacheUsageCounter);
 
     },
 
@@ -1284,6 +1327,12 @@ app.router = {
      */
     __redirectToView: function(path, pathParams, urlParams){
 
+        if(!path){
+            app.system.__throwError(app.system.__messages.REDIRECT_NO_PATH);
+        }
+
+        path = path.replace('#/','/');
+
         if(path[0] !== '/'){
             path = '/'+path;
         }
@@ -1389,6 +1438,7 @@ app.router = {
  * @public {modalDirectory}
  *
  */
+
 app.config = {
 
     /**
@@ -2026,7 +2076,7 @@ app.message = {
             $('[' + app.__attributes.TRANSLATION + ']').each(function () {
 
                 var messageName = $(this).attr(app.__attributes.TRANSLATION);
-                $(this).html(app.message.__messages[app.config.lang][messageName])
+                $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
 
             });
 
@@ -2143,16 +2193,28 @@ app.component = {
 
             app.com[componentObject.__name].__loadTemplate();
 
-            app.debug('Binding component {0} template to DOM', [app.com[componentObject.__name].__name]);
-
-            $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]').replaceWith(app.com[componentObject.__name].__template);
-
-            //Translate DOM
-            app.message.__translate();
-
             if(!componentDataPassed){
                 componentDataPassed = {};
             }
+
+            app.debug('Binding component {0} template to DOM', [app.com[componentObject.__name].__name]);
+
+            var componentSelector = $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]');
+
+            app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
+
+            var inlineAttributes = componentSelector.attrs()
+            componentDataPassed = $.extend(true, componentDataPassed, inlineAttributes);
+
+            app.log('componentDataPassed');
+
+
+            app.log(componentDataPassed);
+
+            componentSelector.replaceWith(app.com[componentObject.__name].__template);
+
+            //Translate DOM
+            app.message.__translate();
 
             componentDataPassed = $.extend(true, componentDataPassed, app.router.__getCurrentViewData().data);
 
@@ -3724,6 +3786,29 @@ app.util = {
      * System util used by application core
      */
     System: {
+
+        /**
+         * Transforms string into camel case notation
+         * Example: category-id => categoryId
+         * Example category id => categoryId
+         *
+         * @param str
+         */
+        toCamelCase: function (str) {
+
+            if (app.util.System.isEmpty(str)) {
+                return str;
+            }
+
+            str = str.split('-').join(' ');
+
+            return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
+                if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+                return index == 0 ? match.toLowerCase() : match.toUpperCase();
+            });
+
+        },
+
         /**
          * @public
          *
@@ -5789,6 +5874,33 @@ jQuery.fn.extend({
 
     },
 
+
+});/**
+ * @public
+ *
+ * jQuery extension to receive all tag additional attributes
+ *
+ * Creating object from jQuery.fn.attrs() result
+ *
+ */
+jQuery.fn.extend({
+
+    attrs: function () {
+
+        var attributesMap = {};
+
+        jQuery.each(this[0].attributes, function () {
+            if (this.specified) {
+
+                this.name = this.name.replace('data-','');
+
+                attributesMap[app.util.System.toCamelCase(this.name)] = this.value;
+            }
+        });
+
+        return attributesMap;
+
+    },
 
 });/**
  * Added default @public config.bootstrapModal

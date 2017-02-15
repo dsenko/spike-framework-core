@@ -538,6 +538,12 @@ app.router = {
      */
     __redirectToView: function(path, pathParams, urlParams){
 
+        if(!path){
+            app.system.__throwError(app.system.__messages.REDIRECT_NO_PATH);
+        }
+
+        path = path.replace('#/','/');
+
         if(path[0] !== '/'){
             path = '/'+path;
         }
