@@ -5770,8 +5770,23 @@ app.rest = {
                 dataType: dataType
             });
 
+           
             promise.then = function(callback){
-                promise.done(callback);
+
+                promise.done(function(result){
+
+                    if(promise.result){
+                        result = promise.result;
+                    }
+
+                    var _result = callback(result);
+
+                    if(_result){
+                        promise.result = _result;
+                    }
+
+                });
+
                 return promise;
             };
 
