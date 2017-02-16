@@ -47,7 +47,7 @@ var app = {
      *
      * Declares Spike template engine
      */
-    __globalTemplates: 'templates',
+    __globalTemplates: '_spike_templates',
 
     /**
      * @public
@@ -273,6 +273,7 @@ app.system = {
      */
     __messages: {
 
+        PARITAL_SELECTOR_NOT_DEFINED: 'Passed selector for Partial {0} is not defined',
         REDIRECT_NO_PATH: 'Try redirect to path but path argument is not defined',
         TRANSLATION_PARSING: 'Translation parsing error for language {0}',
         LISTER_DATA_NOT_ARRAY: 'Lister input data must be an Array object, error evaluating lister named {0}',

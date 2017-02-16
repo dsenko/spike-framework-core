@@ -163,6 +163,17 @@ app.config = {
     /**
      * @public
      *
+     * Defines main directory containing partials directories structure
+     * Ex.
+     * - app/partial
+     * -- loginFormPartial
+     * -- registerFormPartial
+     */
+    partialDirectory: 'partial',
+
+    /**
+     * @public
+     *
      * Function to extending and overriding default config @object with new properties defined by user
      *
      * @param configObj

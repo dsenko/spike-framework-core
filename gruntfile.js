@@ -40,6 +40,7 @@ var spike = {
         './src/modules/controller.js',
         './src/modules/modal.js',
         './src/modules/lister.js',
+        './src/modules/partial.js',
 
         './src/singletons/abstract.js',
         './src/singletons/enumerator.js',
