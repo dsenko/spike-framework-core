@@ -273,6 +273,7 @@ app.system = {
      */
     __messages: {
 
+        PARITAL_INCLUDE_NOT_DEFINED: 'Try including not existing partial',
         PARITAL_SELECTOR_NOT_DEFINED: 'Passed selector for Partial {0} is not defined',
         REDIRECT_NO_PATH: 'Try redirect to path but path argument is not defined',
         TRANSLATION_PARSING: 'Translation parsing error for language {0}',
