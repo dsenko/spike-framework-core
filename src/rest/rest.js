@@ -538,7 +538,7 @@ app.rest = {
                         result = promise.result;
                     }
 
-                    var _result = callback(result);
+                    var _result = callback(result, promise);
 
                     if(_result){
                         promise.result = _result;
@@ -550,7 +550,9 @@ app.rest = {
             };
 
             promise.catch = function(callback){
-                promise.fail(callback);
+                promise.fail(function(error){
+					callback(error, promise);
+				});
                 return promise;
             };
 
@@ -631,13 +633,30 @@ app.rest = {
                 dataType: dataType
             });
 
+           
             promise.then = function(callback){
-                promise.done(callback);
+
+                promise.done(function(result){
+
+                    if(promise.result){
+                        result = promise.result;
+                    }
+
+                    var _result = callback(result, promise);
+
+                    if(_result){
+                        promise.result = _result;
+                    }
+
+                });
+
                 return promise;
             };
 
             promise.catch = function(callback){
-                promise.fail(callback);
+                promise.fail(function(error){
+					callback(error, promise);
+				});
                 return promise;
             };
 
