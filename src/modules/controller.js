@@ -104,6 +104,8 @@ app.controller = {
 
             app.controller[controllerObject.__name] = $.extend(true, {}, app.controller.__dataArchive[controllerObject.__name]);
 
+            var __oldControllerName = app.ctx ? app.ctx.__name : null;
+
             app.ctx = app.controller[controllerObject.__name];
 
             app.ctx.__loadTemplate();
@@ -111,7 +113,21 @@ app.controller = {
             app.currentController = controllerObject.__name.toLowerCase();
 
             app.debug('Binding controller {0} template to DOM element with "view" attribute ', [app.ctx.__name]);
-            app.controller.__getView().html(app.ctx.__template);
+
+            if(app.config.transitions && app.config.transitionAnimation){
+
+                var transitionViewId = 'transition-view'+app.util.System.hash();
+
+                app.controller.__getView().before('<div style="display: none;" id="'+transitionViewId+'">'+app.controller.__getView().html()+'</div>');
+                app.controller.__getView().html(app.ctx.__template);
+
+                app.config.transitionAnimation($('#'+transitionViewId), app.controller.__getView(), app.__starting, __oldControllerName, app.ctx.__name, function(){
+                    $('#'+transitionViewId).remove();
+                });
+
+            }else{
+                app.controller.__getView().html(app.ctx.__template);
+            }
 
             //Translate DOM
             app.message.__translate();

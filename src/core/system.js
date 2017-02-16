@@ -29,7 +29,17 @@
 var app = {
 
     /**
+     * @private
      *
+     * Information if application is rendering first
+     * controller rather than next ones
+     */
+    __starting: true,
+
+    /**
+     * @private
+     *
+     * Stores DOM elements attributes
      */
     __attributes: {
 
@@ -43,7 +53,7 @@ var app = {
     },
 
     /**
-     * @public
+     * @private
      *
      * Declares Spike template engine
      */
@@ -54,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '1.5',
+    version: '1.8',
 
 
     /**
@@ -273,6 +283,7 @@ app.system = {
      */
     __messages: {
 
+        INTERCEPTOR_ALREADY_REGISTRED: 'Interceptor {0} is already registred',
         COMPONENT_NOT_DECLARED_IN_COMPONENTS: 'Component {0} is not declared in "components" property',
         COMPONENT_NOT_DECLARED_IN_VIEW: 'Component {0} is not declared in parent view',
         PARITAL_INCLUDE_NOT_DEFINED: 'Try including not existing partial',
@@ -765,6 +776,7 @@ app.system = {
 
         if(!app.config.routingEnabled){
             app.system.render(app.controller[app.config.mainController], null, callBack);
+            app.__starting = false;
         }
 
     },

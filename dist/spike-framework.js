@@ -29,7 +29,17 @@
 var app = {
 
     /**
+     * @private
      *
+     * Information if application is rendering first
+     * controller rather than next ones
+     */
+    __starting: true,
+
+    /**
+     * @private
+     *
+     * Stores DOM elements attributes
      */
     __attributes: {
 
@@ -43,7 +53,7 @@ var app = {
     },
 
     /**
-     * @public
+     * @private
      *
      * Declares Spike template engine
      */
@@ -54,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '1.5',
+    version: '1.8',
 
 
     /**
@@ -273,6 +283,9 @@ app.system = {
      */
     __messages: {
 
+        INTERCEPTOR_ALREADY_REGISTRED: 'Interceptor {0} is already registred',
+        COMPONENT_NOT_DECLARED_IN_COMPONENTS: 'Component {0} is not declared in "components" property',
+        COMPONENT_NOT_DECLARED_IN_VIEW: 'Component {0} is not declared in parent view',
         PARITAL_INCLUDE_NOT_DEFINED: 'Try including not existing partial',
         PARITAL_SELECTOR_NOT_DEFINED: 'Passed selector for Partial {0} is not defined',
         REDIRECT_NO_PATH: 'Try redirect to path but path argument is not defined',
@@ -763,6 +776,7 @@ app.system = {
 
         if(!app.config.routingEnabled){
             app.system.render(app.controller[app.config.mainController], null, callBack);
+            app.__starting = false;
         }
 
     },
@@ -1030,6 +1044,7 @@ app.router = {
             }
 
             app.router.__renderCurrentView();
+            app.__starting = false;
 
             $(window).bind('hashchange', function (e) {
                 app.router.__renderCurrentView();
@@ -1442,6 +1457,60 @@ app.router = {
  */
 
 app.config = {
+
+    /**
+     * @public
+     * Defines if transitions between controllers
+     * are enabled
+     *
+     * Disabled by default to avoid user layout destroying
+     * if not compatibile
+     */
+    transitions: false,
+
+    /**
+     * @public
+     * @overriding
+     *
+     * Function to manage transitions effects during controllers
+     * switching time.
+     *
+     * This is default implementation with from right to left transition
+     * based on simple CSS and @jQuery.animate function
+     *
+     * In default implementation, showing first controller is free of effects
+     *
+     * @param oldViewSelector
+     * @param newViewSelector
+     * @param appStartup
+     * @param fromController
+     * @param toController
+     * @param complete
+     */
+    transitionAnimation: function(oldViewSelector, newViewSelector, appStartup, fromController, toController, complete){
+
+        if(appStartup) {
+            app.log('Transition disabled for app startup');
+            complete();
+        }else {
+
+            app.log('Default transition from '+fromController+' to '+toController);
+
+            oldViewSelector
+                .css('z-index','2000')
+                .css('position','fixed')
+                .css('min-height',$(window).height()+'px')
+                .css('background','#fff')
+                .css('box-shadow', '2px 2px 8px #ccc')
+                .css('border','1px solid black')
+                .css('width', '100%')
+                .show();
+
+            oldViewSelector.stop().animate({right: $(window).height()+'px'}, "slow", complete);
+
+        }
+
+    },
 
     /**
      * @public
@@ -2234,15 +2303,15 @@ app.component = {
 
             var componentSelector = $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]');
 
+            //Throws exception if component was declared in some module ex. controller, but is not declared in it's view
+            if(!componentSelector){
+                app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_VIEW, [componentObject.__name]);
+            }
+
             app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
 
-            var inlineAttributes = componentSelector.attrs()
+            var inlineAttributes = componentSelector.attrs();
             componentDataPassed = $.extend(true, componentDataPassed, inlineAttributes);
-
-            app.log('componentDataPassed');
-
-
-            app.log(componentDataPassed);
 
             componentSelector.replaceWith(app.com[componentObject.__name].__template);
 
@@ -2296,9 +2365,6 @@ app.component = {
             app.component[componentObject.__name].__plainTemplate = templateHtml;
             app.component[componentObject.__name].__template = templateHtml;
 
-            //Commented because of global translation by jQuery
-            //app.component[componentObject.__name].__template = app.message.__replace(templateHtml);
-
         }
 
         //Creating view path once per application initialization
@@ -2334,6 +2400,12 @@ app.component = {
             if (componentsArrayOrMap instanceof Array) {
 
                 $.each(componentsArrayOrMap, function (i, componentName) {
+
+                    //Throws exception if component was declared in some view ex controller view, but is not defined
+                    if(!app.component[componentName]){
+                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [componentName]);
+                    }
+
                     app.component[componentName].__render(null);
 
                 });
@@ -2341,6 +2413,12 @@ app.component = {
             } else {
 
                 $.each(componentsArrayOrMap, function (componentName, componentParams) {
+
+                    //Throws exception if component was declared in some view ex controller view, but is not defined
+                    if(!app.component[componentName]){
+                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [componentName]);
+                    }
+
                     app.component[componentName].__render(componentParams);
                 });
 
@@ -2497,6 +2575,8 @@ app.controller = {
 
             app.controller[controllerObject.__name] = $.extend(true, {}, app.controller.__dataArchive[controllerObject.__name]);
 
+            var __oldControllerName = app.ctx ? app.ctx.__name : null;
+
             app.ctx = app.controller[controllerObject.__name];
 
             app.ctx.__loadTemplate();
@@ -2504,7 +2584,21 @@ app.controller = {
             app.currentController = controllerObject.__name.toLowerCase();
 
             app.debug('Binding controller {0} template to DOM element with "view" attribute ', [app.ctx.__name]);
-            app.controller.__getView().html(app.ctx.__template);
+
+            if(app.config.transitions && app.config.transitionAnimation){
+
+                var transitionViewId = 'transition-view'+app.util.System.hash();
+
+                app.controller.__getView().before('<div style="display: none;" id="'+transitionViewId+'">'+app.controller.__getView().html()+'</div>');
+                app.controller.__getView().html(app.ctx.__template);
+
+                app.config.transitionAnimation($('#'+transitionViewId), app.controller.__getView(), app.__starting, __oldControllerName, app.ctx.__name, function(){
+                    $('#'+transitionViewId).remove();
+                });
+
+            }else{
+                app.controller.__getView().html(app.ctx.__template);
+            }
 
             //Translate DOM
             app.message.__translate();
@@ -3070,6 +3164,21 @@ app.modal = {
 
         });
 
+    },
+
+    /**
+     * @public
+     *
+     * Function hides all rendered modals.
+     * Iterates over @public app.mCtx executes @public modal.hide function to hide modals
+     *
+     */
+    hideAll: function(){
+
+        $.each(app.mCtx, function(modalName, modalObject){
+            modalObject.hide();
+        });
+
     }
 
 };/**
@@ -3386,154 +3495,154 @@ app.lister = {
  */
 app.partial = {
 
-  /**
-   * @private
-   * Storage for partial instances
-   */
-  __dataArchive: {},
+    /**
+     * @private
+     * Storage for partial instances
+     */
+    __dataArchive: {},
 
-  /**
-   * Function returns processed given partial template
-   * with passed data
-   *
-   * @param partial
-   * @param data
-   */
-  include: function (partial, model) {
-    app.debug('Invoke app.partial.include with params: {0} {1}', [partial, model]);
+    /**
+     * Function returns processed given partial template
+     * with passed data
+     *
+     * @param partial
+     * @param data
+     */
+    include: function (partial, model) {
 
-    if (!partial) {
-      app.system.__throwError(app.system.__messages.PARITAL_INCLUDE_NOT_DEFINED, [partial.__name]);
-    }
+        if (!partial) {
+            app.system.__throwError(app.system.__messages.PARITAL_INCLUDE_NOT_DEFINED, [partial.__name]);
+        }
 
-    if (!model) {
-      model = {};
-    }
+        app.debug('Invoke app.partial.include with params: {0} ', [partial.__name]);
+
+        if (!model) {
+            model = {};
+        }
+
+        app.partial[partial.__name] = $.extend(true, {}, app.partial.__dataArchive[partial.__name]);
 
 
-    app.partial[partial.__name] = $.extend(true, {}, app.partial.__dataArchive[partial.__name]);
+        app.debug('Returning partial {0} template ', [partial.__name]);
 
-
-    app.debug('Returning partial {0} template ', [partial.__name]);
-
-    return partial.__template($.extend(true, partial, model));
-  },
-
-  /**
-   * @public
-   *
-   * Substitute method for register
-   *
-   * @param partialName
-   */
-  add: function (partialName) {
-    this.register(partialName);
-  },
-
-  /**
-   * @public
-   *
-   * Registering new partial in application
-   * Creates partial object
-   *
-   * @param partialName
-   */
-  register: function (partialName, partialObjectOrExtending, partialObject) {
-
-    // Filter if name is invalid (can break application)
-    app.system.__filterRestrictedNames(partialName);
-
-    // Apply extending from abstracts
-    partialObject = app.abstract.__tryExtend(partialName, partialObjectOrExtending, partialObject);
-
-    app.log('Registering partial {0}', [partialName]);
-    app.debug('Invoke partial.register with params: {0} {1}', [partialName, partialObject]);
-
-    //Setting tyope of module
-    partialObject.__type = 'PARTIAL';
-
-    //Setting original name of module
-    partialObject.__name = partialName;
-
-    //Setting name starting from lower case , used with templates and directories names of partial
-    partialObject.__lowerCaseName = partialName.substring(0, 1).toLowerCase() + partialName.substring(1, partialName.length);
+        return partial.__template($.extend(true, partial, model));
+    },
 
     /**
      * @public
      *
-     * Function that renders partial
-     * Creates new partial object based ond __dataArchive and assign reference to shortcut app.ctx
-     * Creates partial HTML template using @function @private __loadTemplate()
-     * Passing partial processed template to DOM element with @attr view attribute
-     * Rendering components used in rendered partial
-     * Invalidating existing modals
-     * Initializing partial with partialPassedData
-     * @param partialPassedData
+     * Substitute method for register
+     *
+     * @param partialName
      */
-    partialObject.render = function (selector, model) {
-      app.debug('Invoke partialObject.__render with params: {0} {1}', [selector, model]);
-
-      app.partial[partialObject.__name] = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
-
-      if (!selector) {
-        app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
-      }
-
-      app.debug('Binding partial {0} template to passed selector {1} ', [partialObject.__name, selector]);
-
-      selector.html(partialObject.__template($.extend(true, partialObject, model)));
-
-      //Translate DOM
-      app.message.__translate();
-
-    };
+    add: function (partialName) {
+        this.register(partialName);
+    },
 
     /**
-     * @private
+     * @public
      *
-     * Creating path to partial view HTML file
-     * Creates path based on html2js template file and directories structure
-     * @param partialObject
+     * Registering new partial in application
+     * Creates partial object
+     *
+     * @param partialName
      */
-    partialObject.__createPartialViewPath = function (partialObject) {
-      app.debug('Invoke partialObject.__createPartialViewPath with params: {0}', [partialObject]);
+    register: function (partialName, partialObjectOrExtending, partialObject) {
 
-      partialObject.__view = app.config.rootPath + "/" + app.config.partialDirectory + "/" + partialObject.__lowerCaseName + "/" + partialObject.__lowerCaseName + ".partial.html"
+        // Filter if name is invalid (can break application)
+        app.system.__filterRestrictedNames(partialName);
+
+        // Apply extending from abstracts
+        partialObject = app.abstract.__tryExtend(partialName, partialObjectOrExtending, partialObject);
+
+        app.log('Registering partial {0}', [partialName]);
+        app.debug('Invoke partial.register with params: {0} {1}', [partialName, partialObject]);
+
+        //Setting tyope of module
+        partialObject.__type = 'PARTIAL';
+
+        //Setting original name of module
+        partialObject.__name = partialName;
+
+        //Setting name starting from lower case , used with templates and directories names of partial
+        partialObject.__lowerCaseName = partialName.substring(0, 1).toLowerCase() + partialName.substring(1, partialName.length);
+
+        /**
+         * @public
+         *
+         * Function that renders partial
+         * Creates new partial object based ond __dataArchive and assign reference to shortcut app.ctx
+         * Creates partial HTML template using @function @private __loadTemplate()
+         * Passing partial processed template to DOM element with @attr view attribute
+         * Rendering components used in rendered partial
+         * Invalidating existing modals
+         * Initializing partial with partialPassedData
+         * @param partialPassedData
+         */
+        partialObject.render = function (selector, model) {
+            app.debug('Invoke partialObject.__render');
+
+            app.partial[partialObject.__name] = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
+
+            if (!selector) {
+                app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
+            }
+
+            app.debug('Binding partial {0} template to passed selector {1} ', [partialObject.__name, selector]);
+
+            selector.html(partialObject.__template($.extend(true, partialObject, model)));
+
+            //Translate DOM
+            app.message.__translate();
+
+        };
+
+        /**
+         * @private
+         *
+         * Creating path to partial view HTML file
+         * Creates path based on html2js template file and directories structure
+         * @param partialObject
+         */
+        partialObject.__createPartialViewPath = function (partialObject) {
+            app.debug('Invoke partialObject.__createPartialViewPath with params: {0}', [partialObject]);
+
+            partialObject.__view = app.config.rootPath + "/" + app.config.partialDirectory + "/" + partialObject.__lowerCaseName + "/" + partialObject.__lowerCaseName + ".partial.html"
+
+        }
+
+        /**
+         * @private
+         *
+         * Function retrieving partial's template from global window[templates] variable based on generated view path
+         * If template not specified, throw Error
+         * Creating dynamic selectors binded to template using @private system.__createSelectors()
+         *
+         */
+        partialObject.__loadTemplate = function () {
+            app.debug('Invoke partialObject.__loadTemplate');
+
+            var templateFunction = window[app.__globalTemplates][partialObject.__view];
+
+            if (!templateFunction) {
+                app.system.__throwError('No view found for partial: {0}, view path: {1}', [partialObject.__name, partialObject.__view]);
+            }
+
+            partialObject.__template = templateFunction;
+
+        }
+
+        //Creating view path once per application initialization
+        partialObject.__createPartialViewPath(partialObject);
+
+        //Sets partial template
+        partialObject.__loadTemplate();
+
+        //Creating copy of partial object in @private __dataArchive and in partial[partialName]
+        app.partial.__dataArchive[partialName] = $.extend(true, {}, partialObject);
+        app.partial[partialName] = $.extend(true, {}, partialObject);
 
     }
-
-    /**
-     * @private
-     *
-     * Function retrieving partial's template from global window[templates] variable based on generated view path
-     * If template not specified, throw Error
-     * Creating dynamic selectors binded to template using @private system.__createSelectors()
-     *
-     */
-    partialObject.__loadTemplate = function () {
-      app.debug('Invoke partialObject.__loadTemplate');
-
-      var templateFunction = window[app.__globalTemplates][partialObject.__view];
-
-      if (!templateFunction) {
-        app.system.__throwError('No view found for partial: {0}, view path: {1}', [partialObject.__name, partialObject.__view]);
-      }
-
-      partialObject.__template = templateFunction;
-
-    }
-
-    //Creating view path once per application initialization
-    partialObject.__createPartialViewPath(partialObject);
-
-    //Sets partial template
-    partialObject.__loadTemplate();
-
-    //Creating copy of partial object in @private __dataArchive and in partial[partialName]
-    app.partial.__dataArchive[partialName] = $.extend(true, {}, partialObject);
-    app.partial[partialName] = $.extend(true, {}, partialObject);
-
-  }
 
 };/**
  * @public
@@ -5393,6 +5502,56 @@ app.rest = {
      */
     spinnerExclude: [],
 
+    __interceptors: {},
+
+    /**
+     * @public
+     *
+     * Function saves new interceptor function which one
+     * can be executed during rest api invoking and which one's
+     * accepts @response and @promise arguments
+     *
+     * @param interceptorName
+     * @param interceptorFunction
+     */
+    interceptor: function(interceptorName, interceptorFunction){
+
+        //Check if interceptor exists, then throws error
+        if(app.rest.__interceptors[interceptorName]){
+            app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
+        }
+
+        //Saves interceptor function to @__interceptors
+        app.rest.__interceptors[interceptorName] = interceptorFunction;
+
+    },
+
+    /**
+     * @private
+     *
+     * Function iterates passed interceptors (names) and
+     * invokes each interceptor function.
+     *
+     * If interceptor not exists, then throws warn
+     *
+     * @param response
+     * @param promise
+     * @param interceptors
+     */
+    __invokeInterceptors: function(response, promise, interceptors){
+
+        for(var i = 0; i < interceptors.length; i++){
+
+            if(!app.rest.__interceptors[interceptors[i]]){
+                app.system.__throwWarn(app.system.__messages.INTERCEPTOR_NOT_EXISTS, [interceptors[i]]);
+            }else{
+                app.rest.__interceptors[interceptors[i]](response, promise);
+            }
+
+        }
+
+    },
+
     /**
      * @public
      * @toImplement
@@ -5514,7 +5673,7 @@ app.rest = {
      * @param data
      *
      */
-    __createCachedPromise: function(data){
+    __createCachedPromise: function(data, interceptors){
 
         var promise = {
             result: data,
@@ -5537,6 +5696,8 @@ app.rest = {
                 return promise;
             }
         }
+
+        app.rest.__invokeInterceptors(data, promise, interceptors);
 
         return promise;
 
@@ -5664,7 +5825,7 @@ app.rest = {
      * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
-     * @param propertiesObject -- optional {headers, pathParams, urlParams}
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
     get: function (urlOrCachedData, propertiesObject) {
@@ -5672,9 +5833,9 @@ app.rest = {
         propertiesObject = propertiesObject || {};
 
         if(typeof urlOrCachedData == 'string'){
-            return app.rest.__getDelete(urlOrCachedData, 'GET', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams);
+            return app.rest.__getDelete(urlOrCachedData, 'GET', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
         }else{
-           return this.__createCachedPromise(urlOrCachedData);
+           return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
     },
@@ -5688,7 +5849,7 @@ app.rest = {
      * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
-     * @param propertiesObject -- optional {headers, pathParams, urlParams}
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
     delete: function (urlOrCachedData, propertiesObject) {
@@ -5696,9 +5857,9 @@ app.rest = {
         propertiesObject = propertiesObject || {};
 
         if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__getDelete(urlOrCachedData, 'DELETE', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams);
+            return  app.rest.__getDelete(urlOrCachedData, 'DELETE', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
         }else{
-            return this.__createCachedPromise(urlOrCachedData);
+            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
 
@@ -5713,7 +5874,7 @@ app.rest = {
      * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
-     * @param propertiesObject -- optional {headers, pathParams, urlParams}
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
     update: function (urlOrCachedData, request, propertiesObject) {
@@ -5721,9 +5882,9 @@ app.rest = {
         propertiesObject = propertiesObject || {};
 
         if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__postPut(urlOrCachedData, 'PUT', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams);
+            return  app.rest.__postPut(urlOrCachedData, 'PUT', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
         }else{
-            return this.__createCachedPromise(urlOrCachedData);
+            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
     },
@@ -5737,7 +5898,7 @@ app.rest = {
      * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
-     * @param propertiesObject -- optional {headers, pathParams, urlParams}
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
     post: function (urlOrCachedData, request, propertiesObject) {
@@ -5745,9 +5906,9 @@ app.rest = {
         propertiesObject = propertiesObject || {};
 
         if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__postPut(urlOrCachedData, 'POST', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams);
+            return  app.rest.__postPut(urlOrCachedData, 'POST', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
         }else{
-            return this.__createCachedPromise(urlOrCachedData);
+            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
     },
@@ -5768,7 +5929,7 @@ app.rest = {
      * @param callBackIsnt
      *
      */
-    __isMock: function(url, method, request, callBackIsnt){
+    __isMock: function(url, method, request, interceptors, callBackIsnt){
 
         var promise = null;
         if(app.rest.__isEnabledMockByUrlAndMethod(url, method)){
@@ -5795,6 +5956,8 @@ app.rest = {
                 }
             };
 
+            app.rest.__invokeInterceptors(result, promise, interceptors);
+
         }else{
             promise = callBackIsnt();
         }
@@ -5818,9 +5981,9 @@ app.rest = {
      * @param urlParams
      *
      */
-    __getDelete: function (url, method, pathParams, headers, urlParams) {
+    __getDelete: function (url, method, pathParams, headers, urlParams, interceptors) {
 
-        return app.rest.__isMock(url, method, null, function(){
+        return app.rest.__isMock(url, method, null, interceptors, function(){
 
             var preparedUrl = url;
 
@@ -5879,6 +6042,8 @@ app.rest = {
                         result = promise.result;
                     }
 
+                    app.rest.__invokeInterceptors(result, promise, interceptors);
+
                     var _result = callback(result, promise);
 
                     if(_result){
@@ -5892,6 +6057,7 @@ app.rest = {
 
             promise.catch = function(callback){
                 promise.fail(function(error){
+                    app.rest.__invokeInterceptors(error, promise, interceptors);
 					callback(error, promise);
 				});
                 return promise;
@@ -5920,9 +6086,9 @@ app.rest = {
      * @param urlParams
      *
      */
-    __postPut: function (url, method, request, pathParams, headers, urlParams) {
+    __postPut: function (url, method, request, pathParams, headers, urlParams, interceptors) {
 
-        return app.rest.__isMock(url, method, request, function(){
+        return app.rest.__isMock(url, method, request, interceptors, function(){
 
             var jsonData = JSON.stringify(request);
 
@@ -5983,6 +6149,8 @@ app.rest = {
                         result = promise.result;
                     }
 
+                    app.rest.__invokeInterceptors(result, promise, interceptors);
+
                     var _result = callback(result, promise);
 
                     if(_result){
@@ -5996,6 +6164,7 @@ app.rest = {
 
             promise.catch = function(callback){
                 promise.fail(function(error){
+                    app.rest.__invokeInterceptors(error, promise, interceptors);
 					callback(error, promise);
 				});
                 return promise;
@@ -6057,41 +6226,45 @@ jQuery.fn.extend({
  */
 jQuery.fn.extend({
 
-    set: function(value, filter) {
+    set: function (_value, _filter) {
 
-        if(!value){
+        if (!_value) {
             return;
         }
 
-        if(filter && value){
-            value = filter(value);
+        if (_filter && _value) {
+            _value = _filter(_value);
         }
 
-        var elementType = $(this).prop('tagName');
+        var setFunction = function (selector, value) {
 
-        if(!elementType){
-            elementType = $(this).prop('nodeName');
-        }
+            var elementType = selector.prop('tagName');
 
-        elementType = elementType.toLowerCase();
-
-
-        if(elementType == 'label' || elementType == 'div' || elementType == 'span' || elementType == 'button' || elementType == 'p' || elementType.indexOf('h') > -1){
-            $(this).html(value.toString());
-        }else if(elementType == 'img') {
-            $(this).attr('src', value);
-        }else if($(this).is(':checkbox')) {
-            if(value == true || parseInt(value) == 1){
-                $(this).prop('checked', true);
-            }else{
-                $(this).prop('checked', false);
+            if (!elementType) {
+                elementType = selector.prop('nodeName');
             }
-        }else if(elementType == 'a') {
-            $(this).attr('href', value);
-        }else{
-            $(this).val(value);
+
+            elementType = elementType.toLowerCase();
+
+            if (elementType == 'label' || elementType == 'div' || elementType == 'span' || elementType == 'button' || elementType == 'p' || elementType.indexOf('h') > -1) {
+                selector.html(value.toString());
+            } else if (elementType == 'img') {
+                selector.attr('src', value);
+            } else if (selector.is(':checkbox')) {
+                if (value == true || parseInt(value) == 1) {
+                    selector.prop('checked', true);
+                } else {
+                    selector.prop('checked', false);
+                }
+            } else if (elementType == 'a') {
+                selector.attr('href', value);
+            } else {
+                selector.val(value);
+            }
+
         }
 
+        setFunction($(this), _value);
 
     },
 

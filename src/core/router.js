@@ -239,6 +239,7 @@ app.router = {
             }
 
             app.router.__renderCurrentView();
+            app.__starting = false;
 
             $(window).bind('hashchange', function (e) {
                 app.router.__renderCurrentView();

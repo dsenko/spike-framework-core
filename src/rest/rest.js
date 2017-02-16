@@ -52,6 +52,56 @@ app.rest = {
      */
     spinnerExclude: [],
 
+    __interceptors: {},
+
+    /**
+     * @public
+     *
+     * Function saves new interceptor function which one
+     * can be executed during rest api invoking and which one's
+     * accepts @response and @promise arguments
+     *
+     * @param interceptorName
+     * @param interceptorFunction
+     */
+    interceptor: function(interceptorName, interceptorFunction){
+
+        //Check if interceptor exists, then throws error
+        if(app.rest.__interceptors[interceptorName]){
+            app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
+        }
+
+        //Saves interceptor function to @__interceptors
+        app.rest.__interceptors[interceptorName] = interceptorFunction;
+
+    },
+
+    /**
+     * @private
+     *
+     * Function iterates passed interceptors (names) and
+     * invokes each interceptor function.
+     *
+     * If interceptor not exists, then throws warn
+     *
+     * @param response
+     * @param promise
+     * @param interceptors
+     */
+    __invokeInterceptors: function(response, promise, interceptors){
+
+        for(var i = 0; i < interceptors.length; i++){
+
+            if(!app.rest.__interceptors[interceptors[i]]){
+                app.system.__throwWarn(app.system.__messages.INTERCEPTOR_NOT_EXISTS, [interceptors[i]]);
+            }else{
+                app.rest.__interceptors[interceptors[i]](response, promise);
+            }
+
+        }
+
+    },
+
     /**
      * @public
      * @toImplement
@@ -173,7 +223,7 @@ app.rest = {
      * @param data
      *
      */
-    __createCachedPromise: function(data){
+    __createCachedPromise: function(data, interceptors){
 
         var promise = {
             result: data,
@@ -196,6 +246,8 @@ app.rest = {
                 return promise;
             }
         }
+
+        app.rest.__invokeInterceptors(data, promise, interceptors);
 
         return promise;
 
@@ -323,7 +375,7 @@ app.rest = {
      * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
-     * @param propertiesObject -- optional {headers, pathParams, urlParams}
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
     get: function (urlOrCachedData, propertiesObject) {
@@ -331,9 +383,9 @@ app.rest = {
         propertiesObject = propertiesObject || {};
 
         if(typeof urlOrCachedData == 'string'){
-            return app.rest.__getDelete(urlOrCachedData, 'GET', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams);
+            return app.rest.__getDelete(urlOrCachedData, 'GET', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
         }else{
-           return this.__createCachedPromise(urlOrCachedData);
+           return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
     },
@@ -347,7 +399,7 @@ app.rest = {
      * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
-     * @param propertiesObject -- optional {headers, pathParams, urlParams}
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
     delete: function (urlOrCachedData, propertiesObject) {
@@ -355,9 +407,9 @@ app.rest = {
         propertiesObject = propertiesObject || {};
 
         if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__getDelete(urlOrCachedData, 'DELETE', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams);
+            return  app.rest.__getDelete(urlOrCachedData, 'DELETE', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
         }else{
-            return this.__createCachedPromise(urlOrCachedData);
+            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
 
@@ -372,7 +424,7 @@ app.rest = {
      * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
-     * @param propertiesObject -- optional {headers, pathParams, urlParams}
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
     update: function (urlOrCachedData, request, propertiesObject) {
@@ -380,9 +432,9 @@ app.rest = {
         propertiesObject = propertiesObject || {};
 
         if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__postPut(urlOrCachedData, 'PUT', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams);
+            return  app.rest.__postPut(urlOrCachedData, 'PUT', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
         }else{
-            return this.__createCachedPromise(urlOrCachedData);
+            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
     },
@@ -396,7 +448,7 @@ app.rest = {
      * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
-     * @param propertiesObject -- optional {headers, pathParams, urlParams}
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
     post: function (urlOrCachedData, request, propertiesObject) {
@@ -404,9 +456,9 @@ app.rest = {
         propertiesObject = propertiesObject || {};
 
         if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__postPut(urlOrCachedData, 'POST', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams);
+            return  app.rest.__postPut(urlOrCachedData, 'POST', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
         }else{
-            return this.__createCachedPromise(urlOrCachedData);
+            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
     },
@@ -427,7 +479,7 @@ app.rest = {
      * @param callBackIsnt
      *
      */
-    __isMock: function(url, method, request, callBackIsnt){
+    __isMock: function(url, method, request, interceptors, callBackIsnt){
 
         var promise = null;
         if(app.rest.__isEnabledMockByUrlAndMethod(url, method)){
@@ -454,6 +506,8 @@ app.rest = {
                 }
             };
 
+            app.rest.__invokeInterceptors(result, promise, interceptors);
+
         }else{
             promise = callBackIsnt();
         }
@@ -477,9 +531,9 @@ app.rest = {
      * @param urlParams
      *
      */
-    __getDelete: function (url, method, pathParams, headers, urlParams) {
+    __getDelete: function (url, method, pathParams, headers, urlParams, interceptors) {
 
-        return app.rest.__isMock(url, method, null, function(){
+        return app.rest.__isMock(url, method, null, interceptors, function(){
 
             var preparedUrl = url;
 
@@ -538,6 +592,8 @@ app.rest = {
                         result = promise.result;
                     }
 
+                    app.rest.__invokeInterceptors(result, promise, interceptors);
+
                     var _result = callback(result, promise);
 
                     if(_result){
@@ -551,6 +607,7 @@ app.rest = {
 
             promise.catch = function(callback){
                 promise.fail(function(error){
+                    app.rest.__invokeInterceptors(error, promise, interceptors);
 					callback(error, promise);
 				});
                 return promise;
@@ -579,9 +636,9 @@ app.rest = {
      * @param urlParams
      *
      */
-    __postPut: function (url, method, request, pathParams, headers, urlParams) {
+    __postPut: function (url, method, request, pathParams, headers, urlParams, interceptors) {
 
-        return app.rest.__isMock(url, method, request, function(){
+        return app.rest.__isMock(url, method, request, interceptors, function(){
 
             var jsonData = JSON.stringify(request);
 
@@ -642,6 +699,8 @@ app.rest = {
                         result = promise.result;
                     }
 
+                    app.rest.__invokeInterceptors(result, promise, interceptors);
+
                     var _result = callback(result, promise);
 
                     if(_result){
@@ -655,6 +714,7 @@ app.rest = {
 
             promise.catch = function(callback){
                 promise.fail(function(error){
+                    app.rest.__invokeInterceptors(error, promise, interceptors);
 					callback(error, promise);
 				});
                 return promise;

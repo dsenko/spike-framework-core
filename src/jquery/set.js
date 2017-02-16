@@ -14,41 +14,45 @@
  */
 jQuery.fn.extend({
 
-    set: function(value, filter) {
+    set: function (_value, _filter) {
 
-        if(!value){
+        if (!_value) {
             return;
         }
 
-        if(filter && value){
-            value = filter(value);
+        if (_filter && _value) {
+            _value = _filter(_value);
         }
 
-        var elementType = $(this).prop('tagName');
+        var setFunction = function (selector, value) {
 
-        if(!elementType){
-            elementType = $(this).prop('nodeName');
-        }
+            var elementType = selector.prop('tagName');
 
-        elementType = elementType.toLowerCase();
-
-
-        if(elementType == 'label' || elementType == 'div' || elementType == 'span' || elementType == 'button' || elementType == 'p' || elementType.indexOf('h') > -1){
-            $(this).html(value.toString());
-        }else if(elementType == 'img') {
-            $(this).attr('src', value);
-        }else if($(this).is(':checkbox')) {
-            if(value == true || parseInt(value) == 1){
-                $(this).prop('checked', true);
-            }else{
-                $(this).prop('checked', false);
+            if (!elementType) {
+                elementType = selector.prop('nodeName');
             }
-        }else if(elementType == 'a') {
-            $(this).attr('href', value);
-        }else{
-            $(this).val(value);
+
+            elementType = elementType.toLowerCase();
+
+            if (elementType == 'label' || elementType == 'div' || elementType == 'span' || elementType == 'button' || elementType == 'p' || elementType.indexOf('h') > -1) {
+                selector.html(value.toString());
+            } else if (elementType == 'img') {
+                selector.attr('src', value);
+            } else if (selector.is(':checkbox')) {
+                if (value == true || parseInt(value) == 1) {
+                    selector.prop('checked', true);
+                } else {
+                    selector.prop('checked', false);
+                }
+            } else if (elementType == 'a') {
+                selector.attr('href', value);
+            } else {
+                selector.val(value);
+            }
+
         }
 
+        setFunction($(this), _value);
 
     },
 

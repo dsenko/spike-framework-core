@@ -34,6 +34,60 @@ app.config = {
 
     /**
      * @public
+     * Defines if transitions between controllers
+     * are enabled
+     *
+     * Disabled by default to avoid user layout destroying
+     * if not compatibile
+     */
+    transitions: false,
+
+    /**
+     * @public
+     * @overriding
+     *
+     * Function to manage transitions effects during controllers
+     * switching time.
+     *
+     * This is default implementation with from right to left transition
+     * based on simple CSS and @jQuery.animate function
+     *
+     * In default implementation, showing first controller is free of effects
+     *
+     * @param oldViewSelector
+     * @param newViewSelector
+     * @param appStartup
+     * @param fromController
+     * @param toController
+     * @param complete
+     */
+    transitionAnimation: function(oldViewSelector, newViewSelector, appStartup, fromController, toController, complete){
+
+        if(appStartup) {
+            app.log('Transition disabled for app startup');
+            complete();
+        }else {
+
+            app.log('Default transition from '+fromController+' to '+toController);
+
+            oldViewSelector
+                .css('z-index','2000')
+                .css('position','fixed')
+                .css('min-height',$(window).height()+'px')
+                .css('background','#fff')
+                .css('box-shadow', '2px 2px 8px #ccc')
+                .css('border','1px solid black')
+                .css('width', '100%')
+                .show();
+
+            oldViewSelector.stop().animate({right: $(window).height()+'px'}, "slow", complete);
+
+        }
+
+    },
+
+    /**
+     * @public
      *
      * Defines routing object
      */
