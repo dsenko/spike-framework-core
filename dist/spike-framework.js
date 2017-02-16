@@ -2063,7 +2063,7 @@ app.message = {
      * @param messageName
      */
     get: function (messageName) {
-        return app.message.__messages[app.config.lang][messageName];
+        return app.message.__messages[app.config.lang][messageName] || messageName;
     },
 
     /**
