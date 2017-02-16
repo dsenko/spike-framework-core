@@ -38,8 +38,8 @@ app.controller = {
      * @param controllerName
      * @param controllerObject
      */
-    add: function(controllerName, controllerObjectOrExtending, controllerObject){
-        this.register(controllerName, controllerObjectOrExtending, controllerObject);
+    add: function(controllerName, controllerObject){
+        this.register(controllerName, controllerObject);
     },
 
     /**
@@ -51,13 +51,15 @@ app.controller = {
      * @param controllerName
      * @param controllerObject
      */
-    register: function (controllerName, controllerObjectOrExtending, controllerObject) {
+    register: function (controllerName, controllerObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(controllerName);
 
-        // Apply extending from abstracts
-        controllerObject = app.abstract.__tryExtend(controllerName, controllerObjectOrExtending, controllerObject);
+        if(controllerObject.inherits){
+            // Apply extending from abstracts
+            controllerObject = app.abstract.__tryExtend(controllerName, controllerObject.inherits, controllerObject);
+        }
 
         app.log('Registering controller {0}', [controllerName]);
         app.debug('Invoke controller.register with params: {0} {1}', [controllerName, controllerObject]);

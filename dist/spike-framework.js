@@ -283,6 +283,11 @@ app.system = {
      */
     __messages: {
 
+        ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0{ is already registered',
+        UTIL_ALREADY_REGISTRED: 'Util {0} is already registred',
+        SERVICE_ALREADY_REGISTRED: 'Service {0} is already registred',
+        INHERIT_ABSTRACT_NOT_EXIST: 'Inheriting abstracts into {0} - some abstracts not exists',
+        ABSTRACT_ALREADY_REGISTRED: 'Abstract {0} is already registred',
         INTERCEPTOR_ALREADY_REGISTRED: 'Interceptor {0} is already registred',
         COMPONENT_NOT_DECLARED_IN_COMPONENTS: 'Component {0} is not declared in "components" property',
         COMPONENT_NOT_DECLARED_IN_VIEW: 'Component {0} is not declared in parent view',
@@ -333,6 +338,9 @@ app.system = {
                 isInvalid = true;
                 break;
             case 'extend' :
+                isInvalid = true;
+                break;
+            case 'inherits' :
                 isInvalid = true;
                 break;
         }
@@ -2217,8 +2225,8 @@ app.component = {
      * @param componentName
      * @param componentObject
      */
-    add: function (componentName, componentObjectOrExtending, componentObject) {
-        this.register(componentName, componentObjectOrExtending, componentObject);
+    add: function (componentName, componentObject) {
+        this.register(componentName, componentObject);
     },
 
 
@@ -2231,13 +2239,15 @@ app.component = {
      * @param componentName
      * @param componentObject
      */
-    register: function (componentName, componentObjectOrExtending, componentObject) {
+    register: function (componentName, componentObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(componentName);
 
-        // Apply extending from abstracts
-        componentObject = app.abstract.__tryExtend(componentName, componentObjectOrExtending, componentObject);
+        if(componentObject.inherits){
+            // Apply extending from abstracts
+            componentObject = app.abstract.__tryExtend(componentName, componentObject.inherits, componentObject);
+        }
 
         app.log('Registering component {0}', [componentName]);
         app.debug('Invoke component.register with params: {0} {1}', [componentName, componentObject]);
@@ -2509,8 +2519,8 @@ app.controller = {
      * @param controllerName
      * @param controllerObject
      */
-    add: function(controllerName, controllerObjectOrExtending, controllerObject){
-        this.register(controllerName, controllerObjectOrExtending, controllerObject);
+    add: function(controllerName, controllerObject){
+        this.register(controllerName, controllerObject);
     },
 
     /**
@@ -2522,13 +2532,15 @@ app.controller = {
      * @param controllerName
      * @param controllerObject
      */
-    register: function (controllerName, controllerObjectOrExtending, controllerObject) {
+    register: function (controllerName, controllerObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(controllerName);
 
-        // Apply extending from abstracts
-        controllerObject = app.abstract.__tryExtend(controllerName, controllerObjectOrExtending, controllerObject);
+        if(controllerObject.inherits){
+            // Apply extending from abstracts
+            controllerObject = app.abstract.__tryExtend(controllerName, controllerObject.inherits, controllerObject);
+        }
 
         app.log('Registering controller {0}', [controllerName]);
         app.debug('Invoke controller.register with params: {0} {1}', [controllerName, controllerObject]);
@@ -2872,8 +2884,8 @@ app.modal = {
      * @param modalName
      * @param modalObject
      */
-    add: function(modalName, modalObjectOrExtending, modalObject){
-        this.register(modalName, modalObjectOrExtending, modalObject);
+    add: function(modalName, modalObject){
+        this.register(modalName, modalObject);
     },
 
     /**
@@ -2885,13 +2897,15 @@ app.modal = {
      * @param modalName
      * @param modalObject
      */
-    register: function (modalName, modalObjectOrExtending, modalObject) {
+    register: function (modalName, modalObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(modalName);
 
-        // Apply extending from abstracts
-        modalObject = app.abstract.__tryExtend(modalName, modalObjectOrExtending, modalObject);
+        if(modalObject.inherits){
+            // Apply extending from abstracts
+            modalObject = app.abstract.__tryExtend(modalName, modalObject.inherits, modalObject);
+        }
 
         app.debug('Invoke modal.register with params: {0} {1}', [modalName, modalObject]);
 
@@ -3547,13 +3561,16 @@ app.partial = {
      *
      * @param partialName
      */
-    register: function (partialName, partialObjectOrExtending, partialObject) {
+    register: function (partialName, partialObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(partialName);
 
-        // Apply extending from abstracts
-        partialObject = app.abstract.__tryExtend(partialName, partialObjectOrExtending, partialObject);
+
+        if(partialObject.inherits){
+            // Apply extending from abstracts
+            partialObject = app.abstract.__tryExtend(partialName, partialObject.inherits, partialObject);
+        }
 
         app.log('Registering partial {0}', [partialName]);
         app.debug('Invoke partial.register with params: {0} {1}', [partialName, partialObject]);
@@ -3689,7 +3706,18 @@ app.abstract = {
      * @param abstractObject
      */
     register: function (abstractName, abstractObject) {
+
+        //Checks if name is not restricted
+        app.system.__filterRestrictedNames(abstractName);
+
+        if(app.abstract[abstractName]){
+            app.system.__throwError(app.system.__messages.ABSTRACT_ALREADY_REGISTRED,[abstractName]);
+        }
+
+        abstractObject.__name = abstractName;
+
         app.abstract[abstractName] = abstractObject;
+
     },
 
     /**
@@ -3710,25 +3738,65 @@ app.abstract = {
      * @param extendedObject
      *
      */
-    __tryExtend: function(extendObjectName, abstractNamesOrModuleObject, extendedObject){
+    __tryExtend: function(extendObjectName, abstractObjectsList, extendedObject){
+
+        app.log('__tryExtend');
+        console.log(extendObjectName);
+        console.log(abstractObjectsList);
+        console.log(extendedObject);
 
         // If extending abstracts defined, then extend @extendedObject and returns it
-        if($.isArray(abstractNamesOrModuleObject)){
+        if($.isArray(abstractObjectsList)){
 
-            app.log('Extending {0} named {1} with {2} abstracts', [extendedObject.__type, extendObjectName, abstractNamesOrModuleObject]);
+            app.log('Extending {0} named {1} ', [extendedObject.__type, extendObjectName, app.abstract.__getNames(abstractObjectsList)]);
 
-            $.each(abstractNamesOrModuleObject, function(abstractName){
+            for(var i = 0; i < abstractObjectsList.length; i++){
 
-                if(app.abstract[abstractName]){
-                    extendedObject = app.abstract.__extend(abstractName, extendedObject);
+                if(abstractObjectsList[i]){
+                    extendedObject = app.abstract.__extend(abstractObjectsList[i].__name, extendedObject);
+                }else{
+                    app.system.__throwWarn(app.system.__messages.INHERIT_ABSTRACT_NOT_EXIST, [extendObjectName]);
                 }
 
-            });
 
-            return extendedObject;
+            }
+
+            // $.each(abstractObjectsList, function(i, abstractObject){
+            //
+            //     if(abstractObject){
+            //         extendedObject = app.abstract.__extend(abstractObject.__name, extendedObject);
+            //     }else{
+            //         app.system.__throwWarn(app.system.__messages.INHERIT_ABSTRACT_NOT_EXIST, [extendObjectName]);
+            //     }
+            //
+            // });
+
         }
 
-        return abstractNamesOrModuleObject;
+        return extendedObject;
+
+    },
+
+    /**
+     * @private
+     *
+     * Converts abstractObjectList into list of abstract names
+     *
+     * @param abstractObjectsList
+     */
+    __getNames: function(abstractObjectsList){
+
+        var names = [];
+
+        $.each(abstractObjectsList, function(i, abstractObject){
+
+            if(abstractObject){
+                names.push(abstractObject.__name);
+            }
+
+        });
+
+        return names;
 
     },
 
@@ -3743,7 +3811,7 @@ app.abstract = {
      *
      */
     __extend: function(extendObjectName, extendedObject){
-        return $.extend(app.abstract[extendObjectName], extendedObject);
+        return $.extend(true, extendedObject, app.abstract[extendObjectName]);
     }
 
 };/**
@@ -3783,6 +3851,11 @@ app.enumerator = {
      * @param enumeratorObject
      */
     register: function(enumeratorName, enumeratorObject){
+
+        if(app.enumerator[enumeratorName]){
+            app.system.__throwError(app.system.__messages.ENUMERATOR_ALREADY_REGISTRED,[enumeratorName]);
+        }
+
         app.enumerator[enumeratorName] = enumeratorObject;
     }
 
@@ -3962,8 +4035,8 @@ app.service = {
      * @param serviceName
      * @param serviceObject
      */
-    add: function (serviceName, serviceObjectOrExtending, serviceObject) {
-        this.register(serviceName, serviceObjectOrExtending, serviceObject);
+    add: function (serviceName, serviceObject) {
+        this.register(serviceName, serviceObject);
     },
 
 
@@ -3976,13 +4049,19 @@ app.service = {
      * @param serviceName
      * @param serviceObject
      */
-    register: function (serviceName, serviceObjectOrExtending, serviceObject) {
+    register: function (serviceName, serviceObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(serviceName);
 
-        // Apply extending from abstracts
-        serviceObject = app.abstract.__tryExtend(serviceName, serviceObjectOrExtending, serviceObject);
+        if(serviceObject.inherits){
+            // Apply extending from abstracts
+            serviceObject = app.abstract.__tryExtend(serviceName, serviceObject.inherits, serviceObject);
+        }
+
+        if(app.service[serviceName]){
+            app.system.__throwError(app.system.__messages.SERVICE_ALREADY_REGISTRED,[serviceName]);
+        }
 
         app.service[serviceName] = serviceObject;
 
@@ -4090,7 +4169,13 @@ app.util = {
      * @param pluginWrapperFunction
      */
     register: function (utilName, utilFunctions) {
+
+        if(app.util[utilName]){
+            app.system.__throwError(app.system.__messages.UTIL_ALREADY_REGISTRED,[utilName]);
+        }
+
         app.util[utilName] = utilFunctions;
+
     },
 
     /**

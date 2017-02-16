@@ -22,8 +22,8 @@ app.service = {
      * @param serviceName
      * @param serviceObject
      */
-    add: function (serviceName, serviceObjectOrExtending, serviceObject) {
-        this.register(serviceName, serviceObjectOrExtending, serviceObject);
+    add: function (serviceName, serviceObject) {
+        this.register(serviceName, serviceObject);
     },
 
 
@@ -36,13 +36,19 @@ app.service = {
      * @param serviceName
      * @param serviceObject
      */
-    register: function (serviceName, serviceObjectOrExtending, serviceObject) {
+    register: function (serviceName, serviceObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(serviceName);
 
-        // Apply extending from abstracts
-        serviceObject = app.abstract.__tryExtend(serviceName, serviceObjectOrExtending, serviceObject);
+        if(serviceObject.inherits){
+            // Apply extending from abstracts
+            serviceObject = app.abstract.__tryExtend(serviceName, serviceObject.inherits, serviceObject);
+        }
+
+        if(app.service[serviceName]){
+            app.system.__throwError(app.system.__messages.SERVICE_ALREADY_REGISTRED,[serviceName]);
+        }
 
         app.service[serviceName] = serviceObject;
 

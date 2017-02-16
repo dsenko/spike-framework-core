@@ -283,6 +283,11 @@ app.system = {
      */
     __messages: {
 
+        ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0{ is already registered',
+        UTIL_ALREADY_REGISTRED: 'Util {0} is already registred',
+        SERVICE_ALREADY_REGISTRED: 'Service {0} is already registred',
+        INHERIT_ABSTRACT_NOT_EXIST: 'Inheriting abstracts into {0} - some abstracts not exists',
+        ABSTRACT_ALREADY_REGISTRED: 'Abstract {0} is already registred',
         INTERCEPTOR_ALREADY_REGISTRED: 'Interceptor {0} is already registred',
         COMPONENT_NOT_DECLARED_IN_COMPONENTS: 'Component {0} is not declared in "components" property',
         COMPONENT_NOT_DECLARED_IN_VIEW: 'Component {0} is not declared in parent view',
@@ -333,6 +338,9 @@ app.system = {
                 isInvalid = true;
                 break;
             case 'extend' :
+                isInvalid = true;
+                break;
+            case 'inherits' :
                 isInvalid = true;
                 break;
         }

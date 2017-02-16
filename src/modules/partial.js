@@ -70,13 +70,16 @@ app.partial = {
      *
      * @param partialName
      */
-    register: function (partialName, partialObjectOrExtending, partialObject) {
+    register: function (partialName, partialObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(partialName);
 
-        // Apply extending from abstracts
-        partialObject = app.abstract.__tryExtend(partialName, partialObjectOrExtending, partialObject);
+
+        if(partialObject.inherits){
+            // Apply extending from abstracts
+            partialObject = app.abstract.__tryExtend(partialName, partialObject.inherits, partialObject);
+        }
 
         app.log('Registering partial {0}', [partialName]);
         app.debug('Invoke partial.register with params: {0} {1}', [partialName, partialObject]);

@@ -29,8 +29,8 @@ app.component = {
      * @param componentName
      * @param componentObject
      */
-    add: function (componentName, componentObjectOrExtending, componentObject) {
-        this.register(componentName, componentObjectOrExtending, componentObject);
+    add: function (componentName, componentObject) {
+        this.register(componentName, componentObject);
     },
 
 
@@ -43,13 +43,15 @@ app.component = {
      * @param componentName
      * @param componentObject
      */
-    register: function (componentName, componentObjectOrExtending, componentObject) {
+    register: function (componentName, componentObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(componentName);
 
-        // Apply extending from abstracts
-        componentObject = app.abstract.__tryExtend(componentName, componentObjectOrExtending, componentObject);
+        if(componentObject.inherits){
+            // Apply extending from abstracts
+            componentObject = app.abstract.__tryExtend(componentName, componentObject.inherits, componentObject);
+        }
 
         app.log('Registering component {0}', [componentName]);
         app.debug('Invoke component.register with params: {0} {1}', [componentName, componentObject]);

@@ -43,7 +43,18 @@ app.abstract = {
      * @param abstractObject
      */
     register: function (abstractName, abstractObject) {
+
+        //Checks if name is not restricted
+        app.system.__filterRestrictedNames(abstractName);
+
+        if(app.abstract[abstractName]){
+            app.system.__throwError(app.system.__messages.ABSTRACT_ALREADY_REGISTRED,[abstractName]);
+        }
+
+        abstractObject.__name = abstractName;
+
         app.abstract[abstractName] = abstractObject;
+
     },
 
     /**
@@ -64,25 +75,65 @@ app.abstract = {
      * @param extendedObject
      *
      */
-    __tryExtend: function(extendObjectName, abstractNamesOrModuleObject, extendedObject){
+    __tryExtend: function(extendObjectName, abstractObjectsList, extendedObject){
+
+        app.log('__tryExtend');
+        console.log(extendObjectName);
+        console.log(abstractObjectsList);
+        console.log(extendedObject);
 
         // If extending abstracts defined, then extend @extendedObject and returns it
-        if($.isArray(abstractNamesOrModuleObject)){
+        if($.isArray(abstractObjectsList)){
 
-            app.log('Extending {0} named {1} with {2} abstracts', [extendedObject.__type, extendObjectName, abstractNamesOrModuleObject]);
+            app.log('Extending {0} named {1} ', [extendedObject.__type, extendObjectName, app.abstract.__getNames(abstractObjectsList)]);
 
-            $.each(abstractNamesOrModuleObject, function(abstractName){
+            for(var i = 0; i < abstractObjectsList.length; i++){
 
-                if(app.abstract[abstractName]){
-                    extendedObject = app.abstract.__extend(abstractName, extendedObject);
+                if(abstractObjectsList[i]){
+                    extendedObject = app.abstract.__extend(abstractObjectsList[i].__name, extendedObject);
+                }else{
+                    app.system.__throwWarn(app.system.__messages.INHERIT_ABSTRACT_NOT_EXIST, [extendObjectName]);
                 }
 
-            });
 
-            return extendedObject;
+            }
+
+            // $.each(abstractObjectsList, function(i, abstractObject){
+            //
+            //     if(abstractObject){
+            //         extendedObject = app.abstract.__extend(abstractObject.__name, extendedObject);
+            //     }else{
+            //         app.system.__throwWarn(app.system.__messages.INHERIT_ABSTRACT_NOT_EXIST, [extendObjectName]);
+            //     }
+            //
+            // });
+
         }
 
-        return abstractNamesOrModuleObject;
+        return extendedObject;
+
+    },
+
+    /**
+     * @private
+     *
+     * Converts abstractObjectList into list of abstract names
+     *
+     * @param abstractObjectsList
+     */
+    __getNames: function(abstractObjectsList){
+
+        var names = [];
+
+        $.each(abstractObjectsList, function(i, abstractObject){
+
+            if(abstractObject){
+                names.push(abstractObject.__name);
+            }
+
+        });
+
+        return names;
 
     },
 
@@ -97,7 +148,7 @@ app.abstract = {
      *
      */
     __extend: function(extendObjectName, extendedObject){
-        return $.extend(app.abstract[extendObjectName], extendedObject);
+        return $.extend(true, extendedObject, app.abstract[extendObjectName]);
     }
 
 };

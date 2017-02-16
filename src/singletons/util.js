@@ -38,7 +38,13 @@ app.util = {
      * @param pluginWrapperFunction
      */
     register: function (utilName, utilFunctions) {
+
+        if(app.util[utilName]){
+            app.system.__throwError(app.system.__messages.UTIL_ALREADY_REGISTRED,[utilName]);
+        }
+
         app.util[utilName] = utilFunctions;
+
     },
 
     /**

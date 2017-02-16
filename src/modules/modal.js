@@ -180,8 +180,8 @@ app.modal = {
      * @param modalName
      * @param modalObject
      */
-    add: function(modalName, modalObjectOrExtending, modalObject){
-        this.register(modalName, modalObjectOrExtending, modalObject);
+    add: function(modalName, modalObject){
+        this.register(modalName, modalObject);
     },
 
     /**
@@ -193,13 +193,15 @@ app.modal = {
      * @param modalName
      * @param modalObject
      */
-    register: function (modalName, modalObjectOrExtending, modalObject) {
+    register: function (modalName, modalObject) {
 
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(modalName);
 
-        // Apply extending from abstracts
-        modalObject = app.abstract.__tryExtend(modalName, modalObjectOrExtending, modalObject);
+        if(modalObject.inherits){
+            // Apply extending from abstracts
+            modalObject = app.abstract.__tryExtend(modalName, modalObject.inherits, modalObject);
+        }
 
         app.debug('Invoke modal.register with params: {0} {1}', [modalName, modalObject]);
 

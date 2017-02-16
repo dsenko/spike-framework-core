@@ -35,6 +35,11 @@ app.enumerator = {
      * @param enumeratorObject
      */
     register: function(enumeratorName, enumeratorObject){
+
+        if(app.enumerator[enumeratorName]){
+            app.system.__throwError(app.system.__messages.ENUMERATOR_ALREADY_REGISTRED,[enumeratorName]);
+        }
+
         app.enumerator[enumeratorName] = enumeratorObject;
     }
 
