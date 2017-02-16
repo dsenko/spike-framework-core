@@ -472,6 +472,21 @@ app.modal = {
 
         });
 
+    },
+
+    /**
+     * @public
+     *
+     * Function hides all rendered modals.
+     * Iterates over @public app.mCtx executes @public modal.hide function to hide modals
+     *
+     */
+    hideAll: function(){
+
+        $.each(app.mCtx, function(modalName, modalObject){
+            modalObject.hide();
+        });
+
     }
 
 };
