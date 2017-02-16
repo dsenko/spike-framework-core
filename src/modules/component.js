@@ -115,15 +115,15 @@ app.component = {
 
             var componentSelector = $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]');
 
+            //Throws exception if component was declared in some module ex. controller, but is not declared in it's view
+            if(!componentSelector){
+                app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_VIEW, [componentObject.__name]);
+            }
+
             app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
 
-            var inlineAttributes = componentSelector.attrs()
+            var inlineAttributes = componentSelector.attrs();
             componentDataPassed = $.extend(true, componentDataPassed, inlineAttributes);
-
-            app.log('componentDataPassed');
-
-
-            app.log(componentDataPassed);
 
             componentSelector.replaceWith(app.com[componentObject.__name].__template);
 
@@ -177,9 +177,6 @@ app.component = {
             app.component[componentObject.__name].__plainTemplate = templateHtml;
             app.component[componentObject.__name].__template = templateHtml;
 
-            //Commented because of global translation by jQuery
-            //app.component[componentObject.__name].__template = app.message.__replace(templateHtml);
-
         }
 
         //Creating view path once per application initialization
@@ -215,6 +212,12 @@ app.component = {
             if (componentsArrayOrMap instanceof Array) {
 
                 $.each(componentsArrayOrMap, function (i, componentName) {
+
+                    //Throws exception if component was declared in some view ex controller view, but is not defined
+                    if(!app.component[componentName]){
+                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [componentName]);
+                    }
+
                     app.component[componentName].__render(null);
 
                 });
@@ -222,6 +225,12 @@ app.component = {
             } else {
 
                 $.each(componentsArrayOrMap, function (componentName, componentParams) {
+
+                    //Throws exception if component was declared in some view ex controller view, but is not defined
+                    if(!app.component[componentName]){
+                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [componentName]);
+                    }
+
                     app.component[componentName].__render(componentParams);
                 });
 

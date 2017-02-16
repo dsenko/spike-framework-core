@@ -273,6 +273,8 @@ app.system = {
      */
     __messages: {
 
+        COMPONENT_NOT_DECLARED_IN_COMPONENTS: 'Component {0} is not declared in "components" property',
+        COMPONENT_NOT_DECLARED_IN_VIEW: 'Component {0} is not declared in parent view',
         PARITAL_INCLUDE_NOT_DEFINED: 'Try including not existing partial',
         PARITAL_SELECTOR_NOT_DEFINED: 'Passed selector for Partial {0} is not defined',
         REDIRECT_NO_PATH: 'Try redirect to path but path argument is not defined',
