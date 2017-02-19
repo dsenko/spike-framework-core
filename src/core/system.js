@@ -119,7 +119,11 @@ var app = {
      * @param jsObject
      */
     obj: function (jsObject) {
-        console.log(jsObject);
+
+        if (app.config.showObj) {
+            console.log(jsObject);
+        }
+
     },
 
     /**
@@ -131,7 +135,11 @@ var app = {
      * @param logData -- optional
      */
     log: function (logMessage, logData) {
-        app.__print(logMessage, logData, 'LOG');
+
+        if (app.config.showLog) {
+            app.__print(logMessage, logData, 'LOG');
+        }
+
     },
 
     /**
@@ -143,7 +151,10 @@ var app = {
      * @param errorData -- optional
      */
     error: function (errorMessage, errorData) {
-        app.__print(errorMessage, errorData, 'ERROR');
+
+        if (app.config.showError) {
+            app.__print(errorMessage, errorData, 'ERROR');
+        }
     },
 
     /**
@@ -158,7 +169,7 @@ var app = {
      */
     debug: function (debugMessage, debugData) {
 
-        if (app.config.debug) {
+        if (app.config.showDebug) {
             app.__print(debugMessage, debugData, 'DEBUG');
         }
 
@@ -173,7 +184,11 @@ var app = {
      * @param warnData -- optional
      */
     warn: function (warnMessage, warnData) {
-        app.__print(warnMessage, warnData, 'WARN');
+
+        if (app.config.showWarn) {
+            app.__print(warnMessage, warnData, 'WARN');
+        }
+
     },
 
     /**
@@ -185,7 +200,11 @@ var app = {
      * @param okData -- optional
      */
     ok: function (okMessage, okData) {
-        app.__print(okMessage, okData, 'OK');
+
+        if (app.config.showOk) {
+            app.__print(okMessage, okData, 'OK');
+        }
+
     },
 
     /**
@@ -666,10 +685,6 @@ app.system = {
         app.debug('Invoke system.init with params: {0}', [callBack]);
 
         app.ok('System initializing...');
-
-        if (!app.config.debug) {
-            app.warn('Debug disabled');
-        }
 
         app.debug('veryfing views');
         app.modal.__verifyView();

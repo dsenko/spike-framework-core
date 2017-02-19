@@ -110,9 +110,37 @@ app.config = {
     /**
      * @public
      *
-     * Defines if debug logs shoud be printed in console
+     * Defines if logs type 'LOG' shoud be printed in console
      */
-    debug: false,
+    showLog: true,
+
+    /**
+     * @public
+     *
+     * Defines if logs type 'OBJ' shoud be printed in console
+     */
+    showObj: true,
+
+    /**
+     * @public
+     *
+     * Defines if logs type 'DEBUG' shoud be printed in console
+     */
+    showDebug: true,
+
+    /**
+     * @public
+     *
+     * Defines if logs type 'WARN' shoud be printed in console
+     */
+    showWarn: true,
+
+    /**
+     * @public
+     *
+     * Defines if logs type 'OK' shoud be printed in console
+     */
+    showOk: true,
 
     /**
      * @public
