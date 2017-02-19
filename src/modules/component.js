@@ -253,8 +253,6 @@ app.component = {
 
         $('body').find('component').each(function(i, element){
 
-            console.log(element);
-
             element = $(this);
             var componentName = element.attr('name');
 
