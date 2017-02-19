@@ -119,7 +119,11 @@ var app = {
      * @param jsObject
      */
     obj: function (jsObject) {
-        console.log(jsObject);
+
+        if (app.config.showObj) {
+            console.log(jsObject);
+        }
+
     },
 
     /**
@@ -131,7 +135,11 @@ var app = {
      * @param logData -- optional
      */
     log: function (logMessage, logData) {
-        app.__print(logMessage, logData, 'LOG');
+
+        if (app.config.showLog) {
+            app.__print(logMessage, logData, 'LOG');
+        }
+
     },
 
     /**
@@ -143,7 +151,10 @@ var app = {
      * @param errorData -- optional
      */
     error: function (errorMessage, errorData) {
-        app.__print(errorMessage, errorData, 'ERROR');
+
+        if (app.config.showError) {
+            app.__print(errorMessage, errorData, 'ERROR');
+        }
     },
 
     /**
@@ -158,7 +169,7 @@ var app = {
      */
     debug: function (debugMessage, debugData) {
 
-        if (app.config.debug) {
+        if (app.config.showDebug) {
             app.__print(debugMessage, debugData, 'DEBUG');
         }
 
@@ -173,7 +184,11 @@ var app = {
      * @param warnData -- optional
      */
     warn: function (warnMessage, warnData) {
-        app.__print(warnMessage, warnData, 'WARN');
+
+        if (app.config.showWarn) {
+            app.__print(warnMessage, warnData, 'WARN');
+        }
+
     },
 
     /**
@@ -185,7 +200,11 @@ var app = {
      * @param okData -- optional
      */
     ok: function (okMessage, okData) {
-        app.__print(okMessage, okData, 'OK');
+
+        if (app.config.showOk) {
+            app.__print(okMessage, okData, 'OK');
+        }
+
     },
 
     /**
@@ -666,10 +685,6 @@ app.system = {
         app.debug('Invoke system.init with params: {0}', [callBack]);
 
         app.ok('System initializing...');
-
-        if (!app.config.debug) {
-            app.warn('Debug disabled');
-        }
 
         app.debug('veryfing views');
         app.modal.__verifyView();
@@ -1544,9 +1559,37 @@ app.config = {
     /**
      * @public
      *
-     * Defines if debug logs shoud be printed in console
+     * Defines if logs type 'LOG' shoud be printed in console
      */
-    debug: false,
+    showLog: true,
+
+    /**
+     * @public
+     *
+     * Defines if logs type 'OBJ' shoud be printed in console
+     */
+    showObj: true,
+
+    /**
+     * @public
+     *
+     * Defines if logs type 'DEBUG' shoud be printed in console
+     */
+    showDebug: true,
+
+    /**
+     * @public
+     *
+     * Defines if logs type 'WARN' shoud be printed in console
+     */
+    showWarn: true,
+
+    /**
+     * @public
+     *
+     * Defines if logs type 'OK' shoud be printed in console
+     */
+    showOk: true,
 
     /**
      * @public
@@ -2448,8 +2491,6 @@ app.component = {
     __initGlobalComponents: function(){
 
         $('body').find('component').each(function(i, element){
-
-            console.log(element);
 
             element = $(this);
             var componentName = element.attr('name');
@@ -3740,10 +3781,7 @@ app.abstract = {
      */
     __tryExtend: function(extendObjectName, abstractObjectsList, extendedObject){
 
-        app.log('__tryExtend');
-        console.log(extendObjectName);
-        console.log(abstractObjectsList);
-        console.log(extendedObject);
+        app.debug('Invoking app.abstract.__tryExtend with params {0}', [extendObjectName]);
 
         // If extending abstracts defined, then extend @extendedObject and returns it
         if($.isArray(abstractObjectsList)){
@@ -4064,8 +4102,6 @@ app.service = {
         }
 
         app.service[serviceName] = serviceObject;
-
-        console.log(app.service);
 
     }
 

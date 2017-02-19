@@ -77,10 +77,7 @@ app.abstract = {
      */
     __tryExtend: function(extendObjectName, abstractObjectsList, extendedObject){
 
-        app.log('__tryExtend');
-        console.log(extendObjectName);
-        console.log(abstractObjectsList);
-        console.log(extendedObject);
+        app.debug('Invoking app.abstract.__tryExtend with params {0}', [extendObjectName]);
 
         // If extending abstracts defined, then extend @extendedObject and returns it
         if($.isArray(abstractObjectsList)){

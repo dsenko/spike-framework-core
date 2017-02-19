@@ -52,8 +52,6 @@ app.service = {
 
         app.service[serviceName] = serviceObject;
 
-        console.log(app.service);
-
     }
 
 };
