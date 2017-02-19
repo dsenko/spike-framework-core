@@ -3638,20 +3638,20 @@ app.partial = {
          * @param partialPassedData
          */
         partialObject.render = function (selector, model) {
-            app.debug('Invoke partialObject.__render');
+          app.debug('Invoke partialObject.__render');
 
-            app.partial[partialObject.__name] = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
+          var __partialObject = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
 
-            if (!selector) {
-                app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
-            }
+          if (!selector) {
+            app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
+          }
 
-            app.debug('Binding partial {0} template to passed selector {1} ', [partialObject.__name, selector]);
+          app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
-            selector.html(partialObject.__template($.extend(true, partialObject, model)));
+          selector.html(__partialObject.__template($.extend(true, __partialObject, model)));
 
-            //Translate DOM
-            app.message.__translate();
+          //Translate DOM
+          app.message.__translate();
 
         };
 
