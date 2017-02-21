@@ -118,6 +118,8 @@ app.partial = {
 
           selector.html(__partialObject.__template($.extend(true, __partialObject, model)));
 
+          app.partial.__bindEvents(selector);
+
           //Translate DOM
           app.message.__translate();
 
@@ -167,6 +169,34 @@ app.partial = {
         //Creating copy of partial object in @private __dataArchive and in partial[partialName]
         app.partial.__dataArchive[partialName] = $.extend(true, {}, partialObject);
         app.partial[partialName] = $.extend(true, {}, partialObject);
+
+    },
+
+    /**
+     * @private
+     *
+     * Finds all elements with attribute @spike-event
+     * in given (root) selector.
+     *
+     * Gets event name and event function string, binds
+     * jQuery event with created function.
+     *
+     * @param rootSelector
+     */
+    __bindEvents: function(rootSelector){
+
+        rootSelector.find('[spike-event]').each(function(i, element){
+
+            element = $(element);
+
+            var eventName = element.attr('spike-event');
+            element.removeAttr('spike-event');
+
+            var eventFunctionBody = element.attr('spike-event-'+eventName);
+
+            element.on(eventName, Function(eventFunctionBody));
+
+        });
 
     }
 
