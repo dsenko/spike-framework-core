@@ -116,7 +116,13 @@ app.partial = {
 
           app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
-          selector.html(__partialObject.__template($.extend(true, __partialObject, model)));
+          var renderedTemplate = __partialObject.__template($.extend(true, __partialObject, model));
+
+          if(app.config.replaceLangKeys){
+            renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
+          }
+
+          selector.html(renderedTemplate);
 
           app.partial.__bindEvents(selector);
 

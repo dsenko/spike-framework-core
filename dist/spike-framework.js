@@ -1481,241 +1481,249 @@ app.router = {
 
 app.config = {
 
-    /**
-     * @public
-     * Defines if transitions between controllers
-     * are enabled
-     *
-     * Disabled by default to avoid user layout destroying
-     * if not compatibile
-     */
-    transitions: false,
+  /**
+   * @public
+   * Defines if transitions between controllers
+   * are enabled
+   *
+   * Disabled by default to avoid user layout destroying
+   * if not compatibile
+   */
+  transitions: false,
 
-    /**
-     * @public
-     * @overriding
-     *
-     * Function to manage transitions effects during controllers
-     * switching time.
-     *
-     * This is default implementation with from right to left transition
-     * based on simple CSS and @jQuery.animate function
-     *
-     * In default implementation, showing first controller is free of effects
-     *
-     * @param oldViewSelector
-     * @param newViewSelector
-     * @param appStartup
-     * @param fromController
-     * @param toController
-     * @param complete
-     */
-    transitionAnimation: function(oldViewSelector, newViewSelector, appStartup, fromController, toController, complete){
+  /**
+   * @public
+   * @overriding
+   *
+   * Function to manage transitions effects during controllers
+   * switching time.
+   *
+   * This is default implementation with from right to left transition
+   * based on simple CSS and @jQuery.animate function
+   *
+   * In default implementation, showing first controller is free of effects
+   *
+   * @param oldViewSelector
+   * @param newViewSelector
+   * @param appStartup
+   * @param fromController
+   * @param toController
+   * @param complete
+   */
+  transitionAnimation: function (oldViewSelector, newViewSelector, appStartup, fromController, toController, complete) {
 
-        if(appStartup) {
-            app.log('Transition disabled for app startup');
-            complete();
-        }else {
+    if (appStartup) {
+      app.log('Transition disabled for app startup');
+      complete();
+    } else {
 
-            app.log('Default transition from '+fromController+' to '+toController);
+      app.log('Default transition from ' + fromController + ' to ' + toController);
 
-            oldViewSelector
-                .css('z-index','2000')
-                .css('position','fixed')
-                .css('min-height',$(window).height()+'px')
-                .css('background','#fff')
-                .css('box-shadow', '2px 2px 8px #ccc')
-                .css('border','1px solid black')
-                .css('width', '100%')
-                .show();
+      oldViewSelector
+        .css('z-index', '2000')
+        .css('position', 'fixed')
+        .css('min-height', $(window).height() + 'px')
+        .css('background', '#fff')
+        .css('box-shadow', '2px 2px 8px #ccc')
+        .css('border', '1px solid black')
+        .css('width', '100%')
+        .show();
 
-            oldViewSelector.stop().animate({right: $(window).height()+'px'}, "slow", complete);
-
-        }
-
-    },
-
-    /**
-     * @public
-     *
-     * Defines routing object
-     */
-    routing: null,
-
-    /**
-     * @public
-     *
-     * Defines if router should be enabled
-     */
-    routingEnabled: true,
-
-    /**
-     * @public
-     *
-     * Defines if application runs locally (false) or on mobile device (true)
-     */
-    mobileRun: false,
-
-    /**
-     * @public
-     *
-     * Defines if logs type 'LOG' shoud be printed in console
-     */
-    showLog: true,
-
-    /**
-     * @public
-     *
-     * Defines if logs type 'OBJ' shoud be printed in console
-     */
-    showObj: true,
-
-    /**
-     * @public
-     *
-     * Defines if logs type 'DEBUG' shoud be printed in console
-     */
-    showDebug: true,
-
-    /**
-     * @public
-     *
-     * Defines if logs type 'WARN' shoud be printed in console
-     */
-    showWarn: true,
-
-    /**
-     * @public
-     *
-     * Defines if logs type 'OK' shoud be printed in console
-     */
-    showOk: true,
-
-    /**
-     * @public
-     *
-     * Defines controller name which one is rendered as first after application ready
-     */
-    mainController: "Home",
-
-    /**
-     * @public
-     *
-     * Defines application initial view (before Spike starts application initializing)
-     */
-    initialView: null,
-
-    /**
-     * @public
-     *
-     * Defines application main path (ex. project root/app)
-     */
-    rootPath: 'app',
-
-    /**
-     * @public
-     *
-     * Defines application default language
-     */
-    lang: "en",
-
-    /**
-     * @public
-     *
-     * Defines application database mode
-     * Modes:
-     * 'none' - database won't be created
-     * 'create' - creates database once and never drop
-     * 'create-drop' - drop and create database every time when application is reloaded (started again)
-     */
-    dbMode: 'none',
-
-    /**
-     * @public
-     *
-     * Defines if database should be filled with test data defined in @dbTestScript
-     */
-    dbTestMode: true,
-
-    /**
-     * @public
-     *
-     * Defines SQL script with test data executed when @dbTestMode is setted to true
-     */
-    dbTestScript: 'sql/test.sql',
-
-    /**
-     * @public
-     *
-     * Defines SQL script with initial production data executed when @dbTestMode is setted to false
-     */
-    dbProductionScript: 'sql/production.sql',
-
-    /**
-     * @public
-     *
-     * Defines SQLLite database name
-     */
-    dbName: 'local_db',
-
-    /**
-     * @public
-     *
-     * Defines main directory containing components directories structure
-     * Ex.
-     * - app/component
-     * -- topNavbar
-     * -- bottomTabs
-     */
-    componentDirectory: 'component',
-
-    /**
-     * @public
-     *
-     * Defines main directory containing controllers directories structure
-     * Ex.
-     * - app/controller
-     * -- homePage
-     * -- personList
-     */
-    controllerDirectory: 'controller',
-
-    /**
-     * @public
-     *
-     * Defines main directory containing modals directories structure
-     * Ex.
-     * - app/modal
-     * -- loginModal
-     * -- confirmModal
-     */
-    modalDirectory: 'modal',
-
-    /**
-     * @public
-     *
-     * Defines main directory containing partials directories structure
-     * Ex.
-     * - app/partial
-     * -- loginFormPartial
-     * -- registerFormPartial
-     */
-    partialDirectory: 'partial',
-
-    /**
-     * @public
-     *
-     * Function to extending and overriding default config @object with new properties defined by user
-     *
-     * @param configObj
-     */
-    extend: function (configObj) {
-
-        for (var prop in configObj) {
-            app.config[prop] = configObj[prop];
-        }
+      oldViewSelector.stop().animate({right: $(window).height() + 'px'}, "slow", complete);
 
     }
+
+  },
+
+  /**
+   * @public
+   *
+   * Defines routing object
+   */
+  routing: null,
+
+  /**
+   * @public
+   *
+   * Defines if router should be enabled
+   */
+  routingEnabled: true,
+
+  /**
+   * @public
+   *
+   * Defines if application runs locally (false) or on mobile device (true)
+   */
+  mobileRun: false,
+
+  /**
+   * @public
+   *
+   * Defines if logs type 'LOG' shoud be printed in console
+   */
+  showLog: true,
+
+  /**
+   * @public
+   *
+   * Defines if logs type 'OBJ' shoud be printed in console
+   */
+  showObj: true,
+
+  /**
+   * @public
+   *
+   * Defines if logs type 'DEBUG' shoud be printed in console
+   */
+  showDebug: true,
+
+  /**
+   * @public
+   *
+   * Defines if logs type 'WARN' shoud be printed in console
+   */
+  showWarn: true,
+
+  /**
+   * @public
+   *
+   * Defines if logs type 'OK' shoud be printed in console
+   */
+  showOk: true,
+
+  /**
+   * @public
+   *
+   * Defines controller name which one is rendered as first after application ready
+   */
+  mainController: "Home",
+
+  /**
+   * @public
+   *
+   * Defines application initial view (before Spike starts application initializing)
+   */
+  initialView: null,
+
+  /**
+   * @public
+   *
+   * Defines application main path (ex. project root/app)
+   */
+  rootPath: 'app',
+
+  /**
+   * @public
+   *
+   * Defines application default language
+   */
+  lang: "en",
+
+  /**
+   * @public
+   *
+   * Defines if Spike should replace keys maked
+   * by spike-compiler to language translations
+   */
+  replaceLangKeys: false,
+
+  /**
+   * @public
+   *
+   * Defines application database mode
+   * Modes:
+   * 'none' - database won't be created
+   * 'create' - creates database once and never drop
+   * 'create-drop' - drop and create database every time when application is reloaded (started again)
+   */
+  dbMode: 'none',
+
+  /**
+   * @public
+   *
+   * Defines if database should be filled with test data defined in @dbTestScript
+   */
+  dbTestMode: true,
+
+  /**
+   * @public
+   *
+   * Defines SQL script with test data executed when @dbTestMode is setted to true
+   */
+  dbTestScript: 'sql/test.sql',
+
+  /**
+   * @public
+   *
+   * Defines SQL script with initial production data executed when @dbTestMode is setted to false
+   */
+  dbProductionScript: 'sql/production.sql',
+
+  /**
+   * @public
+   *
+   * Defines SQLLite database name
+   */
+  dbName: 'local_db',
+
+  /**
+   * @public
+   *
+   * Defines main directory containing components directories structure
+   * Ex.
+   * - app/component
+   * -- topNavbar
+   * -- bottomTabs
+   */
+  componentDirectory: 'component',
+
+  /**
+   * @public
+   *
+   * Defines main directory containing controllers directories structure
+   * Ex.
+   * - app/controller
+   * -- homePage
+   * -- personList
+   */
+  controllerDirectory: 'controller',
+
+  /**
+   * @public
+   *
+   * Defines main directory containing modals directories structure
+   * Ex.
+   * - app/modal
+   * -- loginModal
+   * -- confirmModal
+   */
+  modalDirectory: 'modal',
+
+  /**
+   * @public
+   *
+   * Defines main directory containing partials directories structure
+   * Ex.
+   * - app/partial
+   * -- loginFormPartial
+   * -- registerFormPartial
+   */
+  partialDirectory: 'partial',
+
+  /**
+   * @public
+   *
+   * Function to extending and overriding default config @object with new properties defined by user
+   *
+   * @param configObj
+   */
+  extend: function (configObj) {
+
+    for (var prop in configObj) {
+      app.config[prop] = configObj[prop];
+    }
+
+  }
 
 };/**
  * @public
@@ -2092,150 +2100,168 @@ app.__cordova = {
  */
 app.message = {
 
-    /**
-     * @private
-     * Information if translations has been downloaded
-     */
-    __waitingForTranslations: {},
+  /**
+   * @private
+   * Information if translations has been downloaded
+   */
+  __waitingForTranslations: {},
 
-    /**
-     * @private
-     * Storage for translation data
-     */
-    __messages: {},
+  /**
+   * @private
+   * Storage for translation data
+   */
+  __messages: {},
 
-    /**
-     * @public
-     *
-     * Substitute method for register
-     *
-     * @param languageName
-     * @param languageFilePath
-     */
-    add: function (languageName, languageFilePath) {
-        this.register(languageName, languageFilePath);
-    },
+  /**
+   * @public
+   *
+   * Substitute method for register
+   *
+   * @param languageName
+   * @param languageFilePath
+   */
+  add: function (languageName, languageFilePath) {
+    this.register(languageName, languageFilePath);
+  },
 
-    /**
-     * @public
-     *
-     * Registering new language translation from hosted file
-     * File can be hosted locally or from server
-     *
-     * @param languageName
-     * @param languageFilePath
-     */
-    register: function (languageName, languageFilePath) {
+  /**
+   * @public
+   *
+   * Registering new language translation from hosted file
+   * File can be hosted locally or from server
+   *
+   * @param languageName
+   * @param languageFilePath
+   */
+  register: function (languageName, languageFilePath) {
 
-        app.log('register translation {0}', [languageName]);
+    app.log('register translation {0}', [languageName]);
 
-        app.message.__waitingForTranslations[languageName] = false;
+    app.message.__waitingForTranslations[languageName] = false;
 
-        $.ajax({
-            url: languageFilePath,
-            type: 'GET',
-            success: function (data) {
+    $.ajax({
+      url: languageFilePath,
+      type: 'GET',
+      success: function (data) {
 
-                app.log('AJAX loaded');
+        app.log('AJAX loaded');
 
-                app.message.__setTranslation(languageName, data);
+        app.message.__setTranslation(languageName, data);
 
-            },
-            error: function (error){
+      },
+      error: function (error) {
 
-                app.log('AJAX error {0} ',[error]);
+        app.log('AJAX error {0} ', [error]);
 
-                if(error.status == 200){
-                    app.message.__setTranslation(languageName, error.responseText);
-                }else{
-                    app.message.__messages[languageName] = {};
-                    app.system.__throwWarn(app.system.__messages.TRANSLATION_LOAD_WARN, [languageName, error.status]);
-                }
-
-            }
-        });
-
-    },
-
-    __setTranslation: function(languageName, translationData){
-
-        if(typeof translationData === 'string'){
-
-            try {
-                translationData = JSON.parse(translationData);
-            }catch (err){
-                app.system.__throwError(app.system.__messages.TRANSLATION_PARSING, [languageName]);
-            }
-
+        if (error.status == 200) {
+          app.message.__setTranslation(languageName, error.responseText);
+        } else {
+          app.message.__messages[languageName] = {};
+          app.system.__throwWarn(app.system.__messages.TRANSLATION_LOAD_WARN, [languageName, error.status]);
         }
 
-        app.message.__messages[languageName] = translationData;
-        app.message.__waitingForTranslations[languageName] = true;
-    },
+      }
+    });
 
+  },
 
-    /**
-     * @public
-     *
-     * Function to retrieve single translation for named message
-     * using existing language from @app.config.lang
-     *
-     * @param messageName
-     */
-    get: function (messageName) {
-        return app.message.__messages[app.config.lang][messageName] || messageName;
-    },
+  __setTranslation: function (languageName, translationData) {
 
-    /**
-     * @private
-     *
-     * Function to translate all existing messages in DOM
-     * Wait's until translation file is downloaded
-     *
-     *
-     * @param html
-     */
-    __translate: function () {
+    if (typeof translationData === 'string') {
 
-        if (app.message.__waitingForTranslations[app.config.lang] == undefined) {
-            app.system.__throwError(app.system.__messages.TRANSLATION_NOT_EXIST, [app.config.lang])
-        }
-
-        setTimeout(function () {
-
-            if (app.message.__waitingForTranslations[app.config.lang] == true) {
-                app.message.__translateDOM();
-            } else if (app.message.__waitingForTranslations[app.config.lang] == false) {
-                app.message.__translate();
-            }
-
-        }, 100);
-
-    },
-
-    /**
-     * @private
-     *
-     * Function to translate all existing messages in DOM based on @attr spike-translation
-     *
-     * @param html
-     */
-    __translateDOM: function () {
-
-        app.log('__translateDOM');
-
-        $(document).ready(function(){
-
-            $('[' + app.__attributes.TRANSLATION + ']').each(function () {
-
-                var messageName = $(this).attr(app.__attributes.TRANSLATION);
-                $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
-
-            });
-
-        });
+      try {
+        translationData = JSON.parse(translationData);
+      } catch (err) {
+        app.system.__throwError(app.system.__messages.TRANSLATION_PARSING, [languageName]);
+      }
 
     }
+
+    app.message.__messages[languageName] = translationData;
+    app.message.__waitingForTranslations[languageName] = true;
+  },
+
+
+  /**
+   * @public
+   *
+   * Function to retrieve single translation for named message
+   * using existing language from @app.config.lang
+   *
+   * @param messageName
+   */
+  get: function (messageName) {
+    return app.message.__messages[app.config.lang][messageName] || messageName;
+  },
+
+  /**
+   * @private
+   *
+   * Function to translate all existing messages in DOM
+   * Wait's until translation file is downloaded
+   *
+   *
+   * @param html
+   */
+  __translate: function () {
+
+    if (app.message.__waitingForTranslations[app.config.lang] == undefined) {
+      app.system.__throwError(app.system.__messages.TRANSLATION_NOT_EXIST, [app.config.lang])
+    }
+
+    setTimeout(function () {
+
+      if (app.message.__waitingForTranslations[app.config.lang] == true) {
+        app.message.__translateDOM();
+      } else if (app.message.__waitingForTranslations[app.config.lang] == false) {
+        app.message.__translate();
+      }
+
+    }, 100);
+
+  },
+
+  /**
+   * @private
+   *
+   * Function to translate all existing messages in DOM based on @attr spike-translation
+   *
+   * @param html
+   */
+  __translateDOM: function () {
+
+    app.log('__translateDOM');
+
+    $(document).ready(function () {
+
+      $('[' + app.__attributes.TRANSLATION + ']').each(function () {
+
+        var messageName = $(this).attr(app.__attributes.TRANSLATION);
+        $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
+
+      });
+
+    });
+
+  },
+
+  /**
+   * @private
+   *
+   * Replaces all occurences of translation keys to translations
+   * in template html
+   * @param templateHtml
+   */
+  __replaceTemplateKeys: function (templateHtml) {
+
+    for(var messageName in app.message.__messages[app.config.lang]){
+
+      templateHtml = templateHtml.split('>'+messageName+'<').join('>'+app.message.__messages[app.config.lang][messageName]+'<');
+
+    }
+
+    return templateHtml;
+  }
 
 };/**
  * @public
@@ -2415,6 +2441,10 @@ app.component = {
             app.component[componentObject.__name].selector = selectorsObj.selectors;
             templateHtml = selectorsObj.html;
 
+            if(app.config.replaceLangKeys){
+              templateHtml = app.message.__replaceTemplateKeys(templateHtml);
+            }
+
             app.component[componentObject.__name].__plainTemplate = templateHtml;
             app.component[componentObject.__name].__template = templateHtml;
 
@@ -2546,200 +2576,203 @@ app.component = {
  */
 app.controller = {
 
-    /**
-     * @private
-     * Storage for controllers instances
-     */
-    __dataArchive: {},
+  /**
+   * @private
+   * Storage for controllers instances
+   */
+  __dataArchive: {},
 
-    /**
-     * @public
-     *
-     * Substitute method for register
-     *
-     * @param controllerName
-     * @param controllerObject
-     */
-    add: function(controllerName, controllerObject){
-        this.register(controllerName, controllerObject);
-    },
+  /**
+   * @public
+   *
+   * Substitute method for register
+   *
+   * @param controllerName
+   * @param controllerObject
+   */
+  add: function (controllerName, controllerObject) {
+    this.register(controllerName, controllerObject);
+  },
 
-    /**
-     * @public
-     *
-     * Registering new controller in application
-     * Creates controller object
-     *
-     * @param controllerName
-     * @param controllerObject
-     */
-    register: function (controllerName, controllerObject) {
+  /**
+   * @public
+   *
+   * Registering new controller in application
+   * Creates controller object
+   *
+   * @param controllerName
+   * @param controllerObject
+   */
+  register: function (controllerName, controllerObject) {
 
-        // Filter if name is invalid (can break application)
-        app.system.__filterRestrictedNames(controllerName);
+    // Filter if name is invalid (can break application)
+    app.system.__filterRestrictedNames(controllerName);
 
-        if(controllerObject.inherits){
-            // Apply extending from abstracts
-            controllerObject = app.abstract.__tryExtend(controllerName, controllerObject.inherits, controllerObject);
-        }
-
-        app.log('Registering controller {0}', [controllerName]);
-        app.debug('Invoke controller.register with params: {0} {1}', [controllerName, controllerObject]);
-
-        //Setting tyope of module
-        controllerObject.__type = 'CONTROLLER';
-
-        //Setting self helper
-        controllerObject.self = function() {
-            return app.controller[controllerName];
-        }
-
-        //Setting @public checkNetwork to false if not defined
-        if(!controllerObject.checkNetwork){
-            controllerObject.checkNetwork = false;
-        }
-
-        //Setting @public components to empty array if not defined
-        if(!controllerObject.components){
-            controllerObject.components = [];
-        }
-
-        //Setting original name of module
-        controllerObject.__name = controllerName;
-
-        //Setting name starting from lower case , used with templates and directories names of controller
-        controllerObject.__lowerCaseName = controllerName.substring(0, 1).toLowerCase() + controllerName.substring(1, controllerName.length);
-
-
-        /**
-         * @private
-         *
-         * Function that renders controller
-         * Creates new controller object based ond __dataArchive and assign reference to shortcut app.ctx
-         * Creates controller HTML template using @function @private __loadTemplate()
-         * Passing controller processed template to DOM element with @attr view attribute
-         * Rendering components used in rendered controller
-         * Invalidating existing modals
-         * Initializing controller with controllerPassedData
-         * @param controllerPassedData
-         */
-        controllerObject.__render = function (controllerPassedData) {
-            app.debug('Invoke controllerObject.__render with params: {0}', [controllerPassedData]);
-
-            app.controller[controllerObject.__name] = $.extend(true, {}, app.controller.__dataArchive[controllerObject.__name]);
-
-            var __oldControllerName = app.ctx ? app.ctx.__name : null;
-
-            app.ctx = app.controller[controllerObject.__name];
-
-            app.ctx.__loadTemplate();
-
-            app.currentController = controllerObject.__name.toLowerCase();
-
-            app.debug('Binding controller {0} template to DOM element with "view" attribute ', [app.ctx.__name]);
-
-            if(app.config.transitions && app.config.transitionAnimation){
-
-                var transitionViewId = 'transition-view'+app.util.System.hash();
-
-                app.controller.__getView().before('<div style="display: none;" id="'+transitionViewId+'">'+app.controller.__getView().html()+'</div>');
-                app.controller.__getView().html(app.ctx.__template);
-
-                app.config.transitionAnimation($('#'+transitionViewId), app.controller.__getView(), app.__starting, __oldControllerName, app.ctx.__name, function(){
-                    $('#'+transitionViewId).remove();
-                });
-
-            }else{
-                app.controller.__getView().html(app.ctx.__template);
-            }
-
-            //Translate DOM
-            app.message.__translate();
-
-            app.component.__initComponents(app.ctx.components);
-
-            app.modal.invalidateAll();
-
-            app.debug('Invoke controller {0} init() function', [app.ctx.__name]);
-            app.ctx.init(controllerPassedData);
-
-        };
-
-        /**
-         * @private
-         *
-         * Creating path to controller view HTML file
-         * Creates path based on html2js template file and directories structure
-         * @param controllerObject
-         */
-        controllerObject.__createControllerViewPath = function(controllerObject){
-            app.debug('Invoke controllerObject.__createControllerViewPath with params: {0}', [controllerObject]);
-
-            controllerObject.__view = app.config.rootPath + "/"+app.config.controllerDirectory+"/" + controllerObject.__lowerCaseName + "/" + controllerObject.__lowerCaseName + ".view.html"
-
-        }
-
-        /**
-         * @private
-         *
-         * Function retrieving controller's template from global window[templates] variable based on generated view path
-         * If template not specified, throw Error
-         * Creating dynamic selectors binded to template using @private system.__createSelectors()
-         *
-         */
-        controllerObject.__loadTemplate = function(){
-            app.debug('Invoke controllerObject.__loadTemplate');
-
-            var templateHtml = window[app.__globalTemplates][app.ctx.__view];
-
-            if(!templateHtml){
-                app.system.__throwError('No view found for controller: {0}, view path: {1}', [controllerObject.__name, controllerObject.__view]);
-            }
-
-            var selectorsObj = app.system.__createSelectors(templateHtml);
-            app.ctx.selector = selectorsObj.selectors;
-
-            templateHtml = selectorsObj.html;
-
-            app.ctx.__plainTemplate = templateHtml;
-            app.ctx.__template = templateHtml;
-
-            //Commented because of global translation by jQuery
-            //app.ctx.__template = app.message.__replace(templateHtml);
-
-        }
-
-        //Creating view path once per application initialization
-        controllerObject.__createControllerViewPath(controllerObject);
-
-        //Creating copy of controller object in @private __dataArchive and in controller[controllerName]
-        app.controller.__dataArchive[controllerName] = $.extend(true, {}, controllerObject);
-        app.controller[controllerName] = $.extend(true, {}, controllerObject);
-
-    },
-
-    /**
-     * @private
-     *
-     * Returns controller's DOM element with @attr view attribute
-     *
-     * @returns {jQuery|HTMLElement}
-     */
-    __getView: function(){
-        return app.system.getView();
-    },
-
-    /**
-     * @private
-     *
-     * Verify if DOM element with @attr view attribute exists
-     *
-     */
-    __verifyView: function(){
-        if(this.__getView().length == 0){
-            app.system.__throwError('No DOM element with {0} attribute specified',[app.__attributes.VIEW]);
-        }
+    if (controllerObject.inherits) {
+      // Apply extending from abstracts
+      controllerObject = app.abstract.__tryExtend(controllerName, controllerObject.inherits, controllerObject);
     }
+
+    app.log('Registering controller {0}', [controllerName]);
+    app.debug('Invoke controller.register with params: {0} {1}', [controllerName, controllerObject]);
+
+    //Setting tyope of module
+    controllerObject.__type = 'CONTROLLER';
+
+    //Setting self helper
+    controllerObject.self = function () {
+      return app.controller[controllerName];
+    }
+
+    //Setting @public checkNetwork to false if not defined
+    if (!controllerObject.checkNetwork) {
+      controllerObject.checkNetwork = false;
+    }
+
+    //Setting @public components to empty array if not defined
+    if (!controllerObject.components) {
+      controllerObject.components = [];
+    }
+
+    //Setting original name of module
+    controllerObject.__name = controllerName;
+
+    //Setting name starting from lower case , used with templates and directories names of controller
+    controllerObject.__lowerCaseName = controllerName.substring(0, 1).toLowerCase() + controllerName.substring(1, controllerName.length);
+
+
+    /**
+     * @private
+     *
+     * Function that renders controller
+     * Creates new controller object based ond __dataArchive and assign reference to shortcut app.ctx
+     * Creates controller HTML template using @function @private __loadTemplate()
+     * Passing controller processed template to DOM element with @attr view attribute
+     * Rendering components used in rendered controller
+     * Invalidating existing modals
+     * Initializing controller with controllerPassedData
+     * @param controllerPassedData
+     */
+    controllerObject.__render = function (controllerPassedData) {
+      app.debug('Invoke controllerObject.__render with params: {0}', [controllerPassedData]);
+
+      app.controller[controllerObject.__name] = $.extend(true, {}, app.controller.__dataArchive[controllerObject.__name]);
+
+      var __oldControllerName = app.ctx ? app.ctx.__name : null;
+
+      app.ctx = app.controller[controllerObject.__name];
+
+      app.ctx.__loadTemplate();
+
+      app.currentController = controllerObject.__name.toLowerCase();
+
+      app.debug('Binding controller {0} template to DOM element with "view" attribute ', [app.ctx.__name]);
+
+      if (app.config.transitions && app.config.transitionAnimation) {
+
+        var transitionViewId = 'transition-view' + app.util.System.hash();
+
+        app.controller.__getView().before('<div style="display: none;" id="' + transitionViewId + '">' + app.controller.__getView().html() + '</div>');
+        app.controller.__getView().html(app.ctx.__template);
+
+        app.config.transitionAnimation($('#' + transitionViewId), app.controller.__getView(), app.__starting, __oldControllerName, app.ctx.__name, function () {
+          $('#' + transitionViewId).remove();
+        });
+
+      } else {
+        app.controller.__getView().html(app.ctx.__template);
+      }
+
+      //Translate DOM
+      app.message.__translate();
+
+      app.component.__initComponents(app.ctx.components);
+
+      app.modal.invalidateAll();
+
+      app.debug('Invoke controller {0} init() function', [app.ctx.__name]);
+      app.ctx.init(controllerPassedData);
+
+    };
+
+    /**
+     * @private
+     *
+     * Creating path to controller view HTML file
+     * Creates path based on html2js template file and directories structure
+     * @param controllerObject
+     */
+    controllerObject.__createControllerViewPath = function (controllerObject) {
+      app.debug('Invoke controllerObject.__createControllerViewPath with params: {0}', [controllerObject]);
+
+      controllerObject.__view = app.config.rootPath + "/" + app.config.controllerDirectory + "/" + controllerObject.__lowerCaseName + "/" + controllerObject.__lowerCaseName + ".view.html"
+
+    }
+
+    /**
+     * @private
+     *
+     * Function retrieving controller's template from global window[templates] variable based on generated view path
+     * If template not specified, throw Error
+     * Creating dynamic selectors binded to template using @private system.__createSelectors()
+     *
+     */
+    controllerObject.__loadTemplate = function () {
+      app.debug('Invoke controllerObject.__loadTemplate');
+
+      var templateHtml = window[app.__globalTemplates][app.ctx.__view];
+
+      if (!templateHtml) {
+        app.system.__throwError('No view found for controller: {0}, view path: {1}', [controllerObject.__name, controllerObject.__view]);
+      }
+
+      var selectorsObj = app.system.__createSelectors(templateHtml);
+      app.ctx.selector = selectorsObj.selectors;
+      templateHtml = selectorsObj.html;
+
+      if (app.config.replaceLangKeys) {
+        templateHtml = app.message.__replaceTemplateKeys(templateHtml);
+      }
+
+      app.ctx.__plainTemplate = templateHtml;
+      app.ctx.__template = templateHtml;
+
+      //Commented because of global translation by jQuery
+      //app.ctx.__template = app.message.__replace(templateHtml);
+
+    }
+
+    //Creating view path once per application initialization
+    controllerObject.__createControllerViewPath(controllerObject);
+
+    //Creating copy of controller object in @private __dataArchive and in controller[controllerName]
+    app.controller.__dataArchive[controllerName] = $.extend(true, {}, controllerObject);
+    app.controller[controllerName] = $.extend(true, {}, controllerObject);
+
+  },
+
+  /**
+   * @private
+   *
+   * Returns controller's DOM element with @attr view attribute
+   *
+   * @returns {jQuery|HTMLElement}
+   */
+  __getView: function () {
+    return app.system.getView();
+  },
+
+  /**
+   * @private
+   *
+   * Verify if DOM element with @attr view attribute exists
+   *
+   */
+  __verifyView: function () {
+    if (this.__getView().length == 0) {
+      app.system.__throwError('No DOM element with {0} attribute specified', [app.__attributes.VIEW]);
+    }
+  }
 
 };
 
@@ -2792,449 +2825,453 @@ app.controller = {
  */
 app.modal = {
 
-    /**
-     * @private
-     * Storage for wrapping DIVs
-     * If modal wrapper @attr id not in @private __modalWrappers then modal not exist in DOM
-     */
-    __modalWrappers: {},
+  /**
+   * @private
+   * Storage for wrapping DIVs
+   * If modal wrapper @attr id not in @private __modalWrappers then modal not exist in DOM
+   */
+  __modalWrappers: {},
+
+  /**
+   * @private
+   * Storage for modals instances
+   */
+  __dataArchive: {},
+
+  /**
+   * @public
+   *
+   * Function allows programmer to implement custom modals overriding
+   * @private __onModalShowEvent
+   * @private __onModalHideEvent
+   * @private __onModalRegisterEvent
+   * @private __onModalRenderEvent
+   *
+   * @param eventName
+   * @param eventFunction
+   */
+  implement: function (eventName, eventFunction) {
+    app.debug('Invoke modal.implement with params: {0} {1}', [eventName, eventFunction]);
+
+    if (!eventName || !eventFunction) {
+      app.system.__throwError('modal.implement(eventName, eventFunction) passed arguments not match required arguments');
+    }
+
+    if (eventName == 'hide') {
+      app.modal.__onModalHideEvent = eventFunction;
+    } else if (eventName == 'show') {
+      app.modal.__onModalShowEvent = eventFunction;
+    } else if (eventName == 'render') {
+      app.modal.__onModalRenderEvent = eventFunction;
+    } else if (eventName == 'register') {
+      app.modal.__onModalRegisterEvent = eventFunction;
+    } else {
+      app.warn('Ignoring event: {0} implementation for modal, no event available', [eventName]);
+    }
+
+  },
+
+  /**
+   * @private
+   *
+   * Default jQuery implementation of modal show event
+   *
+   * @param modalSelector
+   */
+  __onModalShowEventDefault: function (modalSelector) {
+    app.debug('Invoke modal.__onModalShowEventDefault');
+    modalSelector.show(200);
+  },
+
+  /**
+   * @private
+   *
+   * Default jQuery implementation of modal hide event
+   *
+   * @param modalSelector
+   */
+  __onModalHideEventDefault: function (modalSelector) {
+    app.debug('Invoke modal.__onModalHideEventDefault');
+    modalSelector.hide(200);
+  },
+
+  /**
+   * @private
+   * @toImplement
+   *
+   * Additional function executed when modal is registered
+   * Executes once per Spike application initialization
+   *
+   * @param modalObject
+   */
+  __onModalRegisterEvent: function (modalObject) {
+  },
+
+  /**
+   * @private
+   * @toImplement
+   *
+   * Additional function executed when modal is rendered
+   * Executes every time when new modal instance is rendered
+   * Is not invoke if modal is already rendered and will be only showed
+   *
+   * @param modalSelector
+   */
+  __onModalRenderEvent: function (modalSelector, modalObject) {
+  },
+
+  /**
+   * @private
+   * @toImplement
+   *
+   * Function implements modal showing mechanics
+   * By default invokes default implementation @private __onModalShowEventDefault
+   *
+   * @param modalSelector
+   * @param modalObject
+   * @param defaultImpl
+   */
+  __onModalShowEvent: function (modalSelector, modalObject, defaultImpl) {
+    defaultImpl(modalSelector);
+  },
+
+  /**
+   * @private
+   * @toImplement
+   *
+   * Function implements modal hiding mechanics
+   * By default invokes default implementation @private __onModalHideEventDefault
+   *
+   * @param modalSelector
+   * @param modalObject
+   * @param defaultImpl
+   */
+  __onModalHideEvent: function (modalSelector, modalObject, defaultImpl) {
+    defaultImpl(modalSelector);
+  },
+
+  /**
+   * @public
+   *
+   * Substitute method for register
+   *
+   * @param modalName
+   * @param modalObject
+   */
+  add: function (modalName, modalObject) {
+    this.register(modalName, modalObject);
+  },
+
+  /**
+   * @public
+   *
+   * Registering new modal window in application
+   * Creates modal object
+   *
+   * @param modalName
+   * @param modalObject
+   */
+  register: function (modalName, modalObject) {
+
+    // Filter if name is invalid (can break application)
+    app.system.__filterRestrictedNames(modalName);
+
+    if (modalObject.inherits) {
+      // Apply extending from abstracts
+      modalObject = app.abstract.__tryExtend(modalName, modalObject.inherits, modalObject);
+    }
+
+    app.debug('Invoke modal.register with params: {0} {1}', [modalName, modalObject]);
+
+    //Setting tyope of module
+    modalObject.__type = 'MODAL';
+
+    //Setting self helper
+    modalObject.self = function () {
+      return app.modal[modalName];
+    }
+
+    //Setting default value (modal by default is hidden)
+    modalObject.__hidden = false;
+
+    //Setting original name of module
+    modalObject.__name = modalName;
+
+    //Setting name starting from lower case , used with templates and directories names of controller
+    modalObject.__lowerCaseName = modalName.substring(0, 1).toLowerCase() + modalName.substring(1, modalName.length);
+
+    //Invokes custom implementation of @private __onModalRegisterEvent
+    app.modal.__onModalRegisterEvent(modalObject);
 
     /**
      * @private
-     * Storage for modals instances
-     */
-    __dataArchive: {},
-
-    /**
-     * @public
      *
-     * Function allows programmer to implement custom modals overriding
-     * @private __onModalShowEvent
-     * @private __onModalHideEvent
-     * @private __onModalRegisterEvent
-     * @private __onModalRenderEvent
-     *
-     * @param eventName
-     * @param eventFunction
-     */
-    implement: function (eventName, eventFunction) {
-        app.debug('Invoke modal.implement with params: {0} {1}', [eventName, eventFunction]);
-
-        if (!eventName || !eventFunction) {
-            app.system.__throwError('modal.implement(eventName, eventFunction) passed arguments not match required arguments');
-        }
-
-        if (eventName == 'hide') {
-            app.modal.__onModalHideEvent = eventFunction;
-        } else if (eventName == 'show') {
-            app.modal.__onModalShowEvent = eventFunction;
-        } else if (eventName == 'render') {
-            app.modal.__onModalRenderEvent = eventFunction;
-        } else if (eventName == 'register') {
-            app.modal.__onModalRegisterEvent = eventFunction;
-        }else {
-            app.warn('Ignoring event: {0} implementation for modal, no event available', [eventName]);
-        }
-
-    },
-
-    /**
-     * @private
-     *
-     * Default jQuery implementation of modal show event
-     *
-     * @param modalSelector
-     */
-    __onModalShowEventDefault: function(modalSelector){
-        app.debug('Invoke modal.__onModalShowEventDefault');
-        modalSelector.show(200);
-    },
-
-    /**
-     * @private
-     *
-     * Default jQuery implementation of modal hide event
-     *
-     * @param modalSelector
-     */
-    __onModalHideEventDefault: function(modalSelector){
-        app.debug('Invoke modal.__onModalHideEventDefault');
-        modalSelector.hide(200);
-    },
-
-    /**
-     * @private
-     * @toImplement
-     *
-     * Additional function executed when modal is registered
-     * Executes once per Spike application initialization
-     *
+     * Creating path to modal view HTML file
+     * Creates path based on html2js template file and directories structure
      * @param modalObject
      */
-    __onModalRegisterEvent: function(modalObject){
-    },
+    modalObject.__createModalViewPath = function (modalObject) {
+      app.debug('Invoke modalObject.__createModalViewPath with params: {0}', [modalObject]);
 
-    /**
-     * @private
-     * @toImplement
-     *
-     * Additional function executed when modal is rendered
-     * Executes every time when new modal instance is rendered
-     * Is not invoke if modal is already rendered and will be only showed
-     *
-     * @param modalSelector
-     */
-    __onModalRenderEvent: function(modalSelector, modalObject){
-    },
+      modalObject.__view = app.config.rootPath + "/" + app.config.modalDirectory + "/" + modalObject.__lowerCaseName + "/" + modalObject.__lowerCaseName + ".view.html"
 
-    /**
-     * @private
-     * @toImplement
-     *
-     * Function implements modal showing mechanics
-     * By default invokes default implementation @private __onModalShowEventDefault
-     *
-     * @param modalSelector
-     * @param modalObject
-     * @param defaultImpl
-     */
-    __onModalShowEvent: function (modalSelector, modalObject, defaultImpl) {
-        defaultImpl(modalSelector);
-    },
-
-    /**
-     * @private
-     * @toImplement
-     *
-     * Function implements modal hiding mechanics
-     * By default invokes default implementation @private __onModalHideEventDefault
-     *
-     * @param modalSelector
-     * @param modalObject
-     * @param defaultImpl
-     */
-    __onModalHideEvent: function (modalSelector, modalObject, defaultImpl) {
-        defaultImpl(modalSelector);
-    },
-
-    /**
-     * @public
-     *
-     * Substitute method for register
-     *
-     * @param modalName
-     * @param modalObject
-     */
-    add: function(modalName, modalObject){
-        this.register(modalName, modalObject);
-    },
-
-    /**
-     * @public
-     *
-     * Registering new modal window in application
-     * Creates modal object
-     *
-     * @param modalName
-     * @param modalObject
-     */
-    register: function (modalName, modalObject) {
-
-        // Filter if name is invalid (can break application)
-        app.system.__filterRestrictedNames(modalName);
-
-        if(modalObject.inherits){
-            // Apply extending from abstracts
-            modalObject = app.abstract.__tryExtend(modalName, modalObject.inherits, modalObject);
-        }
-
-        app.debug('Invoke modal.register with params: {0} {1}', [modalName, modalObject]);
-
-        //Setting tyope of module
-        modalObject.__type = 'MODAL';
-
-        //Setting self helper
-        modalObject.self = function() {
-            return app.modal[modalName];
-        }
-
-        //Setting default value (modal by default is hidden)
-        modalObject.__hidden = false;
-
-        //Setting original name of module
-        modalObject.__name = modalName;
-
-        //Setting name starting from lower case , used with templates and directories names of controller
-        modalObject.__lowerCaseName = modalName.substring(0, 1).toLowerCase() + modalName.substring(1, modalName.length);
-
-        //Invokes custom implementation of @private __onModalRegisterEvent
-        app.modal.__onModalRegisterEvent(modalObject);
-
-        /**
-         * @private
-         *
-         * Creating path to modal view HTML file
-         * Creates path based on html2js template file and directories structure
-         * @param modalObject
-         */
-        modalObject.__createModalViewPath = function (modalObject) {
-            app.debug('Invoke modalObject.__createModalViewPath with params: {0}', [modalObject]);
-
-            modalObject.__view = app.config.rootPath + "/" + app.config.modalDirectory + "/" + modalObject.__lowerCaseName + "/" + modalObject.__lowerCaseName + ".view.html"
-
-        }
-
-        /**
-         * @private
-         *
-         * Function retrieving modal's template from global window[templates] variable based on generated view path
-         * If template not specified, throw Error
-         * Creating dynamic selectors binded to template using @private system.__createSelectors()
-         *
-         */
-        modalObject.__loadTemplate = function () {
-            app.debug('Invoke modalObject.__loadTemplate');
-
-            var templateHtml = window[app.__globalTemplates][app.mCtx[modalObject.__name].__view];
-
-            if (!templateHtml) {
-                app.system.__throwError('No view found for modal: {0}, view path: {1}', [modalObject.__name, modalObject.__view]);
-            }
-
-            var selectorsObj = app.system.__createSelectors(templateHtml);
-            app.mCtx[modalObject.__name].selector = selectorsObj.selectors;
-
-            templateHtml = selectorsObj.html;
-
-            app.mCtx[modalObject.__name].__plainTemplate = templateHtml;
-
-            app.mCtx[modalObject.__name].__template = templateHtml;
-            //Commented because of global translation by jQuery
-            //app.mCtx[modalObject.__name].__template = app.message.__replace(templateHtml);
-
-        }
-
-        /**
-         * @private
-         *
-         * Function that renders modal
-         * Checking if modal is already rendered in DOM and if is hidden - then show again only
-         * Checking if modal is already rendered in DOM and if is visible - then do nothing
-         * In case modal is not rendered then
-         * Creates new modal object based ond __dataArchive and assign reference to shortcut app.mCtx
-         * Creates controller HTML template using @function @private __loadTemplate()
-         * Wrapping modal with new DIV element and creating @attr id for modal wrapper and modal view fist child (main)
-         * Passing modal processed and wrapped template to DOM element with @attr modals attribute
-         * Rendering components used in rendered modal
-         * Initializing modal with modalPassedData
-         *
-         * @param modalPassedData
-         */
-        modalObject.__render = function (modalPassedData) {
-            app.debug('Invoke modalObject.__render with params: {0}', [modalPassedData]);
-
-            if(app.modal.__modalWrappers[modalObject.__name] && app.modal[modalObject.__name].__hidden == true){
-                app.debug('Modal is already rendered and will be showed again');
-                app.modal[modalObject.__name].show();
-                return;
-            }else if(app.modal.__modalWrappers[modalObject.__name]){
-                app.debug('Modal is already rendered and cannot be rendered twice');
-                return;
-            }
-
-            app.modal[modalObject.__name] = $.extend(true, {}, app.modal.__dataArchive[modalObject.__name]);
-            app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
-
-            app.mCtx[modalObject.__name].__loadTemplate();
-
-            app.debug('Binding modal {0} template to DOM element with "modals" attribute ', [app.mCtx[modalObject.__name].__name]);
-
-            app.mCtx[modalObject.__name].__wrapModal();
-
-            app.component.__initComponents(app.mCtx[modalObject.__name].components);
-
-            app.modal.__modalWrappers[modalObject.__name] = app.modal[modalObject.__name].__modalWrapperId;
-
-            app.debug('Invoke modal {0} init() function', [app.mCtx[modalObject.__name].__name]);
-            app.mCtx[modalObject.__name].init(modalPassedData);
-
-        };
-
-        /**
-         * @private
-         *
-         * Function creates @private modalObject.__modalWrapperId as @attr id for DIV element wrapping modal template
-         * Also first child of modal template has @private modalObject.__modalId as @attr id
-         * Executing @private modal.__onModalRenderEvent for custom modal render implementation
-         *
-         */
-        modalObject.__wrapModal = function () {
-
-            app.mCtx[modalObject.__name].__modalWrapperId = 'modal-wrapper-' + app.util.System.hash();
-
-            app.modal.__getView().append('<div id="' + app.mCtx[modalObject.__name].__modalWrapperId.replace('#', '') + '">' + app.mCtx[modalObject.__name].__template + '</div>');
-
-            //Translate DOM
-            app.message.__translate();
-
-            app.mCtx[modalObject.__name].__modalId = 'modal-' + app.util.System.hash();
-
-            var modalSelector = app.mCtx[modalObject.__name].__getWrapperModalSelector();
-            modalSelector.attr('id', app.mCtx[modalObject.__name].__modalId);
-
-            app.modal.__onModalRenderEvent(modalSelector, app.mCtx[modalObject.__name]);
-
-        }
-
-        /**
-         * @private
-         *
-         * Returns modal wrapper DIV element
-         *
-         * @returns {jQuery|HTMLElement}
-         */
-        modalObject.__wrapperSelector = function () {
-            return $('#'+app.modal[modalObject.__name].__modalWrapperId);
-        }
-
-        /**
-         * @private
-         *
-         * Returns modal element (parent)
-         *
-         * @returns {jQuery|HTMLElement}
-         */
-        modalObject.__selfSelector = function(){
-            return $('#'+app.modal[modalObject.__name].__modalId);
-        }
-
-        /**
-         * @private
-         *
-         * Returns modal wrapper children - modal view parent element
-         * Checks if modal template has more than one parent elements or if even has
-         *
-         * @returns {jQuery|HTMLElement}
-         */
-        modalObject.__getWrapperModalSelector = function () {
-
-            var wrapperSelectorChildrens = app.modal[modalObject.__name].__wrapperSelector().children();
-
-            if (wrapperSelectorChildrens.length == 1) {
-                return wrapperSelectorChildrens;
-            } else if (wrapperSelectorChildrens.length > 1) {
-                app.system.__throwError('Modal {0} view can only have one parent DOM element, found {1}', [modalObject.__name, wrapperSelectorChildrens.length]);
-            } else if (wrapperSelectorChildrens.length == 0) {
-                app.system.__throwError('Modal {0} view must have one parent DOM element', [modalObject.__name]);
-            }
-
-        }
-
-        /**
-         * @public
-         *
-         * Sets @private modalObject.__hidden to false
-         * Invokes @private modal.__onModalShowEvent for default or custom implementation of modal showing mechanics
-         *
-         */
-        modalObject.show = function () {
-
-            app.modal[modalObject.__name].__hidden = false;
-            app.modal.__onModalShowEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalShowEventDefault);
-        };
-
-        /**
-         * @public
-         *
-         * Sets @private modalObject.__hidden to true
-         * Invokes @private modal.__onModalHideEvent for default or custom implementation of modal hidding mechanics
-         *
-         */
-        modalObject.hide = function () {
-
-            app.modal[modalObject.__name].__hidden = true;
-            app.modal.__onModalHideEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalHideEventDefault);
-        };
-
-        modalObject.__createModalViewPath(modalObject);
-
-        //Creating copy of modal object in @private __dataArchive and in modal[modalName] variable
-        app.modal.__dataArchive[modalObject.__name] = $.extend(true, {}, modalObject);
-        app.modal[modalObject.__name] = $.extend(true, {}, modalObject);
-
-
-    },
+    }
 
     /**
      * @private
      *
-     * Returns modal's DOM element with @attr modals attribute
+     * Function retrieving modal's template from global window[templates] variable based on generated view path
+     * If template not specified, throw Error
+     * Creating dynamic selectors binded to template using @private system.__createSelectors()
+     *
+     */
+    modalObject.__loadTemplate = function () {
+      app.debug('Invoke modalObject.__loadTemplate');
+
+      var templateHtml = window[app.__globalTemplates][app.mCtx[modalObject.__name].__view];
+
+      if (!templateHtml) {
+        app.system.__throwError('No view found for modal: {0}, view path: {1}', [modalObject.__name, modalObject.__view]);
+      }
+
+      var selectorsObj = app.system.__createSelectors(templateHtml);
+      app.mCtx[modalObject.__name].selector = selectorsObj.selectors;
+
+      templateHtml = selectorsObj.html;
+
+      if (app.config.replaceLangKeys) {
+        templateHtml = app.message.__replaceTemplateKeys(templateHtml);
+      }
+
+      app.mCtx[modalObject.__name].__plainTemplate = templateHtml;
+
+      app.mCtx[modalObject.__name].__template = templateHtml;
+      //Commented because of global translation by jQuery
+      //app.mCtx[modalObject.__name].__template = app.message.__replace(templateHtml);
+
+    }
+
+    /**
+     * @private
+     *
+     * Function that renders modal
+     * Checking if modal is already rendered in DOM and if is hidden - then show again only
+     * Checking if modal is already rendered in DOM and if is visible - then do nothing
+     * In case modal is not rendered then
+     * Creates new modal object based ond __dataArchive and assign reference to shortcut app.mCtx
+     * Creates controller HTML template using @function @private __loadTemplate()
+     * Wrapping modal with new DIV element and creating @attr id for modal wrapper and modal view fist child (main)
+     * Passing modal processed and wrapped template to DOM element with @attr modals attribute
+     * Rendering components used in rendered modal
+     * Initializing modal with modalPassedData
+     *
+     * @param modalPassedData
+     */
+    modalObject.__render = function (modalPassedData) {
+      app.debug('Invoke modalObject.__render with params: {0}', [modalPassedData]);
+
+      if (app.modal.__modalWrappers[modalObject.__name] && app.modal[modalObject.__name].__hidden == true) {
+        app.debug('Modal is already rendered and will be showed again');
+        app.modal[modalObject.__name].show();
+        return;
+      } else if (app.modal.__modalWrappers[modalObject.__name]) {
+        app.debug('Modal is already rendered and cannot be rendered twice');
+        return;
+      }
+
+      app.modal[modalObject.__name] = $.extend(true, {}, app.modal.__dataArchive[modalObject.__name]);
+      app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
+
+      app.mCtx[modalObject.__name].__loadTemplate();
+
+      app.debug('Binding modal {0} template to DOM element with "modals" attribute ', [app.mCtx[modalObject.__name].__name]);
+
+      app.mCtx[modalObject.__name].__wrapModal();
+
+      app.component.__initComponents(app.mCtx[modalObject.__name].components);
+
+      app.modal.__modalWrappers[modalObject.__name] = app.modal[modalObject.__name].__modalWrapperId;
+
+      app.debug('Invoke modal {0} init() function', [app.mCtx[modalObject.__name].__name]);
+      app.mCtx[modalObject.__name].init(modalPassedData);
+
+    };
+
+    /**
+     * @private
+     *
+     * Function creates @private modalObject.__modalWrapperId as @attr id for DIV element wrapping modal template
+     * Also first child of modal template has @private modalObject.__modalId as @attr id
+     * Executing @private modal.__onModalRenderEvent for custom modal render implementation
+     *
+     */
+    modalObject.__wrapModal = function () {
+
+      app.mCtx[modalObject.__name].__modalWrapperId = 'modal-wrapper-' + app.util.System.hash();
+
+      app.modal.__getView().append('<div id="' + app.mCtx[modalObject.__name].__modalWrapperId.replace('#', '') + '">' + app.mCtx[modalObject.__name].__template + '</div>');
+
+      //Translate DOM
+      app.message.__translate();
+
+      app.mCtx[modalObject.__name].__modalId = 'modal-' + app.util.System.hash();
+
+      var modalSelector = app.mCtx[modalObject.__name].__getWrapperModalSelector();
+      modalSelector.attr('id', app.mCtx[modalObject.__name].__modalId);
+
+      app.modal.__onModalRenderEvent(modalSelector, app.mCtx[modalObject.__name]);
+
+    }
+
+    /**
+     * @private
+     *
+     * Returns modal wrapper DIV element
      *
      * @returns {jQuery|HTMLElement}
      */
-    __getView: function () {
-        return $('['+app.__attributes.MODALS+']');
-    },
+    modalObject.__wrapperSelector = function () {
+      return $('#' + app.modal[modalObject.__name].__modalWrapperId);
+    }
 
     /**
      * @private
      *
-     * Verify if DOM element with @attr modals attribute exists
+     * Returns modal element (parent)
      *
+     * @returns {jQuery|HTMLElement}
      */
-    __verifyView: function () {
-        if (this.__getView().length == 0) {
-            app.system.__throwError('No DOM element with {0} attribute specified',[app.__attributes.MODALS]);
-        }
-    },
+    modalObject.__selfSelector = function () {
+      return $('#' + app.modal[modalObject.__name].__modalId);
+    }
 
     /**
      * @private
      *
-     * Function removes modal wrapper @attr id @private modalObject.__modalWrapperId from @private modal.__modalWrappers
-     * Removes whole wrapper modal DOM element with selector @private modalObject.__wrapperSelector
+     * Returns modal wrapper children - modal view parent element
+     * Checks if modal template has more than one parent elements or if even has
      *
+     * @returns {jQuery|HTMLElement}
      */
-    __invalidate: function(modalObject){
+    modalObject.__getWrapperModalSelector = function () {
 
-        delete app.modal.__modalWrappers[modalObject.__name];
-        modalObject.__wrapperSelector().remove();
+      var wrapperSelectorChildrens = app.modal[modalObject.__name].__wrapperSelector().children();
 
-    },
-
-    /**
-     * @public
-     *
-     * Function invalidates all rendered modals.
-     * Iterates over @public modal executes @private modal.__invalidate function to remove modals from DOM and cache
-     *
-     */
-    invalidateAll: function(){
-
-        $.each(app.modal, function(modalName, modalObject){
-
-            if(modalObject instanceof Object && modalObject['__type']){
-                app.modal.__invalidate(modalObject);
-            }
-
-        });
-
-    },
-
-    /**
-     * @public
-     *
-     * Function hides all rendered modals.
-     * Iterates over @public app.mCtx executes @public modal.hide function to hide modals
-     *
-     */
-    hideAll: function(){
-
-        $.each(app.mCtx, function(modalName, modalObject){
-            modalObject.hide();
-        });
+      if (wrapperSelectorChildrens.length == 1) {
+        return wrapperSelectorChildrens;
+      } else if (wrapperSelectorChildrens.length > 1) {
+        app.system.__throwError('Modal {0} view can only have one parent DOM element, found {1}', [modalObject.__name, wrapperSelectorChildrens.length]);
+      } else if (wrapperSelectorChildrens.length == 0) {
+        app.system.__throwError('Modal {0} view must have one parent DOM element', [modalObject.__name]);
+      }
 
     }
+
+    /**
+     * @public
+     *
+     * Sets @private modalObject.__hidden to false
+     * Invokes @private modal.__onModalShowEvent for default or custom implementation of modal showing mechanics
+     *
+     */
+    modalObject.show = function () {
+
+      app.modal[modalObject.__name].__hidden = false;
+      app.modal.__onModalShowEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalShowEventDefault);
+    };
+
+    /**
+     * @public
+     *
+     * Sets @private modalObject.__hidden to true
+     * Invokes @private modal.__onModalHideEvent for default or custom implementation of modal hidding mechanics
+     *
+     */
+    modalObject.hide = function () {
+
+      app.modal[modalObject.__name].__hidden = true;
+      app.modal.__onModalHideEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalHideEventDefault);
+    };
+
+    modalObject.__createModalViewPath(modalObject);
+
+    //Creating copy of modal object in @private __dataArchive and in modal[modalName] variable
+    app.modal.__dataArchive[modalObject.__name] = $.extend(true, {}, modalObject);
+    app.modal[modalObject.__name] = $.extend(true, {}, modalObject);
+
+
+  },
+
+  /**
+   * @private
+   *
+   * Returns modal's DOM element with @attr modals attribute
+   *
+   * @returns {jQuery|HTMLElement}
+   */
+  __getView: function () {
+    return $('[' + app.__attributes.MODALS + ']');
+  },
+
+  /**
+   * @private
+   *
+   * Verify if DOM element with @attr modals attribute exists
+   *
+   */
+  __verifyView: function () {
+    if (this.__getView().length == 0) {
+      app.system.__throwError('No DOM element with {0} attribute specified', [app.__attributes.MODALS]);
+    }
+  },
+
+  /**
+   * @private
+   *
+   * Function removes modal wrapper @attr id @private modalObject.__modalWrapperId from @private modal.__modalWrappers
+   * Removes whole wrapper modal DOM element with selector @private modalObject.__wrapperSelector
+   *
+   */
+  __invalidate: function (modalObject) {
+
+    delete app.modal.__modalWrappers[modalObject.__name];
+    modalObject.__wrapperSelector().remove();
+
+  },
+
+  /**
+   * @public
+   *
+   * Function invalidates all rendered modals.
+   * Iterates over @public modal executes @private modal.__invalidate function to remove modals from DOM and cache
+   *
+   */
+  invalidateAll: function () {
+
+    $.each(app.modal, function (modalName, modalObject) {
+
+      if (modalObject instanceof Object && modalObject['__type']) {
+        app.modal.__invalidate(modalObject);
+      }
+
+    });
+
+  },
+
+  /**
+   * @public
+   *
+   * Function hides all rendered modals.
+   * Iterates over @public app.mCtx executes @public modal.hide function to hide modals
+   *
+   */
+  hideAll: function () {
+
+    $.each(app.mCtx, function (modalName, modalObject) {
+      modalObject.hide();
+    });
+
+  }
 
 };/**
  * @public
@@ -3648,7 +3685,13 @@ app.partial = {
 
           app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
-          selector.html(__partialObject.__template($.extend(true, __partialObject, model)));
+          var renderedTemplate = __partialObject.__template($.extend(true, __partialObject, model));
+
+          if(app.config.replaceLangKeys){
+            renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
+          }
+
+          selector.html(renderedTemplate);
 
           app.partial.__bindEvents(selector);
 
