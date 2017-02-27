@@ -3683,6 +3683,11 @@ app.partial = {
             app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
           }
 
+          if(__partialObject.before && app.util.System.isFunction(__partialObject.before)){
+              app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
+              __partialObject.before();
+          }
+
           app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
           var renderedTemplate = __partialObject.__template($.extend(true, __partialObject, model));
