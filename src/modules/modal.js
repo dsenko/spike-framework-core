@@ -292,15 +292,6 @@ app.modal = {
     modalObject.__render = function (modalPassedData) {
       app.debug('Invoke modalObject.__render with params: {0}', [modalPassedData]);
 
-      if (app.modal.__modalWrappers[modalObject.__name] && app.modal[modalObject.__name].__hidden == true) {
-        app.debug('Modal is already rendered and will be showed again');
-        app.modal[modalObject.__name].show();
-        return;
-      } else if (app.modal.__modalWrappers[modalObject.__name]) {
-        app.debug('Modal is already rendered and cannot be rendered twice');
-        return;
-      }
-
       app.modal[modalObject.__name] = $.extend(true, {}, app.modal.__dataArchive[modalObject.__name]);
       app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
 

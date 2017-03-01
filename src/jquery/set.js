@@ -16,11 +16,11 @@ jQuery.fn.extend({
 
     set: function (_value, _filter) {
 
-        if (!_value) {
+        if (_value === undefined || _value == null) {
             return;
         }
 
-        if (_filter && _value) {
+        if (_filter && _value !== undefined && _value !== null) {
             _value = _filter(_value);
         }
 

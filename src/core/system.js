@@ -533,9 +533,6 @@ app.system = {
         app.debug('Invoke system.__renderModal with params: {0} {1} {2}', [modalObject, modalInitialData, afterRenderCallback]);
         app.log('Rendering modal {0}', [modalObject.__name]);
 
-        //Scrolling to top of page
-        $(window).scrollTop(0);
-
         //Checks network status
         if (modalObject.checkNetwork == true) {
             app.__cordova.checkNetwork();

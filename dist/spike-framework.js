@@ -533,9 +533,6 @@ app.system = {
         app.debug('Invoke system.__renderModal with params: {0} {1} {2}', [modalObject, modalInitialData, afterRenderCallback]);
         app.log('Rendering modal {0}', [modalObject.__name]);
 
-        //Scrolling to top of page
-        $(window).scrollTop(0);
-
         //Checks network status
         if (modalObject.checkNetwork == true) {
             app.__cordova.checkNetwork();
@@ -3069,15 +3066,6 @@ app.modal = {
      */
     modalObject.__render = function (modalPassedData) {
       app.debug('Invoke modalObject.__render with params: {0}', [modalPassedData]);
-
-      if (app.modal.__modalWrappers[modalObject.__name] && app.modal[modalObject.__name].__hidden == true) {
-        app.debug('Modal is already rendered and will be showed again');
-        app.modal[modalObject.__name].show();
-        return;
-      } else if (app.modal.__modalWrappers[modalObject.__name]) {
-        app.debug('Modal is already rendered and cannot be rendered twice');
-        return;
-      }
 
       app.modal[modalObject.__name] = $.extend(true, {}, app.modal.__dataArchive[modalObject.__name]);
       app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
@@ -6427,11 +6415,11 @@ jQuery.fn.extend({
 
     set: function (_value, _filter) {
 
-        if (!_value) {
+        if (_value === undefined || _value == null) {
             return;
         }
 
-        if (_filter && _value) {
+        if (_filter && _value !== undefined && _value !== null) {
             _value = _filter(_value);
         }
 
