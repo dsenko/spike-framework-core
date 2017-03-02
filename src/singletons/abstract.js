@@ -95,16 +95,6 @@ app.abstract = {
 
             }
 
-            // $.each(abstractObjectsList, function(i, abstractObject){
-            //
-            //     if(abstractObject){
-            //         extendedObject = app.abstract.__extend(abstractObject.__name, extendedObject);
-            //     }else{
-            //         app.system.__throwWarn(app.system.__messages.INHERIT_ABSTRACT_NOT_EXIST, [extendObjectName]);
-            //     }
-            //
-            // });
-
         }
 
         return extendedObject;
