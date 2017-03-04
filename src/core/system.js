@@ -46,11 +46,9 @@ var app = {
         TRANSLATION: 'spike-translation',
         VIEW: 'spike-view',
         MODALS: 'spike-modals',
+        SET_VAL: 'spike-val',
 
-        LISTER_EVENT: 'event',
-        LISTER_TEXT: 'text',
-
-        TEMPLATE_INCLUDE: '@template'
+        TEMPLATE_INCLUDE: '@template',
 
     },
 
@@ -885,8 +883,6 @@ app.system = {
         }
 
         for (var i = 0; i < templatesIncludes.length; i++) {
-
-            console.log( templatesIncludes[i]);
 
             if (window[app.__globalTemplates][templatesIncludes[i].templateFullName]) {
                 templateHtml = templateHtml.split(app.__attributes.TEMPLATE_INCLUDE + '(' + templatesIncludes[i].templateInclude + ')').join(window[app.__globalTemplates][templatesIncludes[i].templateFullName]);

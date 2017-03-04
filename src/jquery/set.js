@@ -48,17 +48,16 @@ function _spike_jquery_set_populateFunction(selector, data, prefix, selectors) {
     }
 
     if (!selectors) {
-        selectors = Array.prototype.slice.call(selector[0].querySelectorAll('[id]'));
+        selectors = Array.prototype.slice.call(selector[0].querySelectorAll('[id]')).concat(Array.prototype.slice.call(selector[0].querySelectorAll('['+app.__attributes.SET_VAL+']')));
     }
 
     Object.keys(data).map(function (itemName) {
 
-        console.log(itemName);
-
         var reducedSelectors = [];
         for (var i = 0; i < selectors.length; i++) {
-            if (selectors[i].id == prefix + itemName) {
-                selectors[i].value = data[itemName];
+
+            if (selectors[i].id == prefix + itemName || $(selectors[i]).attr(app.__attributes.SET_VAL) == prefix + itemName) {
+                $(selectors[i]).set(data[itemName]);
             } else {
                 reducedSelectors.push(selectors[i]);
             }

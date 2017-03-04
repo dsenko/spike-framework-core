@@ -46,11 +46,9 @@ var app = {
         TRANSLATION: 'spike-translation',
         VIEW: 'spike-view',
         MODALS: 'spike-modals',
+        SET_VAL: 'spike-val',
 
-        LISTER_EVENT: 'event',
-        LISTER_TEXT: 'text',
-
-        TEMPLATE_INCLUDE: '@template'
+        TEMPLATE_INCLUDE: '@template',
 
     },
 
@@ -885,8 +883,6 @@ app.system = {
         }
 
         for (var i = 0; i < templatesIncludes.length; i++) {
-
-            console.log( templatesIncludes[i]);
 
             if (window[app.__globalTemplates][templatesIncludes[i].templateFullName]) {
                 templateHtml = templateHtml.split(app.__attributes.TEMPLATE_INCLUDE + '(' + templatesIncludes[i].templateInclude + ')').join(window[app.__globalTemplates][templatesIncludes[i].templateFullName]);
@@ -6340,17 +6336,16 @@ function _spike_jquery_set_populateFunction(selector, data, prefix, selectors) {
     }
 
     if (!selectors) {
-        selectors = Array.prototype.slice.call(selector[0].querySelectorAll('[id]'));
+        selectors = Array.prototype.slice.call(selector[0].querySelectorAll('[id]')).concat(Array.prototype.slice.call(selector[0].querySelectorAll('['+app.__attributes.SET_VAL+']')));
     }
 
     Object.keys(data).map(function (itemName) {
 
-        console.log(itemName);
-
         var reducedSelectors = [];
         for (var i = 0; i < selectors.length; i++) {
-            if (selectors[i].id == prefix + itemName) {
-                selectors[i].value = data[itemName];
+
+            if (selectors[i].id == prefix + itemName || $(selectors[i]).attr(app.__attributes.SET_VAL) == prefix + itemName) {
+                $(selectors[i]).set(data[itemName]);
             } else {
                 reducedSelectors.push(selectors[i]);
             }
