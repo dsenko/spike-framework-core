@@ -128,6 +128,9 @@ app.partial = {
 
             var renderedTemplate = __partialObject.__template($.extend(true, __partialObject, model));
 
+            //Includes static templates
+            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+
             if (app.config.replaceLangKeys) {
                 renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
             }

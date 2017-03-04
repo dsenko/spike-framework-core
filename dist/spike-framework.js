@@ -50,6 +50,8 @@ var app = {
         LISTER_EVENT: 'event',
         LISTER_TEXT: 'text',
 
+        TEMPLATE_INCLUDE: '@template'
+
     },
 
     /**
@@ -74,7 +76,7 @@ var app = {
      */
     currentController: null,
 
-    getCurrentController: function(){
+    getCurrentController: function () {
         return app.currentController || app.config.mainController;
     },
 
@@ -255,15 +257,15 @@ var app = {
 
             var stackStr = '';
             for (var i = 0; i < lineAccessingLogger.length; i++) {
-                if(i == lineAccessingLogger.length -1){
-                    stackStr += "\n ERROR HERE: "+lineAccessingLogger[i];
-                }else{
-                    stackStr += "\n"+lineAccessingLogger[i];
+                if (i == lineAccessingLogger.length - 1) {
+                    stackStr += "\n ERROR HERE: " + lineAccessingLogger[i];
+                } else {
+                    stackStr += "\n" + lineAccessingLogger[i];
                 }
             }
 
             console.log('%c' + app.util.System.currentDateLog() + ' Spike Framework: ' + message + ' stacktrace: ', 'color: ' + color);
-            console.log('%c' +stackStr, 'color: ' + color);
+            console.log('%c' + stackStr, 'color: ' + color);
 
         } else {
             console.log('%c' + app.util.System.currentDateLog() + ' Spike Framework: ' + message, 'color: ' + color);
@@ -394,7 +396,7 @@ app.system = {
      * new controller rendering
      *
      */
-    __clearSelectorsCache: function(){
+    __clearSelectorsCache: function () {
         app.system.__selectorsCache = {};
     },
 
@@ -405,8 +407,8 @@ app.system = {
      *
      * @param selectorId
      */
-    __clearSelectorInCache: function(selectorId){
-        if(app.system.__selectorsCache[selectorId]){
+    __clearSelectorInCache: function (selectorId) {
+        if (app.system.__selectorsCache[selectorId]) {
             app.system.__selectorsCache[selectorId] = null;
         }
     },
@@ -454,11 +456,11 @@ app.system = {
 
                 var selector = app.system.__selectorsCache[newId];
 
-                if(!selector){
-                    selector =  $('#' + newId);
+                if (!selector) {
+                    selector = $('#' + newId);
                     selector.plainId = newId;
                     app.system.__selectorsCache[newId] = selector;
-                }else{
+                } else {
                     app.system.__cacheUsageCounter++;
                 }
 
@@ -608,7 +610,7 @@ app.system = {
             afterRenderCallback();
         }
 
-        app.ok('Selectors cache usage during app lifecycle: '+app.system.__cacheUsageCounter);
+        app.ok('Selectors cache usage during app lifecycle: ' + app.system.__cacheUsageCounter);
 
     },
 
@@ -807,7 +809,7 @@ app.system = {
 
         app.debug('Try to invoke system.render with controller: {0}', [app.config.mainController]);
 
-        if(!app.config.routingEnabled){
+        if (!app.config.routingEnabled) {
             app.system.render(app.controller[app.config.mainController], null, callBack);
             app.__starting = false;
         }
@@ -845,22 +847,68 @@ app.system = {
      *
      * @param rootSelector
      */
-    __bindEvents: function(rootSelector){
+    __bindEvents: function (rootSelector) {
 
-        rootSelector.find('[spike-event]').each(function(i, element){
+        rootSelector.find('[spike-event]').each(function (i, element) {
 
             element = $(element);
 
             var eventName = element.attr('spike-event');
             element.removeAttr('spike-event');
 
-            var eventFunctionBody = element.attr('spike-event-'+eventName);
+            var eventFunctionBody = element.attr('spike-event-' + eventName);
 
             element.off().on(eventName, Function(eventFunctionBody));
 
         });
 
-    }
+    },
+
+    /**
+     * @private
+     *
+     * Function searches and replaces all static templates in given HTML
+     * Returns processed HTML
+     *
+     * @param templateHtml
+     */
+    __replacePlainTemplates: function (templateHtml) {
+
+        var templatesIncludes = app.util.System.findStringBetween(templateHtml, app.__attributes.TEMPLATE_INCLUDE + '\\(', '\\)');
+
+        for (var i = 0; i < templatesIncludes.length; i++) {
+            templatesIncludes[i] = templatesIncludes[i].replace(app.__attributes.TEMPLATE_INCLUDE + '(', '').replace(')', '');
+            templatesIncludes[i] = {
+                templateFullName: app.system.__getStaticTemplateName(templatesIncludes[i]),
+                templateInclude: templatesIncludes[i]
+            }
+        }
+
+        for (var i = 0; i < templatesIncludes.length; i++) {
+
+            console.log( templatesIncludes[i]);
+
+            if (window[app.__globalTemplates][templatesIncludes[i].templateFullName]) {
+                templateHtml = templateHtml.split(app.__attributes.TEMPLATE_INCLUDE + '(' + templatesIncludes[i].templateInclude + ')').join(window[app.__globalTemplates][templatesIncludes[i].templateFullName]);
+            }
+
+        }
+
+        return templateHtml;
+
+    },
+
+    /**
+     * @private
+     *
+     * Returns static template from @__globalTemplates
+     * @param templateName
+     *
+     */
+    __getStaticTemplateName: function (templateName) {
+        return '@template/' + templateName;
+    },
+
 
 };
 
@@ -868,17 +916,18 @@ app.system = {
  * Added to using bind to provide $this context into jQuery events callbacks
  */
 if (!Function.prototype.bind) {
-    Function.prototype.bind = function(oThis) {
+    Function.prototype.bind = function (oThis) {
         if (typeof this !== 'function') {
             // closest thing possible to the ECMAScript 5
             // internal IsCallable function
             throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
         }
 
-        var aArgs   = Array.prototype.slice.call(arguments, 1),
+        var aArgs = Array.prototype.slice.call(arguments, 1),
             fToBind = this,
-            fNOP    = function() {},
-            fBound  = function() {
+            fNOP = function () {
+            },
+            fBound = function () {
                 return fToBind.apply(this instanceof fNOP
                         ? this
                         : oThis,
@@ -2514,6 +2563,9 @@ app.component = {
                 app.system.__throwError('Error occured when executing component {0} template {1}', [componentObject.__name, componentObject.__view]);
             }
 
+            //Includes static templates
+            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+
             var selectorsObj = app.system.__createSelectors(templateHtml);
 
             app.component[componentObject.__name].selector = selectorsObj.selectors;
@@ -2813,6 +2865,9 @@ app.controller = {
             } catch (err) {
                 app.system.__throwError('Error occured when executing controller {0} template {1}', [controllerObject.__name, controllerObject.__view]);
             }
+
+            //Includes static templates
+            templateHtml = app.system.__replacePlainTemplates(templateHtml);
 
             var selectorsObj = app.system.__createSelectors(templateHtml);
             app.ctx.selector = selectorsObj.selectors;
@@ -3129,6 +3184,9 @@ app.modal = {
                 app.system.__throwError('Error occured when executing modal {0} template {1}', [modalObject.__name, modalObject.__view]);
             }
 
+            //Includes static templates
+            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+
             var selectorsObj = app.system.__createSelectors(templateHtml);
             app.mCtx[modalObject.__name].selector = selectorsObj.selectors;
 
@@ -3365,300 +3423,6 @@ app.modal = {
 };/**
  * @public
  *
- * Lister module
- * Module designed for usage as list renderer.
- * Can be used in any another module ex. controller, component, modal.
- *
- * Template function can also handle another lister (beware of infinite loop if the same listers used in each others).
- *
- * Redered in normal code execution time.
- * Rendered template is binded to DOM element with passed selector.
- *
- * Example:
- * <ul id="listNameXXX"></ul>
- *
- * @functions
- * @public  {add}
- * @public  {register}
- *
- */
-app.lister = {
-
-    /**
-     * @public
-     *
-     * Substitute method for register
-     *
-     * @param listerName
-     * @param listerTemplate
-     * @param configuration { renderPerContext, transform }
-     */
-    add: function (listerName, listerTemplate, configuration) {
-        this.register(listerName, listerTemplate, configuration);
-    },
-
-    /**
-     * @public
-     *
-     * Registering new lister in application
-     * Creates lister object
-     *
-     * @param listerName
-     * @param listerTemplate
-     * @param configuration {
-     *  renderPerContext -- additional but slower way to render list, passing item and index to rendering function
-     *  transform  -- additional function to transform passed list items during rendering template, to modyfiy them
-     * }
-     */
-    register: function (listerName, listerTemplate, configuration) {
-
-        var htmlTemplate = null;
-
-        //If no configuration passed, default options is applied
-        if (!configuration) {
-            configuration = {
-                renderPerContext: false,
-                transformSingle: null,
-                transformArray: null
-            }
-        }
-
-        //If no renderPerContext passed, setted by default to false
-        if (!configuration.renderPerContext) {
-            configuration.renderPerContext = false;
-        }
-
-        //If no transform function passed, setted by default to null
-        if (!configuration.transformSingle) {
-            configuration.transformSingle = null;
-        }
-
-        //If no transform function passed, setted by default to null
-        if (!configuration.transformArray) {
-            configuration.transformArray = null;
-        }
-
-        //If template is another than string version (simplest) and renderPerContext is false then
-        if (typeof listerTemplate !== 'string' && configuration.renderPerContext == false) {
-            htmlTemplate = listerTemplate('');
-        } else {
-            htmlTemplate = listerTemplate;
-        }
-
-        //Commented because of global translation by jQuery
-        //htmlTemplate = app.message.__replace(htmlTemplate);
-
-        /**
-         * @private
-         *
-         * Lister object used to rendering lists
-         *
-         * @functions
-         *
-         * @public { render }
-         * @private { __update }
-         * @private { __renderElement }
-         *
-         *
-         * @fields
-         * @private { __renderPerContext }
-         * @private { __template }
-         * @private { __dataIds }
-         * @private { __bindings }
-         * @private { __listSelector }
-         * @private { __data }
-         *
-         */
-        var __listerObject = {
-
-            __listerName: listerName,
-            __renderPerContext: configuration.renderPerContext,
-            __transformArray: configuration.transformArray,
-            __transformSingle: configuration.transformSingle,
-            __template: htmlTemplate,
-            __dataIds: null,
-            __bindings: null,
-            __listSelector: null,
-            __data: null,
-
-            /**
-             * @private
-             *
-             * Renders single list element based on passed params
-             * Replacing plain @attr text and @attr event
-             *
-             * @param dataId
-             * @param listElementId
-             * @param html
-             * @param element
-             * @returns {string|*}
-             * @private
-             */
-            __renderElement: function (dataId, listElementId, html, element) {
-
-                if (!html || html.trim().length === 0) {
-                    app.system.__throwWarn(app.system.__messages.LISTER_ELEMENT_EMPTY, [listElementId]);
-                }
-
-                html = html.replace('>', ' liId="' + listElementId + '" >');
-                html = html.split(app.__attributes.LISTER_EVENT + '(').join(' dataId="' + dataId + '" ' + app.__attributes.LISTER_EVENT + '(');
-
-                for (var prop in element) {
-                    html = html.split(app.__attributes.LISTER_TEXT + '(' + prop + ')').join(element[prop]);
-                }
-
-                return html;
-
-            },
-
-            /**
-             * @private
-             *
-             * Function gets template and process it with passed data
-             *
-             * @param templateName
-             * @param localData
-             */
-            // __resolveListerTemplate: function(templateName, localData){
-            //
-            //     if(!window[app.__globalTemplates][templateName]){
-            //         app.system.__throwError(app.system.__messages.TEMPLATE_NOT_FOUND_ERROR, [templateName])
-            //     }
-            //
-            //     return window[app.__globalTemplates][templateName](localData);
-            //
-            // },
-
-            /**
-             * @public
-             *
-             * Main function to render whole lister data with passed template and binded events.
-             * Also can handle additional callback realized after whole process is done.
-             *
-             * @param listSelector -- must be jQuery selector
-             * @param data -- list of objects with fields names as used in text(fieldName) tags in template
-             * @param bindings -- optional, object with functions named as used in event(functionName) tags in template
-             * @param options -- optional
-             *  - callback --optional
-             */
-            render: function (listSelector, data, bindings, options) {
-
-                var __this = this;
-
-                var elementsHtml = [];
-
-                var dataIds = [];
-
-                var templatehtml = __this.__template;
-
-                var html = templatehtml;
-
-                if (__this.__transformArray) {
-                    data = __this.__transformArray(data, options);
-                }
-
-                if (__this.__transformSingle) {
-                    $.each(data, function (i, item) {
-                        data[i] = __this.__transformSingle(item, options);
-                    });
-                }
-
-                $.each(data, function (i, element) {
-
-                    if (__this.__renderPerContext) {
-                        html = templatehtml(i, element, '', data);
-                    }
-
-                    var listElementId = 'li-' + app.util.System.hash() + '-' + app.util.System.hash() + '-' + app.util.System.hash();
-                    var dataId = 'element-' + app.util.System.hash() + '-' + app.util.System.hash() + '-' + app.util.System.hash();
-
-                    html = __this.__renderElement(dataId, listElementId, html, element);
-
-                    dataIds.push({
-                        __listElementId: listElementId,
-                        __dataId: dataId,
-                        __context: element
-                    });
-
-                    elementsHtml.push(html);
-
-                    html = templatehtml;
-
-                });
-
-                html = '';
-
-                for (var i = 0; i < elementsHtml.length; i++) {
-                    html += elementsHtml[i];
-                }
-
-                for (var prop in bindings) {
-                    html = html.split(app.__attributes.LISTER_EVENT + '(' + prop + ')').join(app.__attributes.LISTER_EVENT + '="' + prop + '"');
-                }
-
-                listSelector.html(html);
-
-                //Translate DOM
-                app.message.__translate();
-
-                if (options && options.callBack) {
-                    options.callBack();
-                }
-
-                __this.__bindings = bindings;
-                __this.__listSelector = listSelector;
-                __this.__data = data;
-                __this.__bind(listSelector, dataIds, bindings, data);
-
-            },
-
-            __bind: function (listSelector, dataIds, bindings, dataList) {
-
-                var dataIdsLocal = dataIds;
-
-                listSelector.unbind();
-                $.each(bindings, function (functionName, functionCallback) {
-
-                    listSelector.on('click', '[event="' + functionName + '"]', function (e) {
-
-                        var arrtributeDataId = $(e.currentTarget).attr('dataId');
-
-                        $.each(dataIdsLocal, function (i, dataId) {
-
-                            if (dataId.__dataId == arrtributeDataId) {
-                                e.eCtx = dataId.__context;
-
-                                var selector = $('*[dataId="' + dataId.dataId + '"]');
-                                selector.dataId = dataId.__dataId;
-                                e.eCtxSelector = function () {
-                                    return selector;
-                                }
-                            }
-
-                        });
-
-                        e.eCtxList = dataList;
-
-                        functionCallback(e);
-
-                    });
-
-                });
-
-                this.__dataIds = dataIdsLocal;
-
-
-            }
-
-        }
-
-        app.lister[listerName] = __listerObject;
-
-    }
-
-};/**
- * @public
- *
  * partial module
  * Module designed for usage as list renderer.
  * Can be used in any another module ex. partial, component, modal.
@@ -3785,6 +3549,9 @@ app.partial = {
             app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
             var renderedTemplate = __partialObject.__template($.extend(true, __partialObject, model));
+
+            //Includes static templates
+            templateHtml = app.system.__replacePlainTemplates(templateHtml);
 
             if (app.config.replaceLangKeys) {
                 renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
@@ -4708,6 +4475,7 @@ app.util = {
             return arr2;
 
         },
+
 
         /**
          * @public

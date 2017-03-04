@@ -39,7 +39,6 @@ var spike = {
         './src/modules/component.js',
         './src/modules/controller.js',
         './src/modules/modal.js',
-        './src/modules/lister.js',
         './src/modules/partial.js',
 
         './src/singletons/abstract.js',

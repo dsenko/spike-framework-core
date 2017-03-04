@@ -263,6 +263,9 @@ app.modal = {
                 app.system.__throwError('Error occured when executing modal {0} template {1}', [modalObject.__name, modalObject.__view]);
             }
 
+            //Includes static templates
+            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+
             var selectorsObj = app.system.__createSelectors(templateHtml);
             app.mCtx[modalObject.__name].selector = selectorsObj.selectors;
 

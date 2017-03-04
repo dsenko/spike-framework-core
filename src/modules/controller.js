@@ -184,6 +184,9 @@ app.controller = {
                 app.system.__throwError('Error occured when executing controller {0} template {1}', [controllerObject.__name, controllerObject.__view]);
             }
 
+            //Includes static templates
+            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+
             var selectorsObj = app.system.__createSelectors(templateHtml);
             app.ctx.selector = selectorsObj.selectors;
             templateHtml = selectorsObj.html;

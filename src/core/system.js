@@ -50,6 +50,8 @@ var app = {
         LISTER_EVENT: 'event',
         LISTER_TEXT: 'text',
 
+        TEMPLATE_INCLUDE: '@template'
+
     },
 
     /**
@@ -74,7 +76,7 @@ var app = {
      */
     currentController: null,
 
-    getCurrentController: function(){
+    getCurrentController: function () {
         return app.currentController || app.config.mainController;
     },
 
@@ -255,15 +257,15 @@ var app = {
 
             var stackStr = '';
             for (var i = 0; i < lineAccessingLogger.length; i++) {
-                if(i == lineAccessingLogger.length -1){
-                    stackStr += "\n ERROR HERE: "+lineAccessingLogger[i];
-                }else{
-                    stackStr += "\n"+lineAccessingLogger[i];
+                if (i == lineAccessingLogger.length - 1) {
+                    stackStr += "\n ERROR HERE: " + lineAccessingLogger[i];
+                } else {
+                    stackStr += "\n" + lineAccessingLogger[i];
                 }
             }
 
             console.log('%c' + app.util.System.currentDateLog() + ' Spike Framework: ' + message + ' stacktrace: ', 'color: ' + color);
-            console.log('%c' +stackStr, 'color: ' + color);
+            console.log('%c' + stackStr, 'color: ' + color);
 
         } else {
             console.log('%c' + app.util.System.currentDateLog() + ' Spike Framework: ' + message, 'color: ' + color);
@@ -394,7 +396,7 @@ app.system = {
      * new controller rendering
      *
      */
-    __clearSelectorsCache: function(){
+    __clearSelectorsCache: function () {
         app.system.__selectorsCache = {};
     },
 
@@ -405,8 +407,8 @@ app.system = {
      *
      * @param selectorId
      */
-    __clearSelectorInCache: function(selectorId){
-        if(app.system.__selectorsCache[selectorId]){
+    __clearSelectorInCache: function (selectorId) {
+        if (app.system.__selectorsCache[selectorId]) {
             app.system.__selectorsCache[selectorId] = null;
         }
     },
@@ -454,11 +456,11 @@ app.system = {
 
                 var selector = app.system.__selectorsCache[newId];
 
-                if(!selector){
-                    selector =  $('#' + newId);
+                if (!selector) {
+                    selector = $('#' + newId);
                     selector.plainId = newId;
                     app.system.__selectorsCache[newId] = selector;
-                }else{
+                } else {
                     app.system.__cacheUsageCounter++;
                 }
 
@@ -608,7 +610,7 @@ app.system = {
             afterRenderCallback();
         }
 
-        app.ok('Selectors cache usage during app lifecycle: '+app.system.__cacheUsageCounter);
+        app.ok('Selectors cache usage during app lifecycle: ' + app.system.__cacheUsageCounter);
 
     },
 
@@ -807,7 +809,7 @@ app.system = {
 
         app.debug('Try to invoke system.render with controller: {0}', [app.config.mainController]);
 
-        if(!app.config.routingEnabled){
+        if (!app.config.routingEnabled) {
             app.system.render(app.controller[app.config.mainController], null, callBack);
             app.__starting = false;
         }
@@ -845,22 +847,68 @@ app.system = {
      *
      * @param rootSelector
      */
-    __bindEvents: function(rootSelector){
+    __bindEvents: function (rootSelector) {
 
-        rootSelector.find('[spike-event]').each(function(i, element){
+        rootSelector.find('[spike-event]').each(function (i, element) {
 
             element = $(element);
 
             var eventName = element.attr('spike-event');
             element.removeAttr('spike-event');
 
-            var eventFunctionBody = element.attr('spike-event-'+eventName);
+            var eventFunctionBody = element.attr('spike-event-' + eventName);
 
             element.off().on(eventName, Function(eventFunctionBody));
 
         });
 
-    }
+    },
+
+    /**
+     * @private
+     *
+     * Function searches and replaces all static templates in given HTML
+     * Returns processed HTML
+     *
+     * @param templateHtml
+     */
+    __replacePlainTemplates: function (templateHtml) {
+
+        var templatesIncludes = app.util.System.findStringBetween(templateHtml, app.__attributes.TEMPLATE_INCLUDE + '\\(', '\\)');
+
+        for (var i = 0; i < templatesIncludes.length; i++) {
+            templatesIncludes[i] = templatesIncludes[i].replace(app.__attributes.TEMPLATE_INCLUDE + '(', '').replace(')', '');
+            templatesIncludes[i] = {
+                templateFullName: app.system.__getStaticTemplateName(templatesIncludes[i]),
+                templateInclude: templatesIncludes[i]
+            }
+        }
+
+        for (var i = 0; i < templatesIncludes.length; i++) {
+
+            console.log( templatesIncludes[i]);
+
+            if (window[app.__globalTemplates][templatesIncludes[i].templateFullName]) {
+                templateHtml = templateHtml.split(app.__attributes.TEMPLATE_INCLUDE + '(' + templatesIncludes[i].templateInclude + ')').join(window[app.__globalTemplates][templatesIncludes[i].templateFullName]);
+            }
+
+        }
+
+        return templateHtml;
+
+    },
+
+    /**
+     * @private
+     *
+     * Returns static template from @__globalTemplates
+     * @param templateName
+     *
+     */
+    __getStaticTemplateName: function (templateName) {
+        return '@template/' + templateName;
+    },
+
 
 };
 
@@ -868,17 +916,18 @@ app.system = {
  * Added to using bind to provide $this context into jQuery events callbacks
  */
 if (!Function.prototype.bind) {
-    Function.prototype.bind = function(oThis) {
+    Function.prototype.bind = function (oThis) {
         if (typeof this !== 'function') {
             // closest thing possible to the ECMAScript 5
             // internal IsCallable function
             throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
         }
 
-        var aArgs   = Array.prototype.slice.call(arguments, 1),
+        var aArgs = Array.prototype.slice.call(arguments, 1),
             fToBind = this,
-            fNOP    = function() {},
-            fBound  = function() {
+            fNOP = function () {
+            },
+            fBound = function () {
                 return fToBind.apply(this instanceof fNOP
                         ? this
                         : oThis,

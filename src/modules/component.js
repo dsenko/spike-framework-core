@@ -181,6 +181,9 @@ app.component = {
                 app.system.__throwError('Error occured when executing component {0} template {1}', [componentObject.__name, componentObject.__view]);
             }
 
+            //Includes static templates
+            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+
             var selectorsObj = app.system.__createSelectors(templateHtml);
 
             app.component[componentObject.__name].selector = selectorsObj.selectors;
