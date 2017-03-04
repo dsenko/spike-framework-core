@@ -401,6 +401,19 @@ app.system = {
     /**
      * @private
      *
+     * Clears selector given id from cache
+     *
+     * @param selectorId
+     */
+    __clearSelectorInCache: function(selectorId){
+        if(app.system.__selectorsCache[selectorId]){
+            app.system.__selectorsCache[selectorId] = null;
+        }
+    },
+
+    /**
+     * @private
+     *
      * Function creates selectors for passed HTML @string based
      * on @attr id and @attr name.
      * Function returns set of methods as @jQuery selectors getters
@@ -818,6 +831,34 @@ app.system = {
             $('body').append('<div class="no-browser">Sorry,</br>you can test mobile app only in Chrome</div>');
             app.system.__throwError(app.system.__messages.WEBSQL_SUPPORT);
         }
+
+    },
+
+    /**
+     * @private
+     *
+     * Finds all elements with attribute @spike-event
+     * in given (root) selector.
+     *
+     * Gets event name and event function string, binds
+     * jQuery event with created function.
+     *
+     * @param rootSelector
+     */
+    __bindEvents: function(rootSelector){
+
+        rootSelector.find('[spike-event]').each(function(i, element){
+
+            element = $(element);
+
+            var eventName = element.attr('spike-event');
+            element.removeAttr('spike-event');
+
+            var eventFunctionBody = element.attr('spike-event-'+eventName);
+
+            element.off().on(eventName, Function(eventFunctionBody));
+
+        });
 
     }
 

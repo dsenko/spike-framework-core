@@ -129,6 +129,9 @@ app.component = {
 
             componentSelector.replaceWith(app.com[componentObject.__name].__template);
 
+            //Binds spike events
+            app.system.__bindEvents(componentSelector);
+
             //Translate DOM
             app.message.__translate();
 
@@ -169,6 +172,13 @@ app.component = {
 
             if(!templateHtml){
                 app.system.__throwError('No view found for component: {0}, view path: {1}', [componentObject.__name, componentObject.__view]);
+            }
+
+            //Executing template function
+            try {
+                templateHtml = templateHtml();
+            }catch (err){
+                app.system.__throwError('Error occured when executing component {0} template {1}', [componentObject.__name, componentObject.__view]);
             }
 
             var selectorsObj = app.system.__createSelectors(templateHtml);

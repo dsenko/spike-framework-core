@@ -12,6 +12,66 @@
  * @param value
  * @param filter --optional
  */
+
+function _spike_jquery_set_setFunction(selector, value) {
+
+    var elementType = selector.prop('tagName');
+
+    if (!elementType) {
+        elementType = selector.prop('nodeName');
+    }
+
+    elementType = elementType.toLowerCase();
+
+    if (elementType == 'label' || elementType == 'div' || elementType == 'span' || elementType == 'button' || elementType == 'p' || elementType.indexOf('h') > -1) {
+        selector.html(value.toString());
+    } else if (elementType == 'img') {
+        selector.attr('src', value);
+    } else if (selector.is(':checkbox')) {
+        if (value == true || parseInt(value) == 1) {
+            selector.prop('checked', true);
+        } else {
+            selector.prop('checked', false);
+        }
+    } else if (elementType == 'a') {
+        selector.attr('href', value);
+    } else {
+        selector.val(value);
+    }
+
+};
+
+function _spike_jquery_set_populateFunction(selector, data, prefix, selectors) {
+
+    if (!prefix) {
+        prefix = '';
+    }
+
+    if (!selectors) {
+        selectors = Array.prototype.slice.call(selector[0].querySelectorAll('[id]'));
+    }
+
+    Object.keys(data).map(function (itemName) {
+
+        console.log(itemName);
+
+        var reducedSelectors = [];
+        for (var i = 0; i < selectors.length; i++) {
+            if (selectors[i].id == prefix + itemName) {
+                selectors[i].value = data[itemName];
+            } else {
+                reducedSelectors.push(selectors[i]);
+            }
+        }
+
+        if (app.util.System.isObject(data[itemName])) {
+            _spike_jquery_set_populateFunction(selector, data[itemName], itemName + '.', reducedSelectors);
+        }
+
+    });
+
+};
+
 jQuery.fn.extend({
 
     set: function (_value, _filter) {
@@ -24,35 +84,12 @@ jQuery.fn.extend({
             _value = _filter(_value);
         }
 
-        var setFunction = function (selector, value) {
-
-            var elementType = selector.prop('tagName');
-
-            if (!elementType) {
-                elementType = selector.prop('nodeName');
-            }
-
-            elementType = elementType.toLowerCase();
-
-            if (elementType == 'label' || elementType == 'div' || elementType == 'span' || elementType == 'button' || elementType == 'p' || elementType.indexOf('h') > -1) {
-                selector.html(value.toString());
-            } else if (elementType == 'img') {
-                selector.attr('src', value);
-            } else if (selector.is(':checkbox')) {
-                if (value == true || parseInt(value) == 1) {
-                    selector.prop('checked', true);
-                } else {
-                    selector.prop('checked', false);
-                }
-            } else if (elementType == 'a') {
-                selector.attr('href', value);
-            } else {
-                selector.val(value);
-            }
-
+        if (app.util.System.isObject(_value)) {
+            _spike_jquery_set_populateFunction($(this), _value);
+        } else {
+            _spike_jquery_set_setFunction($(this), _value);
         }
 
-        setFunction($(this), _value);
 
     },
 

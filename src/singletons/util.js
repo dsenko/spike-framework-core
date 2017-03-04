@@ -157,6 +157,28 @@ app.util = {
         /**
          * @public
          *
+         * Checks if given variable is an object
+         * If null or undefined returns false
+         *
+         * @param object
+         */
+        isObject: function(object){
+
+            if(app.util.System.isNull(object)){
+                return false;
+            }
+
+            if(object.toString() == '[object Object]'){
+                return true;
+            }
+
+            return false;
+
+        },
+
+        /**
+         * @public
+         *
          * Function to parse JSON @string to JavaScript @object with replacing
          * whole whitespaces, tabs, new lines etc.
          *

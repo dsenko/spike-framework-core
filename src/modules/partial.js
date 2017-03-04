@@ -75,14 +75,19 @@ app.partial = {
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(partialName);
 
-
-        if(partialObject.inherits){
+        if (partialObject.inherits) {
             // Apply extending from abstracts
             partialObject = app.abstract.__tryExtend(partialName, partialObject.inherits, partialObject);
         }
 
         app.log('Registering partial {0}', [partialName]);
         app.debug('Invoke partial.register with params: {0} {1}', [partialName, partialObject]);
+
+        if (app.util.System.isNull(partialObject.replace)) {
+            partialObject.replace = false;
+        }
+
+        partialObject.__replace = partialObject.replace;
 
         //Setting tyope of module
         partialObject.__type = 'PARTIAL';
@@ -106,33 +111,39 @@ app.partial = {
          * @param partialPassedData
          */
         partialObject.render = function (selector, model) {
-          app.debug('Invoke partialObject.__render');
+            app.debug('Invoke partialObject.__render');
 
-          var __partialObject = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
+            var __partialObject = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
 
-          if (!selector) {
-            app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
-          }
+            if (!selector) {
+                app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
+            }
 
-          if(__partialObject.before && app.util.System.isFunction(__partialObject.before)){
-              app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
-              __partialObject.before();
-          }
+            if (__partialObject.before && app.util.System.isFunction(__partialObject.before)) {
+                app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
+                __partialObject.before();
+            }
 
-          app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
+            app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
-          var renderedTemplate = __partialObject.__template($.extend(true, __partialObject, model));
+            var renderedTemplate = __partialObject.__template($.extend(true, __partialObject, model));
 
-          if(app.config.replaceLangKeys){
-            renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
-          }
+            if (app.config.replaceLangKeys) {
+                renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
+            }
 
-          selector.html(renderedTemplate);
+            if (__partialObject.__replace) {
+                selector = app.partial.__replacePartial(selector, renderedTemplate);
+            } else {
+                selector.html(renderedTemplate);
+            }
 
-          app.partial.__bindEvents(selector);
 
-          //Translate DOM
-          app.message.__translate();
+            //Binds spike events
+            app.system.__bindEvents(selector);
+
+            //Translate DOM
+            app.message.__translate();
 
         };
 
@@ -186,29 +197,30 @@ app.partial = {
     /**
      * @private
      *
-     * Finds all elements with attribute @spike-event
-     * in given (root) selector.
+     * Function replaces partial selector with given template
+     * and migrate partial selector @id attribute into
+     * root element of given template
      *
-     * Gets event name and event function string, binds
-     * jQuery event with created function.
+     * @param selector
+     * @param templateHtml
      *
-     * @param rootSelector
      */
-    __bindEvents: function(rootSelector){
+    __replacePartial: function (selector, templateHtml) {
 
-        rootSelector.find('[spike-event]').each(function(i, element){
+        var selectorId = selector.attr('id');
 
-            element = $(element);
+        var rootElementPart = templateHtml.substring(0, templateHtml.indexOf('>'))
+        rootElementPart += ' id="' + selectorId + '" ';
 
-            var eventName = element.attr('spike-event');
-            element.removeAttr('spike-event');
+        templateHtml = rootElementPart + templateHtml.substring(templateHtml.indexOf('>'), templateHtml.length);
 
-            var eventFunctionBody = element.attr('spike-event-'+eventName);
+        selector.replaceWith(templateHtml);
 
-            element.on(eventName, Function(eventFunctionBody));
+        app.system.__clearSelectorInCache(selectorId);
 
-        });
+        return $('#'+selectorId);
 
     }
+
 
 };
