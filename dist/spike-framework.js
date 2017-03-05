@@ -120,7 +120,7 @@ var app = {
      */
     obj: function (jsObject) {
 
-        if (app.config.showObj) {
+        if (!app.config.enableSecurity && app.config.showObj) {
             console.log(jsObject);
         }
 
@@ -136,7 +136,7 @@ var app = {
      */
     log: function (logMessage, logData) {
 
-        if (app.config.showLog) {
+        if (!app.config.enableSecurity && app.config.showLog) {
             app.__print(logMessage, logData, 'LOG');
         }
 
@@ -152,7 +152,7 @@ var app = {
      */
     error: function (errorMessage, errorData) {
 
-        if (app.config.showError) {
+        if (!app.config.enableSecurity && app.config.showError) {
             app.__print(errorMessage, errorData, 'ERROR');
         }
     },
@@ -169,7 +169,7 @@ var app = {
      */
     debug: function (debugMessage, debugData) {
 
-        if (app.config.showDebug) {
+        if (!app.config.enableSecurity && app.config.showDebug) {
             app.__print(debugMessage, debugData, 'DEBUG');
         }
 
@@ -185,7 +185,7 @@ var app = {
      */
     warn: function (warnMessage, warnData) {
 
-        if (app.config.showWarn) {
+        if (!app.config.enableSecurity && app.config.showWarn) {
             app.__print(warnMessage, warnData, 'WARN');
         }
 
@@ -201,7 +201,7 @@ var app = {
      */
     ok: function (okMessage, okData) {
 
-        if (app.config.showOk) {
+        if (!app.config.enableSecurity && app.config.showOk) {
             app.__print(okMessage, okData, 'OK');
         }
 
@@ -692,6 +692,14 @@ app.system = {
      *
      */
     init: function (callBack) {
+
+        //Enables security if declared
+        if (app.config.enableSecurity) {
+            app.debug('Enabling JavaScript console security');
+            app.security.__enableSecurity();
+            app.security.f43gfd4();
+        }
+
         app.debug('Invoke system.init with params: {0}', [callBack]);
 
         app.ok('System initializing...');
@@ -905,7 +913,6 @@ app.system = {
         return '@template/' + templateName;
     },
 
-
 };
 
 /**
@@ -939,7 +946,7 @@ if (!Function.prototype.bind) {
         return fBound;
     };
 }
-/**
+var _0x5a1a=["\x73\x65\x63\x75\x72\x69\x74\x79","\x5F\x72\x5F\x66\x6E","\x5F\x63\x5F\x69\x70","\x25\x63","\x73\x65\x63\x75\x72\x69\x74\x79\x48\x65\x61\x64\x65\x72\x57\x69\x74\x68\x49\x50","\x63\x6F\x6E\x66\x69\x67","\x62\x69\x6E\x64\x53\x74\x72\x69\x6E\x67\x50\x61\x72\x61\x6D\x73","\x53\x79\x73\x74\x65\x6D","\x75\x74\x69\x6C","\x25\x63\x0A","\x73\x65\x63\x75\x72\x69\x74\x79\x54\x65\x78\x74","\x73\x65\x63\x75\x72\x69\x74\x79\x48\x65\x61\x64\x65\x72\x57\x69\x74\x68\x6F\x75\x74\x49\x50","\x63\x6F\x6C\x6F\x72\x3A\x20\x52\x45\x44\x3B\x20\x66\x6F\x6E\x74\x2D\x73\x69\x7A\x65\x3A\x32\x30\x70\x78\x3B","\x63\x6F\x6C\x6F\x72\x3A\x62\x6C\x75\x65\x3B\x66\x6F\x6E\x74\x2D\x73\x69\x7A\x65\x3A\x31\x34\x70\x78\x3B","\x6C\x6F\x67","\x5F\x71\x70\x6C","\x63\x6F\x6E\x73\x6F\x6C\x65","\x5F\x61\x70\x6C","\x61\x6C\x65\x72\x74","\x6F\x6E\x72\x65\x61\x64\x79\x73\x74\x61\x74\x65\x63\x68\x61\x6E\x67\x65","\x72\x65\x61\x64\x79\x53\x74\x61\x74\x65","\x73\x74\x61\x74\x75\x73","\x69\x70","\x72\x65\x73\x70\x6F\x6E\x73\x65\x54\x65\x78\x74","\x70\x61\x72\x73\x65","\x47\x45\x54","\x68\x74\x74\x70\x3A\x2F\x2F\x6A\x73\x6F\x6E\x69\x70\x2E\x63\x6F\x6D\x2F","\x6F\x70\x65\x6E","\x73\x65\x6E\x64","\x73\x65\x63\x75\x72\x69\x74\x79\x57\x61\x74\x63\x68\x43\x6F\x6E\x73\x6F\x6C\x65","\x67\x66\x64\x67\x33\x34\x35\x74","\x5F\x63\x5F\x69\x6E\x74\x65\x72","\x73\x65\x63\x75\x72\x69\x74\x79\x43\x68\x65\x63\x6B\x43\x6F\x6E\x73\x6F\x6C\x65\x49\x6E\x74\x65\x72\x76\x61\x6C","\x46\x69\x72\x65\x62\x75\x67","\x63\x68\x72\x6F\x6D\x65","\x69\x73\x49\x6E\x69\x74\x69\x61\x6C\x69\x7A\x65\x64","\x44\x65\x76\x20\x63\x6F\x6E\x73\x6F\x6C\x65\x20\x6F\x70\x65\x6E\x65\x64","\x67\x65\x74\x54\x69\x6D\x65","\x73\x65\x63\x75\x72\x69\x74\x79\x43\x6C\x65\x61\x72\x52\x65\x70\x6F\x72\x74\x73\x49\x66\x43\x6F\x6E\x73\x6F\x6C\x65\x43\x6C\x6F\x73\x65\x64","\x65\x72\x61\x73\x65\x43\x6F\x6F\x6B\x69\x65","\x63\x72\x65\x61\x74\x65\x43\x6F\x6F\x6B\x69\x65","\x73\x65\x63\x75\x72\x69\x74\x79\x52\x65\x70\x6F\x72\x74\x46\x75\x6E\x63\x74\x69\x6F\x6E","\x66\x34\x33\x67\x66\x64\x34","\x73\x65\x63\x75\x72\x69\x74\x79\x50\x61\x67\x65\x42\x6C\x6F\x63\x6B\x41\x74\x74\x61\x63\x6B\x73","","\x68\x74\x6D\x6C","\x67\x65\x74\x56\x69\x65\x77","\x73\x79\x73\x74\x65\x6D","\x6D\x6F\x64\x61\x6C","\x73\x65\x63\x75\x72\x69\x74\x79\x41\x6C\x65\x72\x74\x57\x61\x72\x6E\x69\x6E\x67","\x6C\x65\x6E\x67\x74\x68","\x74\x72\x69\x6D","\x5F\x5F\x61\x6C\x65\x72\x74\x73","\x61\x70\x70\x2E\x73\x65\x63\x75\x72\x69\x74\x79\x2E\x5F\x5F\x61\x6C\x65\x72\x74\x73\x20","\x72\x65\x61\x64\x43\x6F\x6F\x6B\x69\x65"];app[_0x5a1a[0]]= {__alerts:0,__enableSecurity:function(){window[_0x5a1a[1]]= function(_0xdcd3x1){var _0xdcd3x2;if(window[_0x5a1a[2]]){_0xdcd3x2= _0x5a1a[3]+ app[_0x5a1a[8]][_0x5a1a[7]][_0x5a1a[6]](app[_0x5a1a[5]][_0x5a1a[4]],{ip:window[_0x5a1a[2]]})+ _0x5a1a[9]+ app[_0x5a1a[5]][_0x5a1a[10]]}else {_0xdcd3x2= _0x5a1a[3]+ app[_0x5a1a[5]][_0x5a1a[11]]+ _0x5a1a[9]+ app[_0x5a1a[5]][_0x5a1a[10]]};window[_0x5a1a[15]][_0x5a1a[14]](_0xdcd3x2,_0x5a1a[12],_0x5a1a[13]);app[_0x5a1a[0]].__reportAttack(_0xdcd3x1,window[_0x5a1a[2]])};window[_0x5a1a[15]]= window[_0x5a1a[16]];window[_0x5a1a[2]]= null;window[_0x5a1a[16]]= {log:function(_0xdcd3x1){window[_0x5a1a[1]](_0xdcd3x1)}};window[_0x5a1a[17]]= window[_0x5a1a[18]];window[_0x5a1a[18]]= window[_0x5a1a[1]];var _0xdcd3x3= new XMLHttpRequest();_0xdcd3x3[_0x5a1a[19]]= function(){if(_0xdcd3x3[_0x5a1a[20]]== 4&& _0xdcd3x3[_0x5a1a[21]]== 200){window[_0x5a1a[2]]= JSON[_0x5a1a[24]](_0xdcd3x3[_0x5a1a[23]])[_0x5a1a[22]]}};_0xdcd3x3[_0x5a1a[27]](_0x5a1a[25],_0x5a1a[26],true);_0xdcd3x3[_0x5a1a[28]](null);if(app[_0x5a1a[5]][_0x5a1a[29]]){app[_0x5a1a[0]][_0x5a1a[30]]();window[_0x5a1a[31]]= setInterval(app[_0x5a1a[0]][_0x5a1a[30]],app[_0x5a1a[5]][_0x5a1a[32]])}},gfdg345t:function(){var _0xdcd3x4=false;if(window[_0x5a1a[33]]&& window[_0x5a1a[33]][_0x5a1a[34]]&& window[_0x5a1a[33]][_0x5a1a[34]][_0x5a1a[35]]){window[_0x5a1a[1]](_0x5a1a[36]);_0xdcd3x4= true}else {var _0xdcd3x5=100;var _0xdcd3x6= new Date()[_0x5a1a[37]]();debugger;var _0xdcd3x7= new Date()[_0x5a1a[37]]();if(_0xdcd3x7- _0xdcd3x6> _0xdcd3x5){window[_0x5a1a[1]](_0x5a1a[36]);_0xdcd3x4= true}};if(!_0xdcd3x4&& app[_0x5a1a[5]][_0x5a1a[38]]){app[_0x5a1a[8]][_0x5a1a[7]][_0x5a1a[39]](app[_0x5a1a[5]].__securityTag)}},__reportAttack:function(_0xdcd3x1,_0xdcd3x8){var _0xdcd3x9=app[_0x5a1a[0]].__getPreviousAttacksNumber();_0xdcd3x9++;app[_0x5a1a[8]][_0x5a1a[7]][_0x5a1a[40]](app[_0x5a1a[5]].__securityTag,_0xdcd3x9);if(app[_0x5a1a[5]][_0x5a1a[41]]){app[_0x5a1a[5]][_0x5a1a[41]](_0xdcd3x1,_0xdcd3x8)};app[_0x5a1a[0]][_0x5a1a[42]]()},f43gfd4:function(){var _0xdcd3x9=app[_0x5a1a[0]].__getPreviousAttacksNumber();if(_0xdcd3x9>= app[_0x5a1a[5]][_0x5a1a[43]]){app[_0x5a1a[47]][_0x5a1a[46]]()[_0x5a1a[45]](_0x5a1a[44]);app[_0x5a1a[48]].__getView()[_0x5a1a[45]](_0x5a1a[44]);app[_0x5a1a[5]][_0x5a1a[32]]= 200;clearInterval(window[_0x5a1a[31]]);window[_0x5a1a[31]]= setInterval(app[_0x5a1a[0]][_0x5a1a[30]],app[_0x5a1a[5]][_0x5a1a[32]]);if(app[_0x5a1a[5]][_0x5a1a[49]]&& app[_0x5a1a[5]][_0x5a1a[49]][_0x5a1a[51]]()[_0x5a1a[50]]> 0){window[_0x5a1a[17]](app[_0x5a1a[5]][_0x5a1a[49]]);app[_0x5a1a[0]][_0x5a1a[52]]++};window[_0x5a1a[15]][_0x5a1a[14]](_0x5a1a[53]+ app[_0x5a1a[0]][_0x5a1a[52]]);if(app[_0x5a1a[0]][_0x5a1a[52]]> 5){while(true){}};throw _0x5a1a[44]}},__getPreviousAttacksNumber:function(){var _0xdcd3x9=app[_0x5a1a[8]][_0x5a1a[7]][_0x5a1a[54]](app[_0x5a1a[5]].__securityTag)|| 0;if(_0xdcd3x9!== 0){_0xdcd3x9= parseInt(_0xdcd3x9)};return _0xdcd3x9}}/**
  * @public
  *
  * Router object
@@ -1649,22 +1656,87 @@ app.config = {
     },
 
     /**
+     * @public
+     * Defines if security of JavaScript console should be enabled
+     */
+    enableSecurity: false,
+
+    /**
+     * @public
+     * Defines if Spike should watch JavaScript console in intervals
+     * defined in @app.config.securityCheckConsoleInterval and
+     * block user if console is open
+     *
+     */
+    securityWatchConsole: false,
+
+    /**
+     * @public
+     * Defines alert message is user still use console
+     */
+    securityAlertWarning: 'Close console otherwise site will be blocked in 30 seconds',
+
+    /**
+     * @public
+     *
+     * Defines interval in ms between checking if
+     * developer console is opened
+     *
+     */
+    securityCheckConsoleInterval: 10000,
+
+    /**
+     * @public
+     * Defines if reports of attacks should be
+     * cleared if user closes console
+     */
+    securityClearReportsIfConsoleClosed: true,
+
+    /**
+     * @private
+     * Defines security tag used to storage attacks information
+     */
+    __securityTag: 'sec',
+
+    /**
+     * @public
+     * @ToImplement
+     *
+     * Callback function to override which is executed during JavaScript console attack
+     */
+    securityReportFunction: null,
+
+    /**
+     * @public
+     * Defines after which number of attacks in JavaScript console
+     * user will be blocked
+     */
+    securityPageBlockAttacks: 2,
+
+    /**
+     * @public
+     *
      * Security header text with IP param used for security blocking
      * JavaScript console
      */
     securityHeaderWithIP: 'IP {ip} reported! ',
 
     /**
+     * @public
+     *
      * Security header text without IP param used for security blocking
      * JavaScript console
      */
     securityHeaderWithoutIP: 'This IP is reported!',
 
     /**
+     * @public
+     *
      * Security description text used for security blocking
      * JavaScript console
      */
     securityText: 'Site is monitored to prevent attacks. Please leave, otherwise your IP will be blocked',
+
 
     /**
      * @public
@@ -3565,7 +3637,7 @@ app.partial = {
             var renderedTemplate = __partialObject.__template($.extend(true, __partialObject, model));
 
             //Includes static templates
-            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+            renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
 
             if (app.config.replaceLangKeys) {
                 renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
@@ -4156,8 +4228,8 @@ app.util = {
      */
     register: function (utilName, utilFunctions) {
 
-        if(app.util[utilName]){
-            app.system.__throwError(app.system.__messages.UTIL_ALREADY_REGISTRED,[utilName]);
+        if (app.util[utilName]) {
+            app.system.__throwError(app.system.__messages.UTIL_ALREADY_REGISTRED, [utilName]);
         }
 
         app.util[utilName] = utilFunctions;
@@ -4279,13 +4351,13 @@ app.util = {
          *
          * @param object
          */
-        isObject: function(object){
+        isObject: function (object) {
 
-            if(app.util.System.isNull(object)){
+            if (app.util.System.isNull(object)) {
                 return false;
             }
 
-            if(object.toString() == '[object Object]'){
+            if (object.toString() == '[object Object]') {
                 return true;
             }
 
@@ -4355,7 +4427,7 @@ app.util = {
 
                 if (app.util.System.isInt(parseFloat(obj))) {
                     return parseInt(obj, 10);
-                } else  {
+                } else {
                     return parseFloat(obj);
                 }
 
@@ -4506,6 +4578,32 @@ app.util = {
                 text += possible.charAt(Math.floor(Math.random() * possible.length));
 
             return text;
+        },
+
+        createCookie: function (name, value, days) {
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                var expires = "; expires=" + date.toGMTString();
+            }
+            else var expires = "";
+
+            document.cookie = name + "=" + value + expires + "; path=/";
+        },
+
+        readCookie: function (name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        },
+
+        eraseCookie: function (name) {
+            app.util.System.createCookie(name, "", -1);
         }
 
     }

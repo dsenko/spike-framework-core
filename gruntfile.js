@@ -30,6 +30,7 @@ var spike = {
 
     modules: [
         './src/core/system.js',
+        './src/core/security.min.js',
         './src/core/router.js',
         './src/core/config.js',
         './src/core/events.js',

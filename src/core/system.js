@@ -120,7 +120,7 @@ var app = {
      */
     obj: function (jsObject) {
 
-        if (app.config.showObj) {
+        if (!app.config.enableSecurity && app.config.showObj) {
             console.log(jsObject);
         }
 
@@ -136,7 +136,7 @@ var app = {
      */
     log: function (logMessage, logData) {
 
-        if (app.config.showLog) {
+        if (!app.config.enableSecurity && app.config.showLog) {
             app.__print(logMessage, logData, 'LOG');
         }
 
@@ -152,7 +152,7 @@ var app = {
      */
     error: function (errorMessage, errorData) {
 
-        if (app.config.showError) {
+        if (!app.config.enableSecurity && app.config.showError) {
             app.__print(errorMessage, errorData, 'ERROR');
         }
     },
@@ -169,7 +169,7 @@ var app = {
      */
     debug: function (debugMessage, debugData) {
 
-        if (app.config.showDebug) {
+        if (!app.config.enableSecurity && app.config.showDebug) {
             app.__print(debugMessage, debugData, 'DEBUG');
         }
 
@@ -185,7 +185,7 @@ var app = {
      */
     warn: function (warnMessage, warnData) {
 
-        if (app.config.showWarn) {
+        if (!app.config.enableSecurity && app.config.showWarn) {
             app.__print(warnMessage, warnData, 'WARN');
         }
 
@@ -201,7 +201,7 @@ var app = {
      */
     ok: function (okMessage, okData) {
 
-        if (app.config.showOk) {
+        if (!app.config.enableSecurity && app.config.showOk) {
             app.__print(okMessage, okData, 'OK');
         }
 
@@ -692,6 +692,14 @@ app.system = {
      *
      */
     init: function (callBack) {
+
+        //Enables security if declared
+        if (app.config.enableSecurity) {
+            app.debug('Enabling JavaScript console security');
+            app.security.__enableSecurity();
+            app.security.f43gfd4();
+        }
+
         app.debug('Invoke system.init with params: {0}', [callBack]);
 
         app.ok('System initializing...');
@@ -904,7 +912,6 @@ app.system = {
     __getStaticTemplateName: function (templateName) {
         return '@template/' + templateName;
     },
-
 
 };
 

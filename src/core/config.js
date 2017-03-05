@@ -87,22 +87,87 @@ app.config = {
     },
 
     /**
+     * @public
+     * Defines if security of JavaScript console should be enabled
+     */
+    enableSecurity: false,
+
+    /**
+     * @public
+     * Defines if Spike should watch JavaScript console in intervals
+     * defined in @app.config.securityCheckConsoleInterval and
+     * block user if console is open
+     *
+     */
+    securityWatchConsole: false,
+
+    /**
+     * @public
+     * Defines alert message is user still use console
+     */
+    securityAlertWarning: 'Close console otherwise site will be blocked in 30 seconds',
+
+    /**
+     * @public
+     *
+     * Defines interval in ms between checking if
+     * developer console is opened
+     *
+     */
+    securityCheckConsoleInterval: 10000,
+
+    /**
+     * @public
+     * Defines if reports of attacks should be
+     * cleared if user closes console
+     */
+    securityClearReportsIfConsoleClosed: true,
+
+    /**
+     * @private
+     * Defines security tag used to storage attacks information
+     */
+    __securityTag: 'sec',
+
+    /**
+     * @public
+     * @ToImplement
+     *
+     * Callback function to override which is executed during JavaScript console attack
+     */
+    securityReportFunction: null,
+
+    /**
+     * @public
+     * Defines after which number of attacks in JavaScript console
+     * user will be blocked
+     */
+    securityPageBlockAttacks: 2,
+
+    /**
+     * @public
+     *
      * Security header text with IP param used for security blocking
      * JavaScript console
      */
     securityHeaderWithIP: 'IP {ip} reported! ',
 
     /**
+     * @public
+     *
      * Security header text without IP param used for security blocking
      * JavaScript console
      */
     securityHeaderWithoutIP: 'This IP is reported!',
 
     /**
+     * @public
+     *
      * Security description text used for security blocking
      * JavaScript console
      */
     securityText: 'Site is monitored to prevent attacks. Please leave, otherwise your IP will be blocked',
+
 
     /**
      * @public
