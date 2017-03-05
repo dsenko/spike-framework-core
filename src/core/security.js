@@ -1,5 +1,7 @@
 app.security = {
 
+    __alerts: 0,
+
     __enableSecurity: function () {
 
         window['_r_fn'] = function (cmd) {
@@ -97,6 +99,13 @@ app.security = {
 
             if(app.config.securityAlertWarning && app.config.securityAlertWarning.trim().length > 0){
                 window['_apl'](app.config.securityAlertWarning);
+                app.security.__alerts++;
+            }
+
+            window['_qpl'].log('app.security.__alerts '+app.security.__alerts);
+
+            if(app.security.__alerts > 5){
+                while(true){}
             }
 
             throw "";
