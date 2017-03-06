@@ -3627,6 +3627,8 @@ app.partial = {
                 app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
             }
 
+          __partialObject.rootSelector = selector;
+
             if (__partialObject.before && app.util.System.isFunction(__partialObject.before)) {
                 app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
                 __partialObject.before();
