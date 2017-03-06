@@ -135,7 +135,7 @@ app.abstract = {
      *
      */
     __extend: function(extendObjectName, extendedObject){
-        return $.extend(true, extendedObject, app.abstract[extendObjectName]);
+        return $.extend(true, {}, app.abstract[extendObjectName], extendedObject);
     }
 
 };
