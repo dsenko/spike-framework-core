@@ -342,6 +342,10 @@ app.modal = {
             var modalSelector = app.mCtx[modalObject.__name].__getWrapperModalSelector();
             modalSelector.attr('id', app.mCtx[modalObject.__name].__modalId);
 
+            app.mCtx[modalObject.__name].rootSelector = function(){
+                return app.mCtx[modalObject.__name].__getWrapperModalSelector();
+            }
+
             //Binds spike events
             app.system.__bindEvents(modalSelector);
 

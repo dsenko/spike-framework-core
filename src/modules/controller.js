@@ -88,6 +88,9 @@ app.controller = {
         //Setting name starting from lower case , used with templates and directories names of controller
         controllerObject.__lowerCaseName = controllerName.substring(0, 1).toLowerCase() + controllerName.substring(1, controllerName.length);
 
+        controllerObject.rootSelector = function(){
+            return app.controller.__getView().children();
+        }
 
         /**
          * @private

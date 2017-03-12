@@ -127,13 +127,18 @@ app.component = {
             var inlineAttributes = componentSelector.attrs();
             componentDataPassed = app.util.System.extend( componentDataPassed, inlineAttributes);
 
-            componentSelector.replaceWith(app.com[componentObject.__name].__template);
+            componentSelector = app.component.__replaceComponent(componentObject.__name, componentSelector, app.com[componentObject.__name].__template);
+            app.com[componentObject.__name].__componentSelector = componentSelector;
 
             //Binds spike events
             app.system.__bindEvents(componentSelector);
 
             //Translate DOM
             app.message.__translate();
+
+            app.com[componentObject.__name].rootSelector = function(){
+                return app.com[componentObject.__name].__componentSelector;
+            }
 
             componentDataPassed = app.util.System.extend( componentDataPassed, app.router.__getCurrentViewData().data);
 
@@ -143,6 +148,7 @@ app.component = {
             app.com[componentObject.__name].init(componentDataPassed);
 
         }
+
 
         /**
          * @private
@@ -204,6 +210,31 @@ app.component = {
         //Creating copy of component object in @private __dataArchive and in component[componentName] variable
         app.component.__dataArchive[componentObject.__name] = app.util.System.extend( {}, componentObject);
         app.component[componentObject.__name] = app.util.System.extend( {}, componentObject);
+
+    },
+
+    /**
+     * @private
+     *
+     * Function replaces component selector with given template
+     * and create component selector @component-name attribute into
+     * root element of given template
+     *
+     * @param componentName
+     * @param selector
+     * @param templateHtml
+     *
+     */
+    __replaceComponent: function (componentName, selector, templateHtml) {
+
+        var rootElementPart = templateHtml.substring(0, templateHtml.indexOf('>'))
+        rootElementPart += ' component-name="' + componentName + '" ';
+
+        templateHtml = rootElementPart + templateHtml.substring(templateHtml.indexOf('>'), templateHtml.length);
+
+        selector.replaceWith(templateHtml);
+
+        return $('[component-name="'+componentName+'"]');
 
     },
 
