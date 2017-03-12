@@ -227,6 +227,7 @@ app.rest = {
 
         var promise = {
             result: data,
+
             then: function(callback){
 
                 if(promise.result){
@@ -583,6 +584,24 @@ app.rest = {
             });
 
             promise.result = null;
+
+            // promise.__chains = [];
+            //
+            // promise.chain = function(processFunction){
+            //
+            //     promise.__chains.push(processFunction);
+            //
+            //     return promise;
+            //
+            // }
+            //
+            // promise.__processChains = function(){
+            //
+            //     for(var i = 0; i < promise.__chains.length; i++){
+            //         promise.result = promise.__chains[i](promise.result);
+            //     }
+            //
+            // }
 
             promise.then = function(callback){
 
