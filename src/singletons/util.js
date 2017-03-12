@@ -415,6 +415,36 @@ app.util = {
 
         eraseCookie: function (name) {
             app.util.System.createCookie(name, "", -1);
+        },
+
+        extend: function(obj1, obj2, obj3){
+
+            var result = {};
+
+            if(obj1){
+                result = app.util.System.mergeObjects(result, obj1);
+            }
+
+            if(obj2){
+                result = app.util.System.mergeObjects(result, obj2);
+            }
+
+            if(obj3){
+                result = app.util.System.mergeObjects(result, obj3);
+            }
+
+            return result;
+
+        },
+
+        mergeObjects: function(obj1, obj2){
+
+            for(var prop in obj1){
+                obj2[prop] = obj1[prop];
+            }
+
+            return obj2;
+
         }
 
     }

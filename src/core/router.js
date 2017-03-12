@@ -325,6 +325,16 @@ app.router = {
     },
 
     /**
+     * @public
+     *
+     * Function returns object with params stored in current browser URL
+     *
+     */
+    getURLParams: function(){
+        return app.router.__getURLParams();
+    },
+
+    /**
      * @private
      *
      * Function returns object with params stored in current browser URL
@@ -339,7 +349,6 @@ app.router = {
                 params[key] = app.util.System.tryParseNumber(value);
             });
         }
-
 
         return params;
 

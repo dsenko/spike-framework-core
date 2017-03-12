@@ -104,7 +104,7 @@ app.component = {
                 app.component[componentObject.__name].__globalRendered = true;
             }
 
-            app.component[componentObject.__name] = $.extend(true, {}, app.component.__dataArchive[componentObject.__name]);
+            app.component[componentObject.__name] = app.util.System.extend( {}, app.component.__dataArchive[componentObject.__name]);
             app.com[componentObject.__name] = app.component[componentObject.__name];
 
             app.com[componentObject.__name].__loadTemplate();
@@ -125,7 +125,7 @@ app.component = {
             app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
 
             var inlineAttributes = componentSelector.attrs();
-            componentDataPassed = $.extend(true, componentDataPassed, inlineAttributes);
+            componentDataPassed = app.util.System.extend( componentDataPassed, inlineAttributes);
 
             componentSelector.replaceWith(app.com[componentObject.__name].__template);
 
@@ -135,7 +135,7 @@ app.component = {
             //Translate DOM
             app.message.__translate();
 
-            componentDataPassed = $.extend(true, componentDataPassed, app.router.__getCurrentViewData().data);
+            componentDataPassed = app.util.System.extend( componentDataPassed, app.router.__getCurrentViewData().data);
 
             app.component.__initComponents(app.com[componentObject.__name].components);
             app.debug('Invoke component {0} init() function', [componentObject.__name]);
@@ -202,8 +202,8 @@ app.component = {
         componentObject.__createComponentViewPath(componentObject);
 
         //Creating copy of component object in @private __dataArchive and in component[componentName] variable
-        app.component.__dataArchive[componentObject.__name] = $.extend(true, {}, componentObject);
-        app.component[componentObject.__name] = $.extend(true, {}, componentObject);
+        app.component.__dataArchive[componentObject.__name] = app.util.System.extend( {}, componentObject);
+        app.component[componentObject.__name] = app.util.System.extend( {}, componentObject);
 
     },
 

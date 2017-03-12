@@ -26,10 +26,10 @@ app.abstract = {
      * Substitute method for register
      *
      * @param abstractName
-     * @param abstractObject
+     * @param abstractFunction
      */
-    add: function (abstractName, abstractObject) {
-        this.register(abstractName, abstractObject);
+    add: function (abstractName, abstractFunction) {
+        this.register(abstractName, abstractFunction);
     },
 
 
@@ -42,7 +42,7 @@ app.abstract = {
      * @param abstractName
      * @param abstractObject
      */
-    register: function (abstractName, abstractObject) {
+    register: function (abstractName, abstractFunction) {
 
         //Checks if name is not restricted
         app.system.__filterRestrictedNames(abstractName);
@@ -51,10 +51,10 @@ app.abstract = {
             app.system.__throwError(app.system.__messages.ABSTRACT_ALREADY_REGISTRED,[abstractName]);
         }
 
-        abstractObject.__name = abstractName;
-
-        app.abstract[abstractName] = abstractObject;
-
+        app.abstract[abstractName] = {
+            abstractFunction: abstractFunction,
+            __name: abstractName
+        }
     },
 
     /**
@@ -135,7 +135,7 @@ app.abstract = {
      *
      */
     __extend: function(extendObjectName, extendedObject){
-        return $.extend(true, {}, app.abstract[extendObjectName], extendedObject);
+        return app.abstract[extendObjectName].abstractFunction(extendedObject);
     }
 
 };
