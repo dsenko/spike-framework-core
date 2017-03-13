@@ -107,7 +107,7 @@ app.controller = {
         controllerObject.__render = function (controllerPassedData) {
             app.debug('Invoke controllerObject.__render with params: {0}', [controllerPassedData]);
 
-            app.controller[controllerObject.__name] = app.util.System.extend( {}, app.controller.__dataArchive[controllerObject.__name]);
+            app.controller[controllerObject.__name] = $.extend(true,  {}, app.controller.__dataArchive[controllerObject.__name]);
 
             var __oldControllerName = app.ctx ? app.ctx.__name : null;
 
@@ -210,8 +210,8 @@ app.controller = {
         controllerObject.__createControllerViewPath(controllerObject);
 
         //Creating copy of controller object in @private __dataArchive and in controller[controllerName]
-        app.controller.__dataArchive[controllerName] = app.util.System.extend( {}, controllerObject);
-        app.controller[controllerName] = app.util.System.extend( {}, controllerObject);
+        app.controller.__dataArchive[controllerName] = $.extend(true,  {}, controllerObject);
+        app.controller[controllerName] = $.extend(true,  {}, controllerObject);
 
     },
 

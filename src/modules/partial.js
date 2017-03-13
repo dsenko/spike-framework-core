@@ -43,12 +43,12 @@ app.partial = {
             model = {};
         }
 
-        app.partial[partial.__name] = app.util.System.extend( {}, app.partial.__dataArchive[partial.__name]);
+        app.partial[partial.__name] = $.extend(true,  {}, app.partial.__dataArchive[partial.__name]);
 
 
         app.debug('Returning partial {0} template ', [partial.__name]);
 
-        return partial.__template(app.util.System.extend( partial, model));
+        return partial.__template($.extend(true,  partial, model));
     },
 
     /**
@@ -113,7 +113,7 @@ app.partial = {
         partialObject.render = function (selector, model) {
             app.debug('Invoke partialObject.__render');
 
-            var __partialObject = app.util.System.extend( {}, app.partial.__dataArchive[partialObject.__name]);
+            var __partialObject = $.extend(true,  {}, app.partial.__dataArchive[partialObject.__name]);
 
             if (!selector) {
                 app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
@@ -128,7 +128,7 @@ app.partial = {
 
             app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
-            var renderedTemplate = __partialObject.__template(app.util.System.extend( __partialObject, model));
+            var renderedTemplate = __partialObject.__template($.extend(true,  __partialObject, model));
 
             //Includes static templates
             renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
@@ -194,8 +194,8 @@ app.partial = {
         partialObject.__loadTemplate();
 
         //Creating copy of partial object in @private __dataArchive and in partial[partialName]
-        app.partial.__dataArchive[partialName] = app.util.System.extend( {}, partialObject);
-        app.partial[partialName] = app.util.System.extend( {}, partialObject);
+        app.partial.__dataArchive[partialName] = $.extend(true,  {}, partialObject);
+        app.partial[partialName] = $.extend(true,  {}, partialObject);
 
     },
 
