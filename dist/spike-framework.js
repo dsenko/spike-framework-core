@@ -4677,11 +4677,7 @@ app.util = {
 
         mergeObjects: function(obj1, obj2){
 
-            for(var prop in obj1){
-                obj2[prop] = obj1[prop];
-            }
-
-            return obj2;
+          return $.extend(true, {}, obj1, obj2);
 
         }
 
