@@ -2581,7 +2581,7 @@ app.component = {
                 app.component[componentObject.__name].__globalRendered = true;
             }
 
-            app.component[componentObject.__name] = app.util.System.extend( {}, app.component.__dataArchive[componentObject.__name]);
+            app.component[componentObject.__name] = $.extend(true,  {}, app.component.__dataArchive[componentObject.__name]);
             app.com[componentObject.__name] = app.component[componentObject.__name];
 
             app.com[componentObject.__name].__loadTemplate();
@@ -2602,7 +2602,7 @@ app.component = {
             app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
 
             var inlineAttributes = componentSelector.attrs();
-            componentDataPassed = app.util.System.extend( componentDataPassed, inlineAttributes);
+            componentDataPassed = $.extend(true,  componentDataPassed, inlineAttributes);
 
             componentSelector = app.component.__replaceComponent(componentObject.__name, componentSelector, app.com[componentObject.__name].__template);
             app.com[componentObject.__name].__componentSelector = componentSelector;
@@ -2617,7 +2617,7 @@ app.component = {
                 return app.com[componentObject.__name].__componentSelector;
             }
 
-            componentDataPassed = app.util.System.extend( componentDataPassed, app.router.__getCurrentViewData().data);
+            componentDataPassed = $.extend(true,  componentDataPassed, app.router.__getCurrentViewData().data);
 
             app.component.__initComponents(app.com[componentObject.__name].components);
             app.debug('Invoke component {0} init() function', [componentObject.__name]);
@@ -2685,8 +2685,8 @@ app.component = {
         componentObject.__createComponentViewPath(componentObject);
 
         //Creating copy of component object in @private __dataArchive and in component[componentName] variable
-        app.component.__dataArchive[componentObject.__name] = app.util.System.extend( {}, componentObject);
-        app.component[componentObject.__name] = app.util.System.extend( {}, componentObject);
+        app.component.__dataArchive[componentObject.__name] = $.extend(true,  {}, componentObject);
+        app.component[componentObject.__name] = $.extend(true,  {}, componentObject);
 
     },
 
@@ -2915,7 +2915,7 @@ app.controller = {
         controllerObject.__render = function (controllerPassedData) {
             app.debug('Invoke controllerObject.__render with params: {0}', [controllerPassedData]);
 
-            app.controller[controllerObject.__name] = app.util.System.extend( {}, app.controller.__dataArchive[controllerObject.__name]);
+            app.controller[controllerObject.__name] = $.extend(true,  {}, app.controller.__dataArchive[controllerObject.__name]);
 
             var __oldControllerName = app.ctx ? app.ctx.__name : null;
 
@@ -3018,8 +3018,8 @@ app.controller = {
         controllerObject.__createControllerViewPath(controllerObject);
 
         //Creating copy of controller object in @private __dataArchive and in controller[controllerName]
-        app.controller.__dataArchive[controllerName] = app.util.System.extend( {}, controllerObject);
-        app.controller[controllerName] = app.util.System.extend( {}, controllerObject);
+        app.controller.__dataArchive[controllerName] = $.extend(true,  {}, controllerObject);
+        app.controller[controllerName] = $.extend(true,  {}, controllerObject);
 
     },
 
@@ -3352,7 +3352,7 @@ app.modal = {
         modalObject.__render = function (modalPassedData) {
             app.debug('Invoke modalObject.__render with params: {0}', [modalPassedData]);
 
-            app.modal[modalObject.__name] = app.util.System.extend( {}, app.modal.__dataArchive[modalObject.__name]);
+            app.modal[modalObject.__name] = $.extend(true,  {}, app.modal.__dataArchive[modalObject.__name]);
             app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
 
             app.mCtx[modalObject.__name].__loadTemplate();
@@ -3476,8 +3476,8 @@ app.modal = {
         modalObject.__createModalViewPath(modalObject);
 
         //Creating copy of modal object in @private __dataArchive and in modal[modalName] variable
-        app.modal.__dataArchive[modalObject.__name] = app.util.System.extend( {}, modalObject);
-        app.modal[modalObject.__name] = app.util.System.extend( {}, modalObject);
+        app.modal.__dataArchive[modalObject.__name] = $.extend(true,  {}, modalObject);
+        app.modal[modalObject.__name] = $.extend(true,  {}, modalObject);
 
 
     },
@@ -3598,12 +3598,12 @@ app.partial = {
             model = {};
         }
 
-        app.partial[partial.__name] = app.util.System.extend( {}, app.partial.__dataArchive[partial.__name]);
+        app.partial[partial.__name] = $.extend(true,  {}, app.partial.__dataArchive[partial.__name]);
 
 
         app.debug('Returning partial {0} template ', [partial.__name]);
 
-        return partial.__template(app.util.System.extend( partial, model));
+        return partial.__template($.extend(true,  partial, model));
     },
 
     /**
@@ -3668,7 +3668,7 @@ app.partial = {
         partialObject.render = function (selector, model) {
             app.debug('Invoke partialObject.__render');
 
-            var __partialObject = app.util.System.extend( {}, app.partial.__dataArchive[partialObject.__name]);
+            var __partialObject = $.extend(true,  {}, app.partial.__dataArchive[partialObject.__name]);
 
             if (!selector) {
                 app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
@@ -3683,7 +3683,7 @@ app.partial = {
 
             app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
-            var renderedTemplate = __partialObject.__template(app.util.System.extend( __partialObject, model));
+            var renderedTemplate = __partialObject.__template($.extend(true,  __partialObject, model));
 
             //Includes static templates
             renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
@@ -3749,8 +3749,8 @@ app.partial = {
         partialObject.__loadTemplate();
 
         //Creating copy of partial object in @private __dataArchive and in partial[partialName]
-        app.partial.__dataArchive[partialName] = app.util.System.extend( {}, partialObject);
-        app.partial[partialName] = app.util.System.extend( {}, partialObject);
+        app.partial.__dataArchive[partialName] = $.extend(true,  {}, partialObject);
+        app.partial[partialName] = $.extend(true,  {}, partialObject);
 
     },
 
@@ -3811,10 +3811,10 @@ app.abstract = {
      * Substitute method for register
      *
      * @param abstractName
-     * @param abstractFunction
+     * @param abstractObject
      */
-    add: function (abstractName, abstractFunction) {
-        this.register(abstractName, abstractFunction);
+    add: function (abstractName, abstractObject) {
+        this.register(abstractName, abstractObject);
     },
 
 
@@ -3827,7 +3827,7 @@ app.abstract = {
      * @param abstractName
      * @param abstractObject
      */
-    register: function (abstractName, abstractFunction) {
+    register: function (abstractName, abstractObject) {
 
         //Checks if name is not restricted
         app.system.__filterRestrictedNames(abstractName);
@@ -3836,10 +3836,10 @@ app.abstract = {
             app.system.__throwError(app.system.__messages.ABSTRACT_ALREADY_REGISTRED,[abstractName]);
         }
 
-        app.abstract[abstractName] = {
-            abstractFunction: abstractFunction,
-            __name: abstractName
-        }
+        abstractObject.__name = abstractName;
+
+        app.abstract[abstractName] = abstractObject;
+
     },
 
     /**
@@ -3920,7 +3920,7 @@ app.abstract = {
      *
      */
     __extend: function(extendObjectName, extendedObject){
-        return app.abstract[extendObjectName].abstractFunction(extendedObject);
+        return $.extend(true, {}, app.abstract[extendObjectName], extendedObject);
     }
 
 };/**
@@ -4655,31 +4655,6 @@ app.util = {
             app.util.System.createCookie(name, "", -1);
         },
 
-        extend: function(obj1, obj2, obj3){
-
-            var result = {};
-
-            if(obj1){
-                result = app.util.System.mergeObjects(result, obj1);
-            }
-
-            if(obj2){
-                result = app.util.System.mergeObjects(result, obj2);
-            }
-
-            if(obj3){
-                result = app.util.System.mergeObjects(result, obj3);
-            }
-
-            return result;
-
-        },
-
-        mergeObjects: function(obj1, obj2){
-
-          return $.extend(true, {}, obj1, obj2);
-
-        }
 
     }
 };
