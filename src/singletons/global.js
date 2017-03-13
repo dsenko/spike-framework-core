@@ -126,7 +126,7 @@ app.global = {
 
         };
 
-        this.__value = value;
+      app.global[globalName].__value = globalInitialValue;
 
     },
 
