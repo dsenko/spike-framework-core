@@ -119,9 +119,9 @@ app.util = {
          */
         bindStringParams: function (string, objectOrArrayParams) {
 
-            if (!objectOrArrayParams) {
-                return string;
-            }
+           if(string.indexOf('{') == -1 || objectOrArrayParams.toString().indexOf('[object Object]') > -1 || !objectOrArrayParams){
+             return string;
+           }
 
             if (objectOrArrayParams instanceof Array) {
 
