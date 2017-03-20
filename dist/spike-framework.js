@@ -308,6 +308,7 @@ app.system = {
         INHERIT_ABSTRACT_NOT_EXIST: 'Inheriting abstracts into {0} - some abstracts not exists',
         ABSTRACT_ALREADY_REGISTRED: 'Abstract {0} is already registred',
         INTERCEPTOR_ALREADY_REGISTRED: 'Interceptor {0} is already registred',
+        COMPONENT_NOT_DECLARED: 'Component {0} is not registred',
         COMPONENT_NOT_DECLARED_IN_COMPONENTS: 'Component {0} is not declared in "components" property',
         COMPONENT_NOT_DECLARED_IN_VIEW: 'Component {0} is not declared in parent view',
         PARITAL_INCLUDE_NOT_DEFINED: 'Try including not existing partial',
@@ -514,7 +515,10 @@ app.system = {
      *
      **/
     __throwError: function (errorMessage, errorMessageBinding) {
-        throw new Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+
+        console.log('throwing error ' + errorMessage);
+
+        throw  Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
     },
 
     /**
@@ -603,12 +607,28 @@ app.system = {
         controllerObject.__render(controllerInitialData);
 
         app.system.__onRenderEvent();
+        app.system.__checkComponentsIntegrity();
+
 
         if (afterRenderCallback) {
             afterRenderCallback();
         }
 
         app.ok('Selectors cache usage during app lifecycle: ' + app.system.__cacheUsageCounter);
+
+    },
+
+    /**
+     * @private
+     *
+     * Checks if after controller render still exists some unrendered components
+     * If exists, throw errors for all of them
+     */
+    __checkComponentsIntegrity: function () {
+
+        $('component').each(function (i, element) {
+            app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [$(element).attr('name')]);
+        });
 
     },
 
@@ -712,34 +732,34 @@ app.system = {
         app.warn('Spike version: {0}', [app.version]);
 
         //Waits until document is ready
-        $(document).ready(function () {
+        //$(document).ready(function () {
 
-            //Renders global components defined outside 'spike-view'
-            app.component.__initGlobalComponents();
+        //Renders global components defined outside 'spike-view'
+        app.component.__initGlobalComponents();
 
-            //Registreing router
-            app.router.__registerRouter();
+        //Registreing router
+        app.router.__registerRouter();
 
-            //Renders defined initial view (loading, splash etc)
-            app.system.__initialView();
+        //Renders defined initial view (loading, splash etc)
+        app.system.__initialView();
 
-            app.__cordova.__initializeCordova(function () {
+        app.__cordova.__initializeCordova(function () {
 
-                app.ok('Cordova initialized with app.config.mobileRun = {0}', [app.config.mobileRun]);
+            app.ok('Cordova initialized with app.config.mobileRun = {0}', [app.config.mobileRun]);
 
-                if (app.config.mobileRun) {
-                    app.__cordova.__deviceReadyCallBack = function () {
-                        app.__database.__createDB(callBack);
-                    };
-                } else {
-                    app.events.onDeviceReady();
+            if (app.config.mobileRun) {
+                app.__cordova.__deviceReadyCallBack = function () {
                     app.__database.__createDB(callBack);
-                }
-
-            });
-
+                };
+            } else {
+                app.events.onDeviceReady();
+                app.__database.__createDB(callBack);
+            }
 
         });
+
+
+        // });
 
 
     },
@@ -1016,7 +1036,7 @@ app.router = {
      * @private __pathFunction and @private __otherFunction
      *
      */
-    __getRouterFactory: function(){
+    __getRouterFactory: function () {
         return {
             path: app.router.__pathFunction,
             other: app.router.__otherFunction
@@ -1042,8 +1062,8 @@ app.router = {
      *
      * @param pathObject
      */
-    __otherFunction: function(pathObject){
-         return app.router.__pathFunction(app.router.__otherwiseReplacement, pathObject);
+    __otherFunction: function (pathObject) {
+        return app.router.__pathFunction(app.router.__otherwiseReplacement, pathObject);
     },
 
     /**
@@ -1182,7 +1202,7 @@ app.router = {
 
         if (app.config.routingEnabled) {
 
-            if(window.location.hash.substring(0,2) !== '#/'){
+            if (window.location.hash.substring(0, 2) !== '#/') {
                 window.location.hash = '#/';
             }
 
@@ -1190,8 +1210,10 @@ app.router = {
             app.__starting = false;
 
             $(window).bind('hashchange', function (e) {
+
                 app.router.__renderCurrentView();
                 app.router.__fireRouteEvents(e);
+
             });
 
         }
@@ -1203,13 +1225,13 @@ app.router = {
      *
      * Function iterate all registred events and fire them
      */
-    __fireRouteEvents: function(e){
+    __fireRouteEvents: function (e) {
 
         var currentRoute = app.router.getCurrentRoute();
 
-        $.each(app.router.__events, function(eventName, eventFunction){
+        $.each(app.router.__events, function (eventName, eventFunction) {
 
-            if(eventFunction){
+            if (eventFunction) {
                 eventFunction(e, currentRoute, app.currentController);
             }
 
@@ -1223,9 +1245,9 @@ app.router = {
      *
      * Function registers new route event fired when route changing
      */
-    onRouteChange: function(eventName, eventFunction){
+    onRouteChange: function (eventName, eventFunction) {
 
-        if(app.router.__events[eventName]){
+        if (app.router.__events[eventName]) {
             app.system.__throwWarn(app.system.__messages.ROUTE_EVENT_ALREADY_REGISTRED, [eventName]);
         }
 
@@ -1238,9 +1260,9 @@ app.router = {
      *
      * Function unregisters route event
      */
-    offRouteChange: function(eventName){
+    offRouteChange: function (eventName) {
 
-        if(app.router.__events[eventName]){
+        if (app.router.__events[eventName]) {
             app.router.__events[eventName] = null;
         }
 
@@ -1278,7 +1300,7 @@ app.router = {
      * Function returns object with params stored in current browser URL
      *
      */
-    getURLParams: function(){
+    getURLParams: function () {
         return app.router.__getURLParams();
     },
 
@@ -1292,7 +1314,7 @@ app.router = {
 
         var params = {};
 
-        if(window.location.href.indexOf('?') > -1){
+        if (window.location.href.indexOf('?') > -1) {
             window.location.href.substring(window.location.href.indexOf('?'), window.location.href.length).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
                 params[key] = app.util.System.tryParseNumber(value);
             });
@@ -1361,10 +1383,10 @@ app.router = {
                 routingParams: app.router.__endpoints[app.router.__otherwiseReplacement].routingParams,
                 __onRouteEvent: app.router.__endpoints[app.router.__otherwiseReplacement].onRouteEvent,
             };
-        }else{
+        } else {
             currentEndpointData.__controller = currentEndpoint.controller;
-            currentEndpointData.routingParams =  currentEndpoint.routingParams;
-            currentEndpointData.__onRouteEvent =  currentEndpoint.onRouteEvent;
+            currentEndpointData.routingParams = currentEndpoint.routingParams;
+            currentEndpointData.__onRouteEvent = currentEndpoint.onRouteEvent;
         }
 
 
@@ -1425,21 +1447,20 @@ app.router = {
      *
      * @param pathParams
      */
-    setPathParams: function(pathParams){
+    setPathParams: function (pathParams) {
 
         var currentViewData = app.router.__getCurrentViewData();
 
-        for(var pathParam in pathParams){
+        for (var pathParam in pathParams) {
 
-            if(currentViewData.data.pathParams[pathParam]
-            && !app.util.System.isNull(pathParams[pathParam])){
+            if (currentViewData.data.pathParams[pathParam]
+                && !app.util.System.isNull(pathParams[pathParam])) {
                 currentViewData.data.pathParams[pathParam] = pathParams[pathParam];
             }
 
         }
 
         app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams);
-
 
 
     },
@@ -1457,14 +1478,14 @@ app.router = {
      *
      * @param urlParams
      */
-    setURLParams: function(urlParams){
+    setURLParams: function (urlParams) {
 
         var currentViewData = app.router.__getCurrentViewData();
 
-        for(var urlParam in urlParams){
+        for (var urlParam in urlParams) {
 
-            if(currentViewData.data.urlParams[urlParam]
-                && !app.util.System.isNull(urlParams[urlParam])){
+            if (currentViewData.data.urlParams[urlParam]
+                && !app.util.System.isNull(urlParams[urlParam])) {
                 currentViewData.data.urlParams[urlParam] = urlParams[urlParam];
             }
 
@@ -1475,13 +1496,13 @@ app.router = {
     },
 
     /**
-    * @public
-    *
-    * Function returns current URI
-    *
-    */
+     * @public
+     *
+     * Function returns current URI
+     *
+     */
     getCurrentRoute: function () {
-       return window.location.hash.replace('#/','');
+        return window.location.hash.replace('#/', '');
     },
 
     /**
@@ -1494,16 +1515,16 @@ app.router = {
      * @param pathParams
      * @param urlParams
      */
-    __redirectToView: function(path, pathParams, urlParams){
+    __redirectToView: function (path, pathParams, urlParams) {
 
-        if(!path){
+        if (!path) {
             app.system.__throwError(app.system.__messages.REDIRECT_NO_PATH);
         }
 
-        path = path.replace('#/','/');
+        path = path.replace('#/', '/');
 
-        if(path[0] !== '/'){
-            path = '/'+path;
+        if (path[0] !== '/') {
+            path = '/' + path;
         }
 
         path = app.util.System.preparePathDottedParams(path, pathParams);
@@ -1543,7 +1564,7 @@ app.router = {
      * @param pathParams
      * @param urlParams
      */
-    redirect: function(path, pathParams, urlParams){
+    redirect: function (path, pathParams, urlParams) {
         app.router.__redirectToView(path, pathParams, urlParams);
     },
 
@@ -1554,12 +1575,12 @@ app.router = {
      *
      * @param path
      */
-    createLink: function(path){
+    createLink: function (path) {
 
-        if(path.substring(0,1) == '/'){
-            path = '#'+path;
-        }else if(path.substring(0,1) !== '#'){
-            path = '#/'+path;
+        if (path.substring(0, 1) == '/') {
+            path = '#' + path;
+        } else if (path.substring(0, 1) !== '#') {
+            path = '#/' + path;
         }
 
         return path;
@@ -1572,7 +1593,7 @@ app.router = {
      * Function forces going to previous page
      *
      */
-    back: function(){
+    back: function () {
         window.history.back();
     }
 
@@ -2595,7 +2616,7 @@ app.component = {
             var componentSelector = $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]');
 
             //Throws exception if component was declared in some module ex. controller, but is not declared in it's view
-            if(!componentSelector){
+            if(componentSelector.length === 0){
                 app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_VIEW, [componentObject.__name]);
             }
 
@@ -2742,7 +2763,7 @@ app.component = {
 
                     //Throws exception if component was declared in some view ex controller view, but is not defined
                     if(!app.component[componentName]){
-                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [componentName]);
+                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED, [componentName]);
                     }
 
                     app.component[componentName].__render(null);
@@ -2755,7 +2776,7 @@ app.component = {
 
                     //Throws exception if component was declared in some view ex controller view, but is not defined
                     if(!app.component[componentName]){
-                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [componentName]);
+                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED, [componentName]);
                     }
 
                     app.component[componentName].__render(componentParams);

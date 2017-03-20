@@ -308,6 +308,7 @@ app.system = {
         INHERIT_ABSTRACT_NOT_EXIST: 'Inheriting abstracts into {0} - some abstracts not exists',
         ABSTRACT_ALREADY_REGISTRED: 'Abstract {0} is already registred',
         INTERCEPTOR_ALREADY_REGISTRED: 'Interceptor {0} is already registred',
+        COMPONENT_NOT_DECLARED: 'Component {0} is not registred',
         COMPONENT_NOT_DECLARED_IN_COMPONENTS: 'Component {0} is not declared in "components" property',
         COMPONENT_NOT_DECLARED_IN_VIEW: 'Component {0} is not declared in parent view',
         PARITAL_INCLUDE_NOT_DEFINED: 'Try including not existing partial',
@@ -514,7 +515,10 @@ app.system = {
      *
      **/
     __throwError: function (errorMessage, errorMessageBinding) {
-        throw new Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+
+        console.log('throwing error ' + errorMessage);
+
+        throw  Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
     },
 
     /**
@@ -603,12 +607,28 @@ app.system = {
         controllerObject.__render(controllerInitialData);
 
         app.system.__onRenderEvent();
+        app.system.__checkComponentsIntegrity();
+
 
         if (afterRenderCallback) {
             afterRenderCallback();
         }
 
         app.ok('Selectors cache usage during app lifecycle: ' + app.system.__cacheUsageCounter);
+
+    },
+
+    /**
+     * @private
+     *
+     * Checks if after controller render still exists some unrendered components
+     * If exists, throw errors for all of them
+     */
+    __checkComponentsIntegrity: function () {
+
+        $('component').each(function (i, element) {
+            app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [$(element).attr('name')]);
+        });
 
     },
 
@@ -712,34 +732,34 @@ app.system = {
         app.warn('Spike version: {0}', [app.version]);
 
         //Waits until document is ready
-        $(document).ready(function () {
+        //$(document).ready(function () {
 
-            //Renders global components defined outside 'spike-view'
-            app.component.__initGlobalComponents();
+        //Renders global components defined outside 'spike-view'
+        app.component.__initGlobalComponents();
 
-            //Registreing router
-            app.router.__registerRouter();
+        //Registreing router
+        app.router.__registerRouter();
 
-            //Renders defined initial view (loading, splash etc)
-            app.system.__initialView();
+        //Renders defined initial view (loading, splash etc)
+        app.system.__initialView();
 
-            app.__cordova.__initializeCordova(function () {
+        app.__cordova.__initializeCordova(function () {
 
-                app.ok('Cordova initialized with app.config.mobileRun = {0}', [app.config.mobileRun]);
+            app.ok('Cordova initialized with app.config.mobileRun = {0}', [app.config.mobileRun]);
 
-                if (app.config.mobileRun) {
-                    app.__cordova.__deviceReadyCallBack = function () {
-                        app.__database.__createDB(callBack);
-                    };
-                } else {
-                    app.events.onDeviceReady();
+            if (app.config.mobileRun) {
+                app.__cordova.__deviceReadyCallBack = function () {
                     app.__database.__createDB(callBack);
-                }
-
-            });
-
+                };
+            } else {
+                app.events.onDeviceReady();
+                app.__database.__createDB(callBack);
+            }
 
         });
+
+
+        // });
 
 
     },

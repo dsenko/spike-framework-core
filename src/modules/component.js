@@ -118,7 +118,7 @@ app.component = {
             var componentSelector = $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]');
 
             //Throws exception if component was declared in some module ex. controller, but is not declared in it's view
-            if(!componentSelector){
+            if(componentSelector.length === 0){
                 app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_VIEW, [componentObject.__name]);
             }
 
@@ -265,7 +265,7 @@ app.component = {
 
                     //Throws exception if component was declared in some view ex controller view, but is not defined
                     if(!app.component[componentName]){
-                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [componentName]);
+                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED, [componentName]);
                     }
 
                     app.component[componentName].__render(null);
@@ -278,7 +278,7 @@ app.component = {
 
                     //Throws exception if component was declared in some view ex controller view, but is not defined
                     if(!app.component[componentName]){
-                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_COMPONENTS, [componentName]);
+                        app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED, [componentName]);
                     }
 
                     app.component[componentName].__render(componentParams);
