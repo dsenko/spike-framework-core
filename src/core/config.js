@@ -170,6 +170,15 @@ app.config = {
 
 
     /**
+     * @private
+     *
+     * Defined safe time after which closed/hidden modal is removed from DOM
+     *
+     */
+
+    __safeModalRemove: 5000,
+
+    /**
      * @public
      *
      * Defines routing object

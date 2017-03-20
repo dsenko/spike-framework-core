@@ -52,7 +52,7 @@ app.modal.implement('render', function(modalSelector, modalObject){
         }
 
         modalSelector.on('hidden.bs.modal', function () {
-            modalObject.__hidden = true;
+            modalObject.hide();
         })
     }
 

@@ -121,14 +121,21 @@ app.partial = {
 
           __partialObject.rootSelector = selector;
 
+            var partialModel = $.extend(true,  __partialObject, model);
+
             if (__partialObject.before && app.util.System.isFunction(__partialObject.before)) {
                 app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
-                __partialObject.before();
+                var returningModel = __partialObject.before(partialModel);
+
+                if(returningModel && returningModel.__name == __partialObject.__name){
+                    partialModel = returningModel;
+                }
+
             }
 
             app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
-            var renderedTemplate = __partialObject.__template($.extend(true,  __partialObject, model));
+            var renderedTemplate = __partialObject.__template(partialModel);
 
             //Includes static templates
             renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);

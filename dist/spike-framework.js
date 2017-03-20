@@ -1769,6 +1769,15 @@ app.config = {
 
 
     /**
+     * @private
+     *
+     * Defined safe time after which closed/hidden modal is removed from DOM
+     *
+     */
+
+    __safeModalRemove: 5000,
+
+    /**
      * @public
      *
      * Defines routing object
@@ -3284,9 +3293,6 @@ app.modal = {
             return app.modal[modalName];
         }
 
-        //Setting default value (modal by default is hidden)
-        modalObject.__hidden = false;
-
         //Setting original name of module
         modalObject.__name = modalName;
 
@@ -3476,8 +3482,6 @@ app.modal = {
          *
          */
         modalObject.show = function () {
-
-            app.modal[modalObject.__name].__hidden = false;
             app.modal.__onModalShowEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalShowEventDefault);
         };
 
@@ -3489,9 +3493,14 @@ app.modal = {
          *
          */
         modalObject.hide = function () {
-
-            app.modal[modalObject.__name].__hidden = true;
             app.modal.__onModalHideEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalHideEventDefault);
+
+            var wrapperSelector = app.modal[modalObject.__name].__getWrapperModalSelector().parent();
+
+            setTimeout(function(){
+                wrapperSelector.remove();
+            }, app.config.__safeModalRemove);
+
         };
 
         modalObject.__createModalViewPath(modalObject);
@@ -3697,14 +3706,21 @@ app.partial = {
 
           __partialObject.rootSelector = selector;
 
+            var partialModel = $.extend(true,  __partialObject, model);
+
             if (__partialObject.before && app.util.System.isFunction(__partialObject.before)) {
                 app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
-                __partialObject.before();
+                var returningModel = __partialObject.before(partialModel);
+
+                if(returningModel && returningModel.__name == __partialObject.__name){
+                    partialModel = returningModel;
+                }
+
             }
 
             app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
 
-            var renderedTemplate = __partialObject.__template($.extend(true,  __partialObject, model));
+            var renderedTemplate = __partialObject.__template(partialModel);
 
             //Includes static templates
             renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
@@ -6668,7 +6684,7 @@ app.modal.implement('render', function(modalSelector, modalObject){
         }
 
         modalSelector.on('hidden.bs.modal', function () {
-            modalObject.__hidden = true;
+            modalObject.hide();
         })
     }
 

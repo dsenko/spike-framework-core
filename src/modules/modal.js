@@ -213,9 +213,6 @@ app.modal = {
             return app.modal[modalName];
         }
 
-        //Setting default value (modal by default is hidden)
-        modalObject.__hidden = false;
-
         //Setting original name of module
         modalObject.__name = modalName;
 
@@ -405,8 +402,6 @@ app.modal = {
          *
          */
         modalObject.show = function () {
-
-            app.modal[modalObject.__name].__hidden = false;
             app.modal.__onModalShowEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalShowEventDefault);
         };
 
@@ -418,9 +413,14 @@ app.modal = {
          *
          */
         modalObject.hide = function () {
-
-            app.modal[modalObject.__name].__hidden = true;
             app.modal.__onModalHideEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalHideEventDefault);
+
+            var wrapperSelector = app.modal[modalObject.__name].__getWrapperModalSelector().parent();
+
+            setTimeout(function(){
+                wrapperSelector.remove();
+            }, app.config.__safeModalRemove);
+
         };
 
         modalObject.__createModalViewPath(modalObject);
