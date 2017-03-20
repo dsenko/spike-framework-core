@@ -417,6 +417,18 @@ app.util = {
             app.util.System.createCookie(name, "", -1);
         },
 
+        escapeQuotes: function (text) {
+
+            try {
+                text = text.replace(/'/g, "\\'");
+            } catch (err) {
+                app.warn('Could not escape single quotes in string: ' + text);
+            }
+
+            return text;
+
+        }
+
 
     }
 };
