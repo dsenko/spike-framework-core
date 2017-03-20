@@ -587,7 +587,9 @@ app.system = {
         app.log('Rendering controller {0}', [controllerObject.__name]);
 
         //Scrolling to top of page
-        $(window).scrollTop(0);
+        if(controllerObject.scrollTop == true){
+            $(window).scrollTop(0);
+        }
 
         //Invalidates all existing modals (even hidden)
         app.modal.invalidateAll();
@@ -2342,168 +2344,172 @@ app.__cordova = {
  */
 app.message = {
 
-  /**
-   * @private
-   * Information if translations has been downloaded
-   */
-  __waitingForTranslations: {},
+    /**
+     * @private
+     * Information if translations has been downloaded
+     */
+    __waitingForTranslations: {},
 
-  /**
-   * @private
-   * Storage for translation data
-   */
-  __messages: {},
+    /**
+     * @private
+     * Storage for translation data
+     */
+    __messages: {},
 
-  /**
-   * @public
-   *
-   * Substitute method for register
-   *
-   * @param languageName
-   * @param languageFilePath
-   */
-  add: function (languageName, languageFilePath) {
-    this.register(languageName, languageFilePath);
-  },
+    /**
+     * @public
+     *
+     * Substitute method for register
+     *
+     * @param languageName
+     * @param languageFilePath
+     */
+    add: function (languageName, languageFilePath) {
+        return this.register(languageName, languageFilePath);
+    },
 
-  /**
-   * @public
-   *
-   * Registering new language translation from hosted file
-   * File can be hosted locally or from server
-   *
-   * @param languageName
-   * @param languageFilePath
-   */
-  register: function (languageName, languageFilePath) {
+    /**
+     * @public
+     *
+     * Registering new language translation from hosted file
+     * File can be hosted locally or from server
+     *
+     * @param languageName
+     * @param languageFilePath
+     */
+    register: function (languageName, languageFilePath) {
 
-    app.log('register translation {0}', [languageName]);
+        app.log('register translation {0}', [languageName]);
 
-    app.message.__waitingForTranslations[languageName] = false;
+        app.message.__waitingForTranslations[languageName] = false;
 
-    $.ajax({
-      url: languageFilePath,
-      type: 'GET',
-      success: function (data) {
+        var promise = $.ajax({
+            url: languageFilePath,
+            type: 'GET'
+        });
 
-        app.log('AJAX loaded');
+        promise.then(function (data) {
 
-        app.message.__setTranslation(languageName, data);
+            app.message.__setTranslation(languageName, data);
 
-      },
-      error: function (error) {
+            return data;
 
-        app.log('AJAX error {0} ', [error]);
+        });
 
-        if (error.status == 200) {
-          app.message.__setTranslation(languageName, error.responseText);
-        } else {
-          app.message.__messages[languageName] = {};
-          app.system.__throwWarn(app.system.__messages.TRANSLATION_LOAD_WARN, [languageName, error.status]);
+        promise.catch(function (error) {
+
+            if (error.status == 200) {
+                app.message.__setTranslation(languageName, error.responseText);
+            } else {
+                app.message.__messages[languageName] = {};
+                app.system.__throwWarn(app.system.__messages.TRANSLATION_LOAD_WARN, [languageName, error.status]);
+            }
+
+            return error;
+
+        });
+
+        return promise;
+
+    },
+
+    __setTranslation: function (languageName, translationData) {
+
+        if (typeof translationData === 'string') {
+
+            try {
+                translationData = JSON.parse(translationData);
+            } catch (err) {
+                app.system.__throwError(app.system.__messages.TRANSLATION_PARSING, [languageName]);
+            }
+
         }
 
-      }
-    });
+        app.message.__messages[languageName] = translationData;
+        app.message.__waitingForTranslations[languageName] = true;
+    },
 
-  },
 
-  __setTranslation: function (languageName, translationData) {
+    /**
+     * @public
+     *
+     * Function to retrieve single translation for named message
+     * using existing language from @app.config.lang
+     *
+     * @param messageName
+     */
+    get: function (messageName) {
+        return app.message.__messages[app.config.lang][messageName] || messageName;
+    },
 
-    if (typeof translationData === 'string') {
+    /**
+     * @private
+     *
+     * Function to translate all existing messages in DOM
+     * Wait's until translation file is downloaded
+     *
+     *
+     * @param html
+     */
+    __translate: function () {
 
-      try {
-        translationData = JSON.parse(translationData);
-      } catch (err) {
-        app.system.__throwError(app.system.__messages.TRANSLATION_PARSING, [languageName]);
-      }
+        if (app.message.__waitingForTranslations[app.config.lang] == undefined) {
+            app.system.__throwError(app.system.__messages.TRANSLATION_NOT_EXIST, [app.config.lang])
+        }
 
+        setTimeout(function () {
+
+            if (app.message.__waitingForTranslations[app.config.lang] == true) {
+                app.message.__translateDOM();
+            } else if (app.message.__waitingForTranslations[app.config.lang] == false) {
+                app.message.__translate();
+            }
+
+        }, 100);
+
+    },
+
+    /**
+     * @private
+     *
+     * Function to translate all existing messages in DOM based on @attr spike-translation
+     *
+     * @param html
+     */
+    __translateDOM: function () {
+
+        app.log('__translateDOM');
+
+        //$(document).ready(function () {
+
+        $('[' + app.__attributes.TRANSLATION + ']').each(function () {
+
+            var messageName = $(this).attr(app.__attributes.TRANSLATION);
+            $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
+
+        });
+
+        //});
+
+    },
+
+    /**
+     * @private
+     *
+     * Replaces all occurences of translation keys to translations
+     * in template html
+     * @param templateHtml
+     */
+    __replaceTemplateKeys: function (templateHtml) {
+
+        for (var messageName in app.message.__messages[app.config.lang]) {
+
+            templateHtml = templateHtml.split('>' + messageName + '<').join('>' + app.message.__messages[app.config.lang][messageName] + '<');
+
+        }
+
+        return templateHtml;
     }
-
-    app.message.__messages[languageName] = translationData;
-    app.message.__waitingForTranslations[languageName] = true;
-  },
-
-
-  /**
-   * @public
-   *
-   * Function to retrieve single translation for named message
-   * using existing language from @app.config.lang
-   *
-   * @param messageName
-   */
-  get: function (messageName) {
-    return app.message.__messages[app.config.lang][messageName] || messageName;
-  },
-
-  /**
-   * @private
-   *
-   * Function to translate all existing messages in DOM
-   * Wait's until translation file is downloaded
-   *
-   *
-   * @param html
-   */
-  __translate: function () {
-
-    if (app.message.__waitingForTranslations[app.config.lang] == undefined) {
-      app.system.__throwError(app.system.__messages.TRANSLATION_NOT_EXIST, [app.config.lang])
-    }
-
-    setTimeout(function () {
-
-      if (app.message.__waitingForTranslations[app.config.lang] == true) {
-        app.message.__translateDOM();
-      } else if (app.message.__waitingForTranslations[app.config.lang] == false) {
-        app.message.__translate();
-      }
-
-    }, 100);
-
-  },
-
-  /**
-   * @private
-   *
-   * Function to translate all existing messages in DOM based on @attr spike-translation
-   *
-   * @param html
-   */
-  __translateDOM: function () {
-
-    app.log('__translateDOM');
-
-    $(document).ready(function () {
-
-      $('[' + app.__attributes.TRANSLATION + ']').each(function () {
-
-        var messageName = $(this).attr(app.__attributes.TRANSLATION);
-        $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
-
-      });
-
-    });
-
-  },
-
-  /**
-   * @private
-   *
-   * Replaces all occurences of translation keys to translations
-   * in template html
-   * @param templateHtml
-   */
-  __replaceTemplateKeys: function (templateHtml) {
-
-    for(var messageName in app.message.__messages[app.config.lang]){
-
-      templateHtml = templateHtml.split('>'+messageName+'<').join('>'+app.message.__messages[app.config.lang][messageName]+'<');
-
-    }
-
-    return templateHtml;
-  }
 
 };/**
  * @public
@@ -2918,6 +2924,11 @@ app.controller = {
         //Setting @public components to empty array if not defined
         if (!controllerObject.components) {
             controllerObject.components = [];
+        }
+
+        //Setting @public scrollTop variable if not defined
+        if (!controllerObject.scrollTop) {
+            controllerObject.scrollTop = true;
         }
 
         //Setting original name of module
@@ -6312,54 +6323,13 @@ app.rest = {
                 dataType: dataType
             });
 
-            promise.result = null;
+            promise.then(function(result){
+                app.rest.__invokeInterceptors(result, promise, interceptors);
+            });
 
-            // promise.__chains = [];
-            //
-            // promise.chain = function(processFunction){
-            //
-            //     promise.__chains.push(processFunction);
-            //
-            //     return promise;
-            //
-            // }
-            //
-            // promise.__processChains = function(){
-            //
-            //     for(var i = 0; i < promise.__chains.length; i++){
-            //         promise.result = promise.__chains[i](promise.result);
-            //     }
-            //
-            // }
-
-            promise.then = function(callback){
-
-                promise.done(function(result){
-
-                    if(promise.result){
-                        result = promise.result;
-                    }
-
-                    app.rest.__invokeInterceptors(result, promise, interceptors);
-
-                    var _result = callback(result, promise);
-
-                    if(_result){
-                        promise.result = _result;
-                    }
-
-                });
-
-                return promise;
-            };
-
-            promise.catch = function(callback){
-                promise.fail(function(error){
-                    app.rest.__invokeInterceptors(error, promise, interceptors);
-					callback(error, promise);
-				});
-                return promise;
-            };
+            promise.catch(function(error){
+                app.rest.__invokeInterceptors(error, promise, interceptors);
+            });
 
             return promise;
 
@@ -6438,41 +6408,19 @@ app.rest = {
                 dataType: dataType
             });
 
-           
-            promise.then = function(callback){
+            promise.then(function(result){
+                app.rest.__invokeInterceptors(result, promise, interceptors);
+            });
 
-                promise.done(function(result){
-
-                    if(promise.result){
-                        result = promise.result;
-                    }
-
-                    app.rest.__invokeInterceptors(result, promise, interceptors);
-
-                    var _result = callback(result, promise);
-
-                    if(_result){
-                        promise.result = _result;
-                    }
-
-                });
-
-                return promise;
-            };
-
-            promise.catch = function(callback){
-                promise.fail(function(error){
-                    app.rest.__invokeInterceptors(error, promise, interceptors);
-					callback(error, promise);
-				});
-                return promise;
-            };
+            promise.catch(function(error){
+                app.rest.__invokeInterceptors(error, promise, interceptors);
+            });
 
             return promise;
 
         });
 
-    }
+    },
 
 
 };/**

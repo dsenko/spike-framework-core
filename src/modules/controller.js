@@ -82,6 +82,11 @@ app.controller = {
             controllerObject.components = [];
         }
 
+        //Setting @public scrollTop variable if not defined
+        if (!controllerObject.scrollTop) {
+            controllerObject.scrollTop = true;
+        }
+
         //Setting original name of module
         controllerObject.__name = controllerName;
 

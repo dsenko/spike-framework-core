@@ -587,7 +587,9 @@ app.system = {
         app.log('Rendering controller {0}', [controllerObject.__name]);
 
         //Scrolling to top of page
-        $(window).scrollTop(0);
+        if(controllerObject.scrollTop == true){
+            $(window).scrollTop(0);
+        }
 
         //Invalidates all existing modals (even hidden)
         app.modal.invalidateAll();

@@ -583,54 +583,13 @@ app.rest = {
                 dataType: dataType
             });
 
-            promise.result = null;
+            promise.then(function(result){
+                app.rest.__invokeInterceptors(result, promise, interceptors);
+            });
 
-            // promise.__chains = [];
-            //
-            // promise.chain = function(processFunction){
-            //
-            //     promise.__chains.push(processFunction);
-            //
-            //     return promise;
-            //
-            // }
-            //
-            // promise.__processChains = function(){
-            //
-            //     for(var i = 0; i < promise.__chains.length; i++){
-            //         promise.result = promise.__chains[i](promise.result);
-            //     }
-            //
-            // }
-
-            promise.then = function(callback){
-
-                promise.done(function(result){
-
-                    if(promise.result){
-                        result = promise.result;
-                    }
-
-                    app.rest.__invokeInterceptors(result, promise, interceptors);
-
-                    var _result = callback(result, promise);
-
-                    if(_result){
-                        promise.result = _result;
-                    }
-
-                });
-
-                return promise;
-            };
-
-            promise.catch = function(callback){
-                promise.fail(function(error){
-                    app.rest.__invokeInterceptors(error, promise, interceptors);
-					callback(error, promise);
-				});
-                return promise;
-            };
+            promise.catch(function(error){
+                app.rest.__invokeInterceptors(error, promise, interceptors);
+            });
 
             return promise;
 
@@ -709,41 +668,19 @@ app.rest = {
                 dataType: dataType
             });
 
-           
-            promise.then = function(callback){
+            promise.then(function(result){
+                app.rest.__invokeInterceptors(result, promise, interceptors);
+            });
 
-                promise.done(function(result){
-
-                    if(promise.result){
-                        result = promise.result;
-                    }
-
-                    app.rest.__invokeInterceptors(result, promise, interceptors);
-
-                    var _result = callback(result, promise);
-
-                    if(_result){
-                        promise.result = _result;
-                    }
-
-                });
-
-                return promise;
-            };
-
-            promise.catch = function(callback){
-                promise.fail(function(error){
-                    app.rest.__invokeInterceptors(error, promise, interceptors);
-					callback(error, promise);
-				});
-                return promise;
-            };
+            promise.catch(function(error){
+                app.rest.__invokeInterceptors(error, promise, interceptors);
+            });
 
             return promise;
 
         });
 
-    }
+    },
 
 
 };
