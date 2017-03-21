@@ -515,10 +515,7 @@ app.system = {
      *
      **/
     __throwError: function (errorMessage, errorMessageBinding) {
-
-        console.log('throwing error ' + errorMessage);
-
-        throw  Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+        throw Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
     },
 
     /**
@@ -1568,6 +1565,39 @@ app.router = {
      */
     redirect: function (path, pathParams, urlParams) {
         app.router.__redirectToView(path, pathParams, urlParams);
+    },
+
+    /**
+     * @public
+     *
+     * Opens given URL/URI using window.location or window.open
+     * if @redirectType provided
+     *
+     * @param url
+     * @param redirectType
+     */
+    location: function (url, redirectType) {
+
+        if(redirectType){
+
+            redirectType = redirectType.toLowerCase();
+
+            if(redirectType.indexOf('blank') > -1){
+                redirectType = '_blank';
+            }else if(redirectType.indexOf('self') > -1){
+                redirectType = '_self';
+            }else if(redirectType.indexOf('parent') > -1){
+                redirectType = '_parent';
+            }else if(redirectType.indexOf('top') > -1){
+                redirectType = '_top';
+            }
+
+            window.open(url, redirectType);
+
+        } else {
+            window.location = url;
+        }
+
     },
 
     /**

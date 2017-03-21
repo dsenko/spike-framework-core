@@ -603,6 +603,39 @@ app.router = {
     /**
      * @public
      *
+     * Opens given URL/URI using window.location or window.open
+     * if @redirectType provided
+     *
+     * @param url
+     * @param redirectType
+     */
+    location: function (url, redirectType) {
+
+        if(redirectType){
+
+            redirectType = redirectType.toLowerCase();
+
+            if(redirectType.indexOf('blank') > -1){
+                redirectType = '_blank';
+            }else if(redirectType.indexOf('self') > -1){
+                redirectType = '_self';
+            }else if(redirectType.indexOf('parent') > -1){
+                redirectType = '_parent';
+            }else if(redirectType.indexOf('top') > -1){
+                redirectType = '_top';
+            }
+
+            window.open(url, redirectType);
+
+        } else {
+            window.location = url;
+        }
+
+    },
+
+    /**
+     * @public
+     *
      * Prepares passed @path as relative link accepted by router
      *
      * @param path
