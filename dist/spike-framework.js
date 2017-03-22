@@ -4439,6 +4439,10 @@ app.util = {
          */
         bindStringParams: function (string, objectOrArrayParams) {
 
+          if(!string){
+            return '';
+          }
+
            if(string.indexOf('{') == -1 || objectOrArrayParams.toString().indexOf('[object Object]') > -1 || !objectOrArrayParams){
              return string;
            }
