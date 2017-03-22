@@ -570,11 +570,16 @@ app.rest = {
 
         };
 
-        if(headers && headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
+
+        if(!headers){
+          headers = {}
+        }
+
+        if(headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
           contentType = headers['Content-Type'];
         }
 
-        if(headers && headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
+        if(headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
           dataType = headers['Data-Type'];
         }
 
@@ -672,12 +677,15 @@ app.rest = {
                 }
             };
 
+          if(!headers){
+            headers = {}
+          }
 
-          if(headers && headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
+          if(headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
             contentType = headers['Content-Type'];
           }
 
-          if(headers && headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
+          if(headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
             dataType = headers['Data-Type'];
           }
 

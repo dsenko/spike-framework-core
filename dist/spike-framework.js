@@ -883,7 +883,7 @@ app.system = {
 
             var eventFunctionBody = element.attr('spike-event-' + eventName);
 
-            element.off().on(eventName, Function(eventFunctionBody));
+            element.off(eventName).on(eventName, Function(eventFunctionBody));
 
         });
 
@@ -6356,11 +6356,16 @@ app.rest = {
 
         };
 
-        if(headers && headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
+
+        if(!headers){
+          headers = {}
+        }
+
+        if(headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
           contentType = headers['Content-Type'];
         }
 
-        if(headers && headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
+        if(headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
           dataType = headers['Data-Type'];
         }
 
@@ -6458,12 +6463,15 @@ app.rest = {
                 }
             };
 
+          if(!headers){
+            headers = {}
+          }
 
-          if(headers && headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
+          if(headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
             contentType = headers['Content-Type'];
           }
 
-          if(headers && headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
+          if(headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
             dataType = headers['Data-Type'];
           }
 
