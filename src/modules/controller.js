@@ -120,7 +120,7 @@ app.controller = {
 
             app.ctx.__loadTemplate();
 
-            app.currentController = controllerObject.__name.toLowerCase();
+            app.currentController = controllerObject.__name;
 
             app.debug('Binding controller {0} template to DOM element with "view" attribute ', [app.ctx.__name]);
 
