@@ -75,6 +75,13 @@ var app = {
     currentController: null,
 
     getCurrentController: function () {
+
+        var endpoint = app.router.__getCurrentViewData().endpoint;
+
+        if(endpoint){
+            return endpoint.controller;
+        }
+
         return app.currentController || app.config.mainController;
     },
 
