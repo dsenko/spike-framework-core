@@ -883,7 +883,7 @@ app.system = {
 
             var eventFunctionBody = element.attr('spike-event-' + eventName);
 
-            element.off().on(eventName, Function(eventFunctionBody));
+            element.off(eventName).on(eventName, Function(eventFunctionBody));
 
         });
 
