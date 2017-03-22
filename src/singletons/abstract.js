@@ -53,6 +53,12 @@ app.abstract = {
 
         abstractObject.__name = abstractName;
 
+
+        if(abstractObject.inherits){
+            // Apply extending from abstracts
+            abstractObject = app.abstract.__tryExtend(abstractName, abstractObject.inherits, abstractObject);
+        }
+
         app.abstract[abstractName] = abstractObject;
 
     },
