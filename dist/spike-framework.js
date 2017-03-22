@@ -6290,64 +6290,83 @@ app.rest = {
      */
     __getDelete: function (url, method, pathParams, headers, urlParams, interceptors) {
 
-        return app.rest.__isMock(url, method, null, interceptors, function(){
+      return app.rest.__isMock(url, method, null, interceptors, function(){
 
-            var preparedUrl = url;
+        var preparedUrl = url;
 
-            if(pathParams !== undefined && pathParams !== null){
-                preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
+        if(pathParams !== undefined && pathParams !== null){
+          preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
+        }
+
+        if(urlParams !== undefined && urlParams !== null){
+          preparedUrl = app.util.System.prepareUrlParams(url, urlParams);
+        }
+
+        var dataType =  "json";
+        var contentType = "application/json; charset=utf-8";
+
+
+        var promiseObj = {
+          url: preparedUrl,
+          type: method,
+          beforeSend: function () {
+
+            if(!app.rest.isSpinnerExcluded(url)){
+              app.rest.spinnerShow(url);
             }
 
-            if(urlParams !== undefined && urlParams !== null){
-                preparedUrl = app.util.System.prepareUrlParams(url, urlParams);
+          },
+          complete: function () {
+
+            if(!app.rest.isSpinnerExcluded(url)){
+              app.rest.spinnerHide(url);
             }
 
-            var dataType =  "json";
-            var contentType = "application/json; charset=utf-8";
+          },
 
-            if(headers && headers['Content-Type']){
-                contentType = headers['Content-Type'];
-            }
+        };
 
-            if(headers && headers.contentType){
-                contentType = headers.contentType;
-            }
+        if(headers && headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
+          contentType = headers['Content-Type'];
+        }
 
-            if(headers && headers.dataType){
-                dataType = headers.dataType;
-            }
+        if(headers && headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
+          dataType = headers['Data-Type'];
+        }
 
-            var promise = $.ajax({
-                url: preparedUrl,
-                type: method,
-                beforeSend: function () {
 
-                    if(!app.rest.isSpinnerExcluded(url)){
-                        app.rest.spinnerShow(url);
-                    }
+        if(headers['Content-Type'] !== null){
+          promiseObj.contentType = headers['Content-Type'] || contentType;
+        }
 
-                },
-                complete: function () {
+        if(headers['Data-Type'] !== null){
+          promiseObj.dataType = headers['Data-Type'] || dataType;
+        }
 
-                    if(!app.rest.isSpinnerExcluded(url)){
-                        app.rest.spinnerHide(url);
-                    }
+        var newHeaders = {};
+        for(var prop in headers){
+          if(headers[prop] !== undefined && headers[prop] !== null){
+            newHeaders[prop] = headers[prop];
+          }
+        }
 
-                },
-                headers: headers,
-                contentType: contentType,
-                dataType: dataType
-            });
+        headers = newHeaders;
 
-            promise.then(function(result){
-                app.rest.__invokeInterceptors(result, promise, interceptors);
-            });
 
-            promise.catch(function(error){
-                app.rest.__invokeInterceptors(error, promise, interceptors);
-            });
+        promiseObj.headers = headers;
 
-            return promise;
+
+        var promise = $.ajax(promiseObj);
+
+        promise.then(function(result){
+          app.rest.__invokeInterceptors(result, promise, interceptors);
+        });
+
+        promise.catch(function(error){
+          app.rest.__invokeInterceptors(error, promise, interceptors);
+        });
+
+        return promise;
 
         });
 
@@ -6389,19 +6408,7 @@ app.rest = {
             var dataType =  "json";
             var contentType = "application/json; charset=utf-8";
 
-            if(headers && headers['Content-Type']){
-                contentType = headers['Content-Type'];
-            }
-
-            if(headers && headers.contentType){
-                contentType = headers.contentType;
-            }
-
-            if(headers && headers.dataType){
-                dataType = headers.dataType;
-            }
-
-            var promise = $.ajax({
+            var promiseObj = {
                 url: preparedUrl,
                 data: jsonData,
                 type: method,
@@ -6418,11 +6425,41 @@ app.rest = {
                         app.rest.spinnerHide(url);
                     }
 
-                },
-                headers: headers,
-                contentType: contentType,
-                dataType: dataType
-            });
+                }
+            };
+
+
+          if(headers && headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
+            contentType = headers['Content-Type'];
+          }
+
+          if(headers && headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
+            dataType = headers['Data-Type'];
+          }
+
+
+          if(headers['Content-Type'] !== null){
+            promiseObj.contentType = headers['Content-Type'] || contentType;
+          }
+
+          if(headers['Data-Type'] !== null){
+            promiseObj.dataType = headers['Data-Type'] || dataType;
+          }
+
+          var newHeaders = {};
+          for(var prop in headers){
+            if(headers[prop] !== undefined && headers[prop] !== null){
+              newHeaders[prop] = headers[prop];
+            }
+          }
+
+          headers = newHeaders;
+
+
+          promiseObj.headers = headers;
+
+
+          var promise = $.ajax(promiseObj);
 
             promise.then(function(result){
                 app.rest.__invokeInterceptors(result, promise, interceptors);
