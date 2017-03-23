@@ -83,7 +83,7 @@ app.controller = {
         }
 
         //Setting @public scrollTop variable if not defined
-        if (!controllerObject.scrollTop) {
+        if (controllerObject.scrollTop == undefined || controllerObject.scrollTop == null) {
             controllerObject.scrollTop = true;
         }
 
