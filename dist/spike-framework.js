@@ -2610,6 +2610,9 @@ app.component = {
         //Setting type of module
         componentObject.__type = 'COMPONENT';
 
+          //Setting ready of module
+          componentObject.__rendered = false;
+
         //Setting self helper
         componentObject.self = function() {
             return app.component[componentName];
@@ -2698,16 +2701,16 @@ app.component = {
             //Translate DOM
             app.message.__translate();
 
-            app.com[componentObject.__name].rootSelector = function(){
-                return app.com[componentObject.__name].__componentSelector;
-            }
-
             componentDataPassed = $.extend(true,  componentDataPassed, app.router.__getCurrentViewData().data);
+
+            //Setting ready of module
+          app.com[componentObject.__name].__rendered = true;
 
             app.component.__initComponents(app.com[componentObject.__name].components);
             app.debug('Invoke component {0} init() function', [componentObject.__name]);
 
             app.com[componentObject.__name].init(componentDataPassed);
+
 
         }
 
