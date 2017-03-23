@@ -2631,6 +2631,18 @@ app.component = {
             componentObject.__global = false;
         }
 
+          componentObject.rootSelector = function(){
+
+            var componentSelector = $('component[name="' + componentObject.__lowerCaseName + '"]');
+
+            if(componentSelector && componentSelector.length == 1){
+              return componentSelector;
+            }else {
+              return $('[component-name="'+componentObject.__name+'"]');
+            }
+
+          }
+
         /**
          * @private
          *
