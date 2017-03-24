@@ -3691,10 +3691,28 @@ app.partial = {
       model = {};
     }
 
+    if (partial.before && app.util.System.isFunction(partial.before)) {
+      app.debug('Invokes partial  {0} before() function', [partial.__name]);
+      var returningModel = partial.before(model);
+
+      if (returningModel) {
+        model = returningModel;
+      }
+
+    }
+
     app.partial[partial.__name] = $.extend(true, {}, app.partial.__dataArchive[partial.__name]);
 
-
     app.debug('Returning partial {0} template ', [partial.__name]);
+
+    if (partial.after && app.util.System.isFunction(partial.after)) {
+      app.debug('Invokes partial  {0} after() function', [partial.__name]);
+
+      setTimeout(function(){
+        partial.after(model, partial.rootSelector);
+      }, 500);
+
+    }
 
     return partial.__template($.extend(true, partial, model));
   },
