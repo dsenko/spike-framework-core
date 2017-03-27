@@ -6711,7 +6711,7 @@ jQuery.fn.extend({
 
                 this.name = this.name.replace('data-','');
 
-                attributesMap[app.util.System.toCamelCase(this.name)] = this.value;
+                attributesMap[app.util.System.toCamelCase(this.name)] = app.util.System.tryParseNumber(this.value);
             }
         });
 
