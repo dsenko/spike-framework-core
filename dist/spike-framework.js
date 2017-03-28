@@ -2476,13 +2476,18 @@ app.message = {
      *
      * @param messageName
      */
-    get: function (messageName) {
+    get: function (messageName, arrayOrMapParams) {
 
-        if(!app.message.__messages[app.config.lang][messageName]){
+        var message = app.message.__messages[app.config.lang][messageName];
+        if(!message){
             app.system.__throwWarn(app.system.__messages.TRANSLATION_MESSAGE_NOT_FOUND, [messageName])
         }
 
-        return app.message.__messages[app.config.lang][messageName] || messageName;
+        if(arrayOrMapParams && message){
+            message = app.util.System.bindStringParams(message, arrayOrMapParams);
+        }
+
+        return message || messageName;
     },
 
     /**
