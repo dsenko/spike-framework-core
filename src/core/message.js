@@ -115,6 +115,11 @@ app.message = {
      * @param messageName
      */
     get: function (messageName) {
+
+        if(!app.message.__messages[app.config.lang][messageName]){
+            app.system.__throwWarn(app.system.__messages.TRANSLATION_MESSAGE_NOT_FOUND, [messageName])
+        }
+
         return app.message.__messages[app.config.lang][messageName] || messageName;
     },
 
@@ -161,6 +166,11 @@ app.message = {
         $('[' + app.__attributes.TRANSLATION + ']').each(function () {
 
             var messageName = $(this).attr(app.__attributes.TRANSLATION);
+
+            if(!app.message.__messages[app.config.lang][messageName]){
+                app.system.__throwWarn(app.system.__messages.TRANSLATION_MESSAGE_NOT_FOUND, [messageName])
+            }
+
             $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
 
         });

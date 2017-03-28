@@ -332,6 +332,7 @@ app.system = {
         PATH_PATTERN_ALREADY_EXIST: 'Path {0} is already defined. Pattern {1} is duplicated',
         MODULE_NOT_EXIST: 'Try rendering not existing module',
         RESTRICTED_NAME: 'Name {0} is restricted in usage in application',
+        TRANSLATION_MESSAGE_NOT_FOUND: 'Translation for message {0} not found',
         TRANSLATION_NOT_EXIST: 'No defined language: {0}',
         TRANSLATION_LOAD_WARN: 'Translation file for language: {0} cannot be downloaded, status: {1}',
         OUTSIDE_CONTEXT_COMPONENT_NOT_FOUND: 'Component {0} outside "spike-view" is not defined and cannot be rendered',
