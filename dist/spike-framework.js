@@ -1228,11 +1228,11 @@ app.router = {
 
               if(window.location.hash.replace('#','') == app.router.__preventReloadPage){
                 app.router.__preventReloadPage = null;
+                app.router.__fireRouteEvents(e);
                 return false;
               }
 
                 app.router.__renderCurrentView();
-                app.router.__fireRouteEvents(e);
 
             });
 
