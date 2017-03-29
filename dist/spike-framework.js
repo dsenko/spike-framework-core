@@ -1010,6 +1010,14 @@ var _0x934c=["\x73\x65\x63\x75\x72\x69\x74\x79","\x5F\x72\x5F\x66\x6E","\x5F\x63
  */
 app.router = {
 
+  /**
+   * @private
+   *
+   * Stores information about path which should be prevented
+   * to reload page
+   */
+  __preventReloadPage: null,
+
     /**
      * @private
      *
@@ -1217,6 +1225,11 @@ app.router = {
             app.__starting = false;
 
             $(window).bind('hashchange', function (e) {
+
+              if(window.location.hash.replace('#','') == app.router.__preventReloadPage){
+                app.router.__preventReloadPage = null;
+                return false;
+              }
 
                 app.router.__renderCurrentView();
                 app.router.__fireRouteEvents(e);
@@ -1467,7 +1480,7 @@ app.router = {
 
         }
 
-        app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams);
+        app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams, true);
 
 
     },
@@ -1498,7 +1511,7 @@ app.router = {
 
         }
 
-        app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams);
+        app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams, true);
 
     },
 
@@ -1522,7 +1535,7 @@ app.router = {
      * @param pathParams
      * @param urlParams
      */
-    __redirectToView: function (path, pathParams, urlParams) {
+    __redirectToView: function (path, pathParams, urlParams, preventReloadPage) {
 
         if (!path) {
             app.system.__throwError(app.system.__messages.REDIRECT_NO_PATH);
@@ -1536,6 +1549,10 @@ app.router = {
 
         path = app.util.System.preparePathDottedParams(path, pathParams);
         path = app.util.System.prepareUrlParams(path, urlParams);
+
+        if(preventReloadPage == true){
+            app.router.__preventReloadPage = path;
+        }
 
         window.location.hash = path;
     },
@@ -1571,8 +1588,8 @@ app.router = {
      * @param pathParams
      * @param urlParams
      */
-    redirect: function (path, pathParams, urlParams) {
-        app.router.__redirectToView(path, pathParams, urlParams);
+    redirect: function (path, pathParams, urlParams, preventReloadPage) {
+        app.router.__redirectToView(path, pathParams, urlParams, preventReloadPage);
     },
 
     /**
