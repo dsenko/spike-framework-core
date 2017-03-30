@@ -1232,6 +1232,7 @@ app.router = {
                 return false;
               }
 
+                app.router.__fireRouteEvents(e);
                 app.router.__renderCurrentView();
 
             });
