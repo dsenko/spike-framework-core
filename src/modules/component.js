@@ -84,7 +84,7 @@ app.component = {
             componentObject.__global = false;
         }
 
-          componentObject.rootSelector = function(){
+        componentObject.rootSelector = function(){
 
             var componentSelector = $('component[name="' + componentObject.__lowerCaseName + '"]');
 
@@ -94,7 +94,7 @@ app.component = {
               return $('[component-name="'+componentObject.__name+'"]');
             }
 
-          }
+        }
 
         /**
          * @private
