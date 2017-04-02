@@ -208,6 +208,8 @@ app.modal = {
         //Setting tyope of module
         modalObject.__type = 'MODAL';
 
+        modalObject.__rendered = false;
+
         //Setting self helper
         modalObject.self = function () {
             return app.modal[modalName];
@@ -311,6 +313,9 @@ app.modal = {
             app.component.__initComponents(app.mCtx[modalObject.__name].components);
 
             app.modal.__modalWrappers[modalObject.__name] = app.modal[modalObject.__name].__modalWrapperId;
+
+            //Setting ready of module
+            app.modal[modalObject.__name].__rendered = true;
 
             app.debug('Invoke modal {0} init() function', [app.mCtx[modalObject.__name].__name]);
             app.mCtx[modalObject.__name].init(modalPassedData);

@@ -2589,7 +2589,6 @@ app.message = {
         }
 
         if(string.indexOf('{') == -1 || !objectOrArrayParams){
-            console.log('xxx');
             return string;
         }
 
@@ -2673,8 +2672,8 @@ app.component = {
         //Setting type of module
         componentObject.__type = 'COMPONENT';
 
-          //Setting ready of module
-          componentObject.__rendered = false;
+        //Setting ready of module
+        componentObject.__rendered = false;
 
         //Setting self helper
         componentObject.self = function() {
@@ -2767,7 +2766,7 @@ app.component = {
             componentDataPassed = $.extend(true,  componentDataPassed, app.router.__getCurrentViewData().data);
 
             //Setting ready of module
-          app.com[componentObject.__name].__rendered = true;
+            app.com[componentObject.__name].__rendered = true;
 
             app.component.__initComponents(app.com[componentObject.__name].components);
             app.debug('Invoke component {0} init() function', [componentObject.__name]);
@@ -3026,6 +3025,8 @@ app.controller = {
         //Setting tyope of module
         controllerObject.__type = 'CONTROLLER';
 
+        controllerObject.__rendered = false;
+
         //Setting self helper
         controllerObject.self = function () {
             return app.controller[controllerName];
@@ -3107,6 +3108,9 @@ app.controller = {
             app.component.__initComponents(app.ctx.components);
 
             app.modal.invalidateAll();
+
+            //Setting ready of module
+            app.controller[controllerObject.__name].__rendered = true;
 
             app.debug('Invoke controller {0} init() function', [app.ctx.__name]);
             app.ctx.init(controllerPassedData);
@@ -3414,6 +3418,8 @@ app.modal = {
         //Setting tyope of module
         modalObject.__type = 'MODAL';
 
+        modalObject.__rendered = false;
+
         //Setting self helper
         modalObject.self = function () {
             return app.modal[modalName];
@@ -3517,6 +3523,9 @@ app.modal = {
             app.component.__initComponents(app.mCtx[modalObject.__name].components);
 
             app.modal.__modalWrappers[modalObject.__name] = app.modal[modalObject.__name].__modalWrapperId;
+
+            //Setting ready of module
+            app.modal[modalObject.__name].__rendered = true;
 
             app.debug('Invoke modal {0} init() function', [app.mCtx[modalObject.__name].__name]);
             app.mCtx[modalObject.__name].init(modalPassedData);

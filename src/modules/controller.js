@@ -67,6 +67,8 @@ app.controller = {
         //Setting tyope of module
         controllerObject.__type = 'CONTROLLER';
 
+        controllerObject.__rendered = false;
+
         //Setting self helper
         controllerObject.self = function () {
             return app.controller[controllerName];
@@ -148,6 +150,9 @@ app.controller = {
             app.component.__initComponents(app.ctx.components);
 
             app.modal.invalidateAll();
+
+            //Setting ready of module
+            app.controller[controllerObject.__name].__rendered = true;
 
             app.debug('Invoke controller {0} init() function', [app.ctx.__name]);
             app.ctx.init(controllerPassedData);

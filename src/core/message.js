@@ -209,7 +209,6 @@ app.message = {
         }
 
         if(string.indexOf('{') == -1 || !objectOrArrayParams){
-            console.log('xxx');
             return string;
         }
 

@@ -60,8 +60,8 @@ app.component = {
         //Setting type of module
         componentObject.__type = 'COMPONENT';
 
-          //Setting ready of module
-          componentObject.__rendered = false;
+        //Setting ready of module
+        componentObject.__rendered = false;
 
         //Setting self helper
         componentObject.self = function() {
@@ -154,7 +154,7 @@ app.component = {
             componentDataPassed = $.extend(true,  componentDataPassed, app.router.__getCurrentViewData().data);
 
             //Setting ready of module
-          app.com[componentObject.__name].__rendered = true;
+            app.com[componentObject.__name].__rendered = true;
 
             app.component.__initComponents(app.com[componentObject.__name].components);
             app.debug('Invoke component {0} init() function', [componentObject.__name]);
