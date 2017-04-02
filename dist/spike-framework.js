@@ -2502,7 +2502,7 @@ app.message = {
         }
 
         if(arrayOrMapParams && message){
-            message = app.util.System.bindStringParams(message, arrayOrMapParams);
+            message = app.message.__bindParams(message, arrayOrMapParams);
         }
 
         return message || messageName;
@@ -2580,7 +2580,36 @@ app.message = {
         }
 
         return templateHtml;
-    }
+    },
+
+    __bindParams: function (string, objectOrArrayParams) {
+
+        if(!string){
+            return '';
+        }
+
+        if(string.indexOf('{') == -1 || !objectOrArrayParams){
+            console.log('xxx');
+            return string;
+        }
+
+        if (objectOrArrayParams instanceof Array) {
+
+            for (var i = 0; i < objectOrArrayParams.length; i++) {
+                string = string.replace('{' + i + '}', objectOrArrayParams[i])
+            }
+
+        } else {
+
+            for (var paramName in objectOrArrayParams) {
+                string = string.replace('{' + paramName + '}', objectOrArrayParams[paramName]);
+            }
+
+        }
+
+        return string;
+
+    },
 
 };/**
  * @public
@@ -4523,7 +4552,7 @@ app.util = {
             return '';
           }
 
-           if(string.indexOf('{') == -1 || objectOrArrayParams.toString().indexOf('[object Object]') > -1 || !objectOrArrayParams){
+           if(string.indexOf('{') == -1 || !objectOrArrayParams){
              return string;
            }
 

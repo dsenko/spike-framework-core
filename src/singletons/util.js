@@ -123,7 +123,7 @@ app.util = {
             return '';
           }
 
-           if(string.indexOf('{') == -1 || objectOrArrayParams.toString().indexOf('[object Object]') > -1 || !objectOrArrayParams){
+           if(string.indexOf('{') == -1 || !objectOrArrayParams){
              return string;
            }
 
