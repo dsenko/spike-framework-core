@@ -658,13 +658,16 @@ app.router = {
      *
      * @param path
      */
-    createLink: function (path) {
+    createLink: function (path, pathParams, urlParams) {
 
         if (path.substring(0, 1) == '/') {
             path = '#' + path;
         } else if (path.substring(0, 1) !== '#') {
             path = '#/' + path;
         }
+
+        path = app.util.System.preparePathDottedParams(path, pathParams);
+        path = app.util.System.prepareUrlParams(path, urlParams);
 
         return path;
 
