@@ -5965,6 +5965,8 @@ app.rest = {
 
     __interceptors: {},
 
+    __globalInterceptors: {},
+
     /**
      * @public
      *
@@ -5975,15 +5977,29 @@ app.rest = {
      * @param interceptorName
      * @param interceptorFunction
      */
-    interceptor: function(interceptorName, interceptorFunction){
+    interceptor: function(interceptorName, interceptorFunction, isGlobal){
+
+      if(isGlobal){
+
+        //Check if interceptor exists, then throws error
+        if(app.rest.__globalInterceptors[interceptorName]){
+          app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
+        }
+
+        //Saves interceptor function to @__interceptors
+        app.rest.__globalInterceptors[interceptorName] = interceptorFunction;
+
+      }else {
 
         //Check if interceptor exists, then throws error
         if(app.rest.__interceptors[interceptorName]){
-            app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
+          app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
         }
 
         //Saves interceptor function to @__interceptors
         app.rest.__interceptors[interceptorName] = interceptorFunction;
+
+      }
 
     },
 
@@ -6001,15 +6017,23 @@ app.rest = {
      */
     __invokeInterceptors: function(response, promise, interceptors){
 
+      if(interceptors) {
+
         for(var i = 0; i < interceptors.length; i++){
 
-            if(!app.rest.__interceptors[interceptors[i]]){
-                app.system.__throwWarn(app.system.__messages.INTERCEPTOR_NOT_EXISTS, [interceptors[i]]);
-            }else{
-                app.rest.__interceptors[interceptors[i]](response, promise);
-            }
+          if(!app.rest.__interceptors[interceptors[i]]){
+            app.system.__throwWarn(app.system.__messages.INTERCEPTOR_NOT_EXISTS, [interceptors[i]]);
+          }else{
+            app.rest.__interceptors[interceptors[i]](response, promise);
+          }
 
         }
+
+      }
+
+      for(var interceptorName in app.rest.__globalInterceptors){
+        app.rest.__globalInterceptors[interceptorName](response, promise);
+      }
 
     },
 
