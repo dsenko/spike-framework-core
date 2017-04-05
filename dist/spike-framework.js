@@ -3968,9 +3968,20 @@ app.partial = {
   __replacePartial: function (selector, templateHtml) {
 
     var selectorId = selector.attr('id');
+    var selectorClasses = selector.attr('class');
 
     var rootElementPart = templateHtml.substring(0, templateHtml.indexOf('>'))
     rootElementPart += ' id="' + selectorId + '" ';
+
+    if(selectorClasses && selectorClasses.length > 0){
+
+      if(rootElementPart.indexOf('class="') > -1){
+        rootElementPart = rootElementPart.replace('class="', 'class=" '+selectorClasses)+' ';
+      }else{
+        rootElementPart += ' class="' + selectorClasses + '" ';
+      }
+
+    }
 
     templateHtml = rootElementPart + templateHtml.substring(templateHtml.indexOf('>'), templateHtml.length);
 
