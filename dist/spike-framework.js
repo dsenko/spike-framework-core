@@ -3971,7 +3971,10 @@ app.partial = {
     var selectorClasses = selector.attr('class');
 
     var rootElementPart = templateHtml.substring(0, templateHtml.indexOf('>'))
-    rootElementPart += ' id="' + selectorId + '" ';
+
+    if(selectorId){
+      rootElementPart += ' id="' + selectorId + '" ';
+    }
 
     if(selectorClasses && selectorClasses.length > 0){
 
