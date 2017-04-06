@@ -253,9 +253,9 @@ app.partial = {
     if(selectorClasses && selectorClasses.length > 0){
 
       if(rootElementPart.indexOf('class="') > -1){
-        rootElementPart = rootElementPart.replace('class="', 'class=" '+selectorClasses)+' ';
+        rootElementPart = rootElementPart.replace('class="', 'class=" '+selectorClasses+' ')+' ';
       }else{
-        rootElementPart += ' class="' + selectorClasses + '" ';
+        rootElementPart += ' class=" ' + selectorClasses + ' " ';
       }
 
     }
