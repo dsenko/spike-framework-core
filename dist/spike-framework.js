@@ -3779,8 +3779,6 @@ app.partial = {
 
     }
 
-    app.partial[partial.__name] = $.extend(true, {}, app.partial.__dataArchive[partial.__name]);
-
     app.debug('Returning partial {0} template ', [partial.__name]);
 
     if (partial.after && app.util.System.isFunction(partial.after)) {
@@ -3857,29 +3855,27 @@ app.partial = {
     partialObject.render = function (selector, model) {
       app.debug('Invoke partialObject.__render');
 
-      var __partialObject = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
-
       if (!selector) {
-        app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
+        app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [partialObject.__name]);
       }
 
-      __partialObject.rootSelector = selector;
+      partialObject.rootSelector = selector;
 
-      var partialModel = $.extend(true, __partialObject, model);
+      var partialModel = $.extend(true, partialObject, model);
 
-      if (__partialObject.before && app.util.System.isFunction(__partialObject.before)) {
-        app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
-        var returningModel = __partialObject.before(partialModel);
+      if (partialObject.before && app.util.System.isFunction(partialObject.before)) {
+        app.debug('Invokes partial  {0} before() function', [partialObject.__name]);
+        var returningModel = partialObject.before(partialModel);
 
-        if (returningModel && returningModel.__name == __partialObject.__name) {
+        if (returningModel && returningModel.__name == partialObject.__name) {
           partialModel = returningModel;
         }
 
       }
 
-      app.debug('Binding partial {0} template to passed selector {1} ', [__partialObject.__name, selector]);
+      app.debug('Binding partial {0} template to passed selector {1} ', [partialObject.__name, selector]);
 
-      var renderedTemplate = __partialObject.__template(partialModel);
+      var renderedTemplate = partialObject.__template(partialModel);
 
       //Includes static templates
       renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
@@ -3888,15 +3884,15 @@ app.partial = {
         renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
       }
 
-      if (__partialObject.__replace) {
+      if (partialObject.__replace) {
         selector = app.partial.__replacePartial(selector, renderedTemplate);
       } else {
         selector.html(renderedTemplate);
       }
 
-      if (__partialObject.after && app.util.System.isFunction(__partialObject.after)) {
-        app.debug('Invokes partial  {0} after() function', [__partialObject.__name]);
-        __partialObject.after(partialModel, __partialObject.rootSelector);
+      if (partialObject.after && app.util.System.isFunction(partialObject.after)) {
+        app.debug('Invokes partial  {0} after() function', [partialObject.__name]);
+        partialObject.after(partialModel, partialObject.rootSelector);
       }
 
       //Binds spike events
