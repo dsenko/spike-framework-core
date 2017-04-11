@@ -567,7 +567,7 @@ app.rest = {
         }
 
         if(urlParams !== undefined && urlParams !== null){
-          preparedUrl = app.util.System.prepareUrlParams(url, urlParams);
+          preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
         }
 
         var dataType =  "json";
@@ -675,7 +675,7 @@ app.rest = {
             }
 
             if(urlParams !== undefined && urlParams !== null){
-                preparedUrl = app.util.System.prepareUrlParams(url, urlParams);
+                preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
             }
 
             var dataType =  "json";
