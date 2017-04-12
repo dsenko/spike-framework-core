@@ -4051,7 +4051,7 @@ app.abstract = {
         }
 
         abstractObject.__name = abstractName;
-
+        abstractObject.__type = 'ABSTRACT';
 
         if(abstractObject.inherits){
             // Apply extending from abstracts
