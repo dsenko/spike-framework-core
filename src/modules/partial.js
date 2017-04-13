@@ -99,7 +99,7 @@ app.partial = {
     }
 
     app.log('Registering partial {0}', [partialName]);
-    app.debug('Invoke partial.register with params: {0} {1}', [partialName, partialObject]);
+    app.debug('Invoke partial.register with params: {0}', [partialName]);
 
     if (app.util.System.isNull(partialObject.replace)) {
       partialObject.replace = false;
@@ -189,7 +189,7 @@ app.partial = {
      * @param partialObject
      */
     partialObject.__createPartialViewPath = function (partialObject) {
-      app.debug('Invoke partialObject.__createPartialViewPath with params: {0}', [partialObject]);
+      app.debug('Invoke partialObject.__createPartialViewPath with params', []);
 
       partialObject.__view = app.config.rootPath + "/" + app.config.partialDirectory + "/" + partialObject.__lowerCaseName + "/" + partialObject.__lowerCaseName + ".partial.html"
 

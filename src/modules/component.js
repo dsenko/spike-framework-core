@@ -54,7 +54,7 @@ app.component = {
         }
 
         app.log('Registering component {0}', [componentName]);
-        app.debug('Invoke component.register with params: {0} {1}', [componentName, componentObject]);
+        app.debug('Invoke component.register with params', []);
 
 
         //Setting type of module
@@ -109,7 +109,7 @@ app.component = {
          * @private
          */
         componentObject.__render = function (componentDataPassed) {
-            app.debug('Invoke componentObject.__render on {0} component with params: {1}', [componentObject.__name, componentDataPassed]);
+            app.debug('Invoke componentObject.__render on {0} component with params', [componentObject.__name]);
 
             if(app.component[componentObject.__name] && app.component[componentObject.__name].__global == true && app.component[componentObject.__name].__globalRendered == true){
                 app.debug('Component {0} is already globally rendered. Returning from _render...', [componentObject.__name]);
@@ -173,7 +173,7 @@ app.component = {
          * @param componentObject
          */
         componentObject.__createComponentViewPath = function (componentObject) {
-            app.debug('Invoke componentObject.__createComponentViewPath with params: {0}', [componentObject]);
+            app.debug('Invoke componentObject.__createComponentViewPath with params', []);
 
             componentObject.__view = app.config.rootPath + "/" + app.config.componentDirectory + "/" + componentObject.__lowerCaseName + "/" + componentObject.__lowerCaseName + ".view.html"
         }
@@ -270,7 +270,7 @@ app.component = {
      * }
      */
     __initComponents: function (componentsArrayOrMap) {
-        app.debug('Invoke component.__initComponents with params: {0}', [componentsArrayOrMap]);
+        app.debug('Invoke component.__initComponents with params', []);
 
         if(componentsArrayOrMap){
 

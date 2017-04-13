@@ -62,7 +62,7 @@ app.controller = {
         }
 
         app.log('Registering controller {0}', [controllerName]);
-        app.debug('Invoke controller.register with params: {0} {1}', [controllerName, controllerObject]);
+        app.debug('Invoke controller.register with params: {0}', [controllerName]);
 
         //Setting tyope of module
         controllerObject.__type = 'CONTROLLER';
@@ -112,7 +112,7 @@ app.controller = {
          * @param controllerPassedData
          */
         controllerObject.__render = function (controllerPassedData) {
-            app.debug('Invoke controllerObject.__render with params: {0}', [controllerPassedData]);
+            app.debug('Invoke controllerObject.__render with params', []);
 
             app.controller[controllerObject.__name] = $.extend(true,  {}, app.controller.__dataArchive[controllerObject.__name]);
 
@@ -167,7 +167,7 @@ app.controller = {
          * @param controllerObject
          */
         controllerObject.__createControllerViewPath = function (controllerObject) {
-            app.debug('Invoke controllerObject.__createControllerViewPath with params: {0}', [controllerObject]);
+            app.debug('Invoke controllerObject.__createControllerViewPath with params', []);
 
             controllerObject.__view = app.config.rootPath + "/" + app.config.controllerDirectory + "/" + controllerObject.__lowerCaseName + "/" + controllerObject.__lowerCaseName + ".view.html"
 

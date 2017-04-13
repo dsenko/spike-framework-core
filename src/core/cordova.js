@@ -37,7 +37,7 @@ app.__cordova = {
      * @param callBack
      */
     __initializeCordova: function (callBack) {
-        app.debug('Invoke cordova.__initializeCordova with params: {0}', [callBack]);
+        app.debug('Invoke cordova.__initializeCordova with params', []);
         app.__cordova.__bindDOMEvents();
         callBack();
     },

@@ -552,7 +552,7 @@ app.system = {
      *
      */
     __renderModal: function (modalObject, modalInitialData, afterRenderCallback) {
-        app.debug('Invoke system.__renderModal with params: {0} {1} {2}', [modalObject, modalInitialData, afterRenderCallback]);
+        app.debug('Invoke system.__renderModal', []);
         app.log('Rendering modal {0}', [modalObject.__name]);
 
         //Checks network status
@@ -588,7 +588,7 @@ app.system = {
      *
      */
     __renderController: function (controllerObject, controllerInitialData, afterRenderCallback) {
-        app.debug('Invoke system._renderController with params: {0} {1} {2}', [controllerObject, controllerInitialData, afterRenderCallback]);
+        app.debug('Invoke system._renderController with params', []);
         app.log('Rendering controller {0}', [controllerObject.__name]);
 
         //Scrolling to top of page
@@ -727,7 +727,7 @@ app.system = {
             app.security.f43gfd4();
         }
 
-        app.debug('Invoke system.init with params: {0}', [callBack]);
+        app.debug('Invoke system.init with params', []);
 
         app.ok('System initializing...');
 
@@ -832,7 +832,7 @@ app.system = {
      * @params callBack
      */
     __mainRender: function (callBack) {
-        app.debug('Invoke system.__mainRender with params: {0}', [callBack]);
+        app.debug('Invoke system.__mainRender with params', []);
 
         if (app.events.onReady) {
             app.events.onReady();

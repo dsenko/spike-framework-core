@@ -552,7 +552,7 @@ app.system = {
      *
      */
     __renderModal: function (modalObject, modalInitialData, afterRenderCallback) {
-        app.debug('Invoke system.__renderModal with params: {0} {1} {2}', [modalObject, modalInitialData, afterRenderCallback]);
+        app.debug('Invoke system.__renderModal', []);
         app.log('Rendering modal {0}', [modalObject.__name]);
 
         //Checks network status
@@ -588,7 +588,7 @@ app.system = {
      *
      */
     __renderController: function (controllerObject, controllerInitialData, afterRenderCallback) {
-        app.debug('Invoke system._renderController with params: {0} {1} {2}', [controllerObject, controllerInitialData, afterRenderCallback]);
+        app.debug('Invoke system._renderController with params', []);
         app.log('Rendering controller {0}', [controllerObject.__name]);
 
         //Scrolling to top of page
@@ -727,7 +727,7 @@ app.system = {
             app.security.f43gfd4();
         }
 
-        app.debug('Invoke system.init with params: {0}', [callBack]);
+        app.debug('Invoke system.init with params', []);
 
         app.ok('System initializing...');
 
@@ -832,7 +832,7 @@ app.system = {
      * @params callBack
      */
     __mainRender: function (callBack) {
-        app.debug('Invoke system.__mainRender with params: {0}', [callBack]);
+        app.debug('Invoke system.__mainRender with params', []);
 
         if (app.events.onReady) {
             app.events.onReady();
@@ -2244,7 +2244,7 @@ app.__cordova = {
      * @param callBack
      */
     __initializeCordova: function (callBack) {
-        app.debug('Invoke cordova.__initializeCordova with params: {0}', [callBack]);
+        app.debug('Invoke cordova.__initializeCordova with params', []);
         app.__cordova.__bindDOMEvents();
         callBack();
     },
@@ -2672,7 +2672,7 @@ app.component = {
         }
 
         app.log('Registering component {0}', [componentName]);
-        app.debug('Invoke component.register with params: {0} {1}', [componentName, componentObject]);
+        app.debug('Invoke component.register with params', []);
 
 
         //Setting type of module
@@ -2727,7 +2727,7 @@ app.component = {
          * @private
          */
         componentObject.__render = function (componentDataPassed) {
-            app.debug('Invoke componentObject.__render on {0} component with params: {1}', [componentObject.__name, componentDataPassed]);
+            app.debug('Invoke componentObject.__render on {0} component with params', [componentObject.__name]);
 
             if(app.component[componentObject.__name] && app.component[componentObject.__name].__global == true && app.component[componentObject.__name].__globalRendered == true){
                 app.debug('Component {0} is already globally rendered. Returning from _render...', [componentObject.__name]);
@@ -2791,7 +2791,7 @@ app.component = {
          * @param componentObject
          */
         componentObject.__createComponentViewPath = function (componentObject) {
-            app.debug('Invoke componentObject.__createComponentViewPath with params: {0}', [componentObject]);
+            app.debug('Invoke componentObject.__createComponentViewPath with params', []);
 
             componentObject.__view = app.config.rootPath + "/" + app.config.componentDirectory + "/" + componentObject.__lowerCaseName + "/" + componentObject.__lowerCaseName + ".view.html"
         }
@@ -2888,7 +2888,7 @@ app.component = {
      * }
      */
     __initComponents: function (componentsArrayOrMap) {
-        app.debug('Invoke component.__initComponents with params: {0}', [componentsArrayOrMap]);
+        app.debug('Invoke component.__initComponents with params', []);
 
         if(componentsArrayOrMap){
 
@@ -3026,7 +3026,7 @@ app.controller = {
         }
 
         app.log('Registering controller {0}', [controllerName]);
-        app.debug('Invoke controller.register with params: {0} {1}', [controllerName, controllerObject]);
+        app.debug('Invoke controller.register with params: {0}', [controllerName]);
 
         //Setting tyope of module
         controllerObject.__type = 'CONTROLLER';
@@ -3076,7 +3076,7 @@ app.controller = {
          * @param controllerPassedData
          */
         controllerObject.__render = function (controllerPassedData) {
-            app.debug('Invoke controllerObject.__render with params: {0}', [controllerPassedData]);
+            app.debug('Invoke controllerObject.__render with params', []);
 
             app.controller[controllerObject.__name] = $.extend(true,  {}, app.controller.__dataArchive[controllerObject.__name]);
 
@@ -3131,7 +3131,7 @@ app.controller = {
          * @param controllerObject
          */
         controllerObject.__createControllerViewPath = function (controllerObject) {
-            app.debug('Invoke controllerObject.__createControllerViewPath with params: {0}', [controllerObject]);
+            app.debug('Invoke controllerObject.__createControllerViewPath with params', []);
 
             controllerObject.__view = app.config.rootPath + "/" + app.config.controllerDirectory + "/" + controllerObject.__lowerCaseName + "/" + controllerObject.__lowerCaseName + ".view.html"
 
@@ -3289,7 +3289,7 @@ app.modal = {
      * @param eventFunction
      */
     implement: function (eventName, eventFunction) {
-        app.debug('Invoke modal.implement with params: {0} {1}', [eventName, eventFunction]);
+        app.debug('Invoke modal.implement with params: {0}', [eventName]);
 
         if (!eventName || !eventFunction) {
             app.system.__throwError('modal.implement(eventName, eventFunction) passed arguments not match required arguments');
@@ -3419,7 +3419,7 @@ app.modal = {
             modalObject = app.abstract.__tryExtend(modalName, modalObject.inherits, modalObject);
         }
 
-        app.debug('Invoke modal.register with params: {0} {1}', [modalName, modalObject]);
+        app.debug('Invoke modal.register with params: {0}', [modalName]);
 
         //Setting tyope of module
         modalObject.__type = 'MODAL';
@@ -3448,7 +3448,7 @@ app.modal = {
          * @param modalObject
          */
         modalObject.__createModalViewPath = function (modalObject) {
-            app.debug('Invoke modalObject.__createModalViewPath with params: {0}', [modalObject]);
+            app.debug('Invoke modalObject.__createModalViewPath with params:', []);
 
             modalObject.__view = app.config.rootPath + "/" + app.config.modalDirectory + "/" + modalObject.__lowerCaseName + "/" + modalObject.__lowerCaseName + ".view.html"
 
@@ -3515,7 +3515,7 @@ app.modal = {
          * @param modalPassedData
          */
         modalObject.__render = function (modalPassedData) {
-            app.debug('Invoke modalObject.__render with params: {0}', [modalPassedData]);
+            app.debug('Invoke modalObject.__render with params', []);
 
             app.modal[modalObject.__name] = $.extend(true,  {}, app.modal.__dataArchive[modalObject.__name]);
             app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
@@ -3825,7 +3825,7 @@ app.partial = {
     }
 
     app.log('Registering partial {0}', [partialName]);
-    app.debug('Invoke partial.register with params: {0} {1}', [partialName, partialObject]);
+    app.debug('Invoke partial.register with params: {0}', [partialName]);
 
     if (app.util.System.isNull(partialObject.replace)) {
       partialObject.replace = false;
@@ -3915,7 +3915,7 @@ app.partial = {
      * @param partialObject
      */
     partialObject.__createPartialViewPath = function (partialObject) {
-      app.debug('Invoke partialObject.__createPartialViewPath with params: {0}', [partialObject]);
+      app.debug('Invoke partialObject.__createPartialViewPath with params', []);
 
       partialObject.__view = app.config.rootPath + "/" + app.config.partialDirectory + "/" + partialObject.__lowerCaseName + "/" + partialObject.__lowerCaseName + ".partial.html"
 
@@ -4475,424 +4475,429 @@ app.plugins = {
  */
 app.util = {
 
+  /**
+   * @public
+   *
+   * Substitute method for register
+   *
+   * @param pluginName
+   * @param pluginWrapperFunction
+   */
+  add: function (utilName, utilFunctions) {
+    this.register(utilName, utilFunctions);
+  },
+
+  /**
+   * @public
+   *
+   * Registering new utils object containing set of functions
+   *
+   * @param pluginName
+   * @param pluginWrapperFunction
+   */
+  register: function (utilName, utilFunctions) {
+
+    if (app.util[utilName]) {
+      app.system.__throwError(app.system.__messages.UTIL_ALREADY_REGISTRED, [utilName]);
+    }
+
+    app.util[utilName] = utilFunctions;
+
+  },
+
+  /**
+   * System util used by application core
+   */
+  System: {
+
     /**
-     * @public
+     * Transforms string into camel case notation
+     * Example: category-id => categoryId
+     * Example category id => categoryId
      *
-     * Substitute method for register
-     *
-     * @param pluginName
-     * @param pluginWrapperFunction
+     * @param str
      */
-    add: function (utilName, utilFunctions) {
-        this.register(utilName, utilFunctions);
+    toCamelCase: function (str) {
+
+      if (app.util.System.isEmpty(str)) {
+        return str;
+      }
+
+      str = str.split('-').join(' ');
+
+      return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
+        if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+        return index == 0 ? match.toLowerCase() : match.toUpperCase();
+      });
+
     },
 
     /**
      * @public
      *
-     * Registering new utils object containing set of functions
+     * Copies array to another instance without reference
      *
-     * @param pluginName
-     * @param pluginWrapperFunction
+     * @returns {string}
      */
-    register: function (utilName, utilFunctions) {
-
-        if (app.util[utilName]) {
-            app.system.__throwError(app.system.__messages.UTIL_ALREADY_REGISTRED, [utilName]);
-        }
-
-        app.util[utilName] = utilFunctions;
-
+    copyArray: function (oldArray) {
+      return JSON.parse(JSON.stringify(oldArray));
     },
 
     /**
-     * System util used by application core
+     * @public
+     *
+     * Returns date for logging module
+     *
+     * @returns {string}
      */
-    System: {
+    currentDateLog: function () {
+      return new Date().toLocaleTimeString();
+    },
 
-        /**
-         * Transforms string into camel case notation
-         * Example: category-id => categoryId
-         * Example category id => categoryId
-         *
-         * @param str
-         */
-        toCamelCase: function (str) {
+    /**
+     * @public
+     *
+     * Function to bind values represented by map or array to special
+     * formatted @string
+     *
+     * Example:
+     *
+     * var someString = "Mark of this car is {0}";
+     * app.util.System.bindStringParams(someString, ["Ford"] );
+     *
+     * or
+     *
+     * var someString = "Mark of this car is {mark}";
+     * app.util.System.bindStringParams(someString, { mark: "Ford" } );
+     *
+     *
+     * @param string
+     * @param objectOrArrayParams
+     * @returns {*}
+     */
+    bindStringParams: function (string, objectOrArrayParams) {
 
-            if (app.util.System.isEmpty(str)) {
-                return str;
-            }
+      if (!string) {
+        return '';
+      }
 
-            str = str.split('-').join(' ');
+      if (string.indexOf('{') == -1 || !objectOrArrayParams) {
+        return string;
+      }
 
-            return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
-                if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
-                return index == 0 ? match.toLowerCase() : match.toUpperCase();
-            });
+      try {
 
-        },
+        if (objectOrArrayParams instanceof Array) {
 
-        /**
-         * @public
-         *
-         * Copies array to another instance without reference
-         *
-         * @returns {string}
-         */
-        copyArray: function (oldArray) {
-            return JSON.parse(JSON.stringify(oldArray));
-        },
-
-        /**
-         * @public
-         *
-         * Returns date for logging module
-         *
-         * @returns {string}
-         */
-        currentDateLog: function () {
-            return new Date().toLocaleTimeString();
-        },
-
-        /**
-         * @public
-         *
-         * Function to bind values represented by map or array to special
-         * formatted @string
-         *
-         * Example:
-         *
-         * var someString = "Mark of this car is {0}";
-         * app.util.System.bindStringParams(someString, ["Ford"] );
-         *
-         * or
-         *
-         * var someString = "Mark of this car is {mark}";
-         * app.util.System.bindStringParams(someString, { mark: "Ford" } );
-         *
-         *
-         * @param string
-         * @param objectOrArrayParams
-         * @returns {*}
-         */
-        bindStringParams: function (string, objectOrArrayParams) {
-
-          if(!string){
-            return '';
+          for (var i = 0; i < objectOrArrayParams.length; i++) {
+            string = string.replace('{' + i + '}', JSON.stringify(objectOrArrayParams[i]))
           }
 
-           if(string.indexOf('{') == -1 || !objectOrArrayParams){
-             return string;
-           }
+        } else {
 
-            if (objectOrArrayParams instanceof Array) {
-
-                for (var i = 0; i < objectOrArrayParams.length; i++) {
-                    string = string.replace('{' + i + '}', JSON.stringify(objectOrArrayParams[i]))
-                }
-
-            } else {
-
-                for (var paramName in objectOrArrayParams) {
-                    string = string.replace('{' + paramName + '}', JSON.stringify(objectOrArrayParams[paramName]));
-                }
-
-            }
-
-            return string;
-
-        },
-
-        /**
-         * @public
-         *
-         * Checks if passed object is JavaScript @function
-         *
-         * @param functionToCheck
-         * @returns {*|boolean}
-         */
-        isFunction: function (functionToCheck) {
-            var getType = {};
-            return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
-        },
-
-        /**
-         * @public
-         *
-         * Checks if given variable is an object
-         * If null or undefined returns false
-         *
-         * @param object
-         */
-        isObject: function (object) {
-
-            if (app.util.System.isNull(object)) {
-                return false;
-            }
-
-            if (object.toString() == '[object Object]') {
-                return true;
-            }
-
-            return false;
-
-        },
-
-        /**
-         * @public
-         *
-         * Function to parse JSON @string to JavaScript @object with replacing
-         * whole whitespaces, tabs, new lines etc.
-         *
-         * @param s
-         */
-        parseJSON: function (s) {
-
-            s = s.replace(/\\n/g, "\\n")
-                .replace(/\\'/g, "\\'")
-                .replace(/\\"/g, '\\"')
-                .replace(/\\&/g, "\\&")
-                .replace(/\\r/g, "\\r")
-                .replace(/\\t/g, "\\t")
-                .replace(/\\b/g, "\\b")
-                .replace(/\\f/g, "\\f");
-            s = s.replace(/[\u0000-\u0019]+/g, "");
-            var o = JSON.parse(s);
-
-            return o;
-        },
-
-        /**
-         * @public
-         *
-         * Returns true if passed object is undefined or null or empty
-         *
-         * @param obj
-         * @returns {boolean}
-         */
-        isEmpty: function (obj) {
-
-            if (obj == undefined || obj == null) {
-                return true;
-            }
-
-            if (typeof obj == 'string') {
-                if (obj.trim().length == 0) {
-                    return true;
-                }
-            }
-
-            return false;
-
-        },
-
-        /**
-         * @public
-         *
-         * If path param is numeric string, then making it just number - integer or float.
-         * If not, returns passed object without modifications
-         *
-         * @param obj
-         */
-        tryParseNumber: function (obj) {
-
-            if (!app.util.System.isEmpty(obj) && $.isNumeric(obj)) {
-
-                if (app.util.System.isInt(parseFloat(obj))) {
-                    return parseInt(obj, 10);
-                } else {
-                    return parseFloat(obj);
-                }
-
-            }
-
-            return obj;
-
-
-        },
-
-        /**
-         * @public
-         *
-         * Checks if given number is integer
-         * @param n
-         */
-        isInt: function (n) {
-            return Number(n) === n && n % 1 === 0;
-        },
-
-        /**
-         * @public
-         *
-         * Checks if given number is float
-         * @param n
-         */
-        isFloat: function (n) {
-            return Number(n) === n && n % 1 !== 0;
-        },
-
-        /**
-         * @public
-         *
-         * Returns true if passed object is undefined or null
-         *
-         * @param obj
-         * @returns {boolean}
-         */
-        isNull: function (obj) {
-
-            if (obj == undefined || obj == null) {
-                return true;
-            }
-
-            return false;
-
-        },
-
-        /**
-         * @public
-         *
-         * Function to replacing whole URL path params (not typical) with passed
-         * values from params map
-         *
-         * Example:
-         *
-         * var someURL = "http://www.someSite.com/person/{personId}"
-         * "http://www.someSite.com/person/2" = app.util.System.preparePathParams(someUrl, { personId: 2 });
-         *
-         * @param url
-         * @param params
-         */
-        preparePathDottedParams: function (url, params) {
-
-            for (var prop in params) {
-                url = url.replace(':' + prop, params[prop]);
-            }
-
-            return url;
-
-        },
-
-        /**
-         * @public
-         *
-         * Function to adding URL params (typical) with passed
-         * values from params map
-         *
-         * Example:
-         *
-         * var someURL = "http://www.someSite.com/person"
-         * "http://www.someSite.com/person?id=2" = app.util.System.prepareUrlParams(someUrl, { id: 2 });
-         *
-         * @param url
-         * @param params
-         */
-        prepareUrlParams: function (url, params) {
-
-            var i = 0;
-            for (var prop in params) {
-
-                if (i == 0) {
-                    url = url + '?' + prop + '=' + params[prop];
-                } else {
-                    url = url + '&' + prop + '=' + params[prop];
-                }
-
-                i++;
-
-            }
-
-            return url;
-
-        },
-
-        /**
-         * @public
-         *
-         * Function to finding string occurence between another @string objects
-         *
-         * @param str - string which want to find
-         * @param first
-         * @param last
-         * @returns {Array}
-         */
-        findStringBetween: function (str, first, last) {
-
-            var r = new RegExp(first + '(.*?)' + last, 'gm');
-            var arr = str.match(r);
-
-            if (arr == null || arr.length == 0) {
-                return [];
-            }
-
-            var arr2 = [];
-
-            for (var i = 0; i < arr.length; i++) {
-                arr2.push(arr[i].replace(first, '').replace(last, ''));
-            }
-
-            return arr2;
-
-        },
-
-
-        /**
-         * @public
-         *
-         * Function to generating hashes for id creating
-         *
-         * @returns {string}
-         */
-        hash: function () {
-            var text = "";
-            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-            for (var i = 0; i < 10; i++)
-                text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-            return text;
-        },
-
-        createCookie: function (name, value, days) {
-            if (days) {
-                var date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                var expires = "; expires=" + date.toGMTString();
-            }
-            else var expires = "";
-
-            document.cookie = name + "=" + value + expires + "; path=/";
-        },
-
-        readCookie: function (name) {
-            var nameEQ = name + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-            }
-            return null;
-        },
-
-        eraseCookie: function (name) {
-            app.util.System.createCookie(name, "", -1);
-        },
-
-        escapeQuotes: function (text) {
-
-            try {
-                text = text.replace(/'/g, "\\'");
-            } catch (err) {
-                app.warn('Could not escape single quotes in string: ' + text);
-            }
-
-            return text;
+          for (var paramName in objectOrArrayParams) {
+            string = string.replace('{' + paramName + '}', JSON.stringify(objectOrArrayParams[paramName]));
+          }
 
         }
 
+      } catch (err) {
+      }
+
+      return string;
+
+    },
+
+    /**
+     * @public
+     *
+     * Checks if passed object is JavaScript @function
+     *
+     * @param functionToCheck
+     * @returns {*|boolean}
+     */
+    isFunction: function (functionToCheck) {
+      var getType = {};
+      return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+    },
+
+    /**
+     * @public
+     *
+     * Checks if given variable is an object
+     * If null or undefined returns false
+     *
+     * @param object
+     */
+    isObject: function (object) {
+
+      if (app.util.System.isNull(object)) {
+        return false;
+      }
+
+      if (object.toString() == '[object Object]') {
+        return true;
+      }
+
+      return false;
+
+    },
+
+    /**
+     * @public
+     *
+     * Function to parse JSON @string to JavaScript @object with replacing
+     * whole whitespaces, tabs, new lines etc.
+     *
+     * @param s
+     */
+    parseJSON: function (s) {
+
+      s = s.replace(/\\n/g, "\\n")
+        .replace(/\\'/g, "\\'")
+        .replace(/\\"/g, '\\"')
+        .replace(/\\&/g, "\\&")
+        .replace(/\\r/g, "\\r")
+        .replace(/\\t/g, "\\t")
+        .replace(/\\b/g, "\\b")
+        .replace(/\\f/g, "\\f");
+      s = s.replace(/[\u0000-\u0019]+/g, "");
+      var o = JSON.parse(s);
+
+      return o;
+    },
+
+    /**
+     * @public
+     *
+     * Returns true if passed object is undefined or null or empty
+     *
+     * @param obj
+     * @returns {boolean}
+     */
+    isEmpty: function (obj) {
+
+      if (obj == undefined || obj == null) {
+        return true;
+      }
+
+      if (typeof obj == 'string') {
+        if (obj.trim().length == 0) {
+          return true;
+        }
+      }
+
+      return false;
+
+    },
+
+    /**
+     * @public
+     *
+     * If path param is numeric string, then making it just number - integer or float.
+     * If not, returns passed object without modifications
+     *
+     * @param obj
+     */
+    tryParseNumber: function (obj) {
+
+      if (!app.util.System.isEmpty(obj) && $.isNumeric(obj)) {
+
+        if (app.util.System.isInt(parseFloat(obj))) {
+          return parseInt(obj, 10);
+        } else {
+          return parseFloat(obj);
+        }
+
+      }
+
+      return obj;
+
+
+    },
+
+    /**
+     * @public
+     *
+     * Checks if given number is integer
+     * @param n
+     */
+    isInt: function (n) {
+      return Number(n) === n && n % 1 === 0;
+    },
+
+    /**
+     * @public
+     *
+     * Checks if given number is float
+     * @param n
+     */
+    isFloat: function (n) {
+      return Number(n) === n && n % 1 !== 0;
+    },
+
+    /**
+     * @public
+     *
+     * Returns true if passed object is undefined or null
+     *
+     * @param obj
+     * @returns {boolean}
+     */
+    isNull: function (obj) {
+
+      if (obj == undefined || obj == null) {
+        return true;
+      }
+
+      return false;
+
+    },
+
+    /**
+     * @public
+     *
+     * Function to replacing whole URL path params (not typical) with passed
+     * values from params map
+     *
+     * Example:
+     *
+     * var someURL = "http://www.someSite.com/person/{personId}"
+     * "http://www.someSite.com/person/2" = app.util.System.preparePathParams(someUrl, { personId: 2 });
+     *
+     * @param url
+     * @param params
+     */
+    preparePathDottedParams: function (url, params) {
+
+      for (var prop in params) {
+        url = url.replace(':' + prop, params[prop]);
+      }
+
+      return url;
+
+    },
+
+    /**
+     * @public
+     *
+     * Function to adding URL params (typical) with passed
+     * values from params map
+     *
+     * Example:
+     *
+     * var someURL = "http://www.someSite.com/person"
+     * "http://www.someSite.com/person?id=2" = app.util.System.prepareUrlParams(someUrl, { id: 2 });
+     *
+     * @param url
+     * @param params
+     */
+    prepareUrlParams: function (url, params) {
+
+      var i = 0;
+      for (var prop in params) {
+
+        if (i == 0) {
+          url = url + '?' + prop + '=' + params[prop];
+        } else {
+          url = url + '&' + prop + '=' + params[prop];
+        }
+
+        i++;
+
+      }
+
+      return url;
+
+    },
+
+    /**
+     * @public
+     *
+     * Function to finding string occurence between another @string objects
+     *
+     * @param str - string which want to find
+     * @param first
+     * @param last
+     * @returns {Array}
+     */
+    findStringBetween: function (str, first, last) {
+
+      var r = new RegExp(first + '(.*?)' + last, 'gm');
+      var arr = str.match(r);
+
+      if (arr == null || arr.length == 0) {
+        return [];
+      }
+
+      var arr2 = [];
+
+      for (var i = 0; i < arr.length; i++) {
+        arr2.push(arr[i].replace(first, '').replace(last, ''));
+      }
+
+      return arr2;
+
+    },
+
+
+    /**
+     * @public
+     *
+     * Function to generating hashes for id creating
+     *
+     * @returns {string}
+     */
+    hash: function () {
+      var text = "";
+      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+      for (var i = 0; i < 10; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+      return text;
+    },
+
+    createCookie: function (name, value, days) {
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        var expires = "; expires=" + date.toGMTString();
+      }
+      else var expires = "";
+
+      document.cookie = name + "=" + value + expires + "; path=/";
+    },
+
+    readCookie: function (name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    },
+
+    eraseCookie: function (name) {
+      app.util.System.createCookie(name, "", -1);
+    },
+
+    escapeQuotes: function (text) {
+
+      try {
+        text = text.replace(/'/g, "\\'");
+      } catch (err) {
+        app.warn('Could not escape single quotes in string: ' + text);
+      }
+
+      return text;
 
     }
+
+
+  }
 };
 /**
  * @public

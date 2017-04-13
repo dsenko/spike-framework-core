@@ -73,7 +73,7 @@ app.modal = {
      * @param eventFunction
      */
     implement: function (eventName, eventFunction) {
-        app.debug('Invoke modal.implement with params: {0} {1}', [eventName, eventFunction]);
+        app.debug('Invoke modal.implement with params: {0}', [eventName]);
 
         if (!eventName || !eventFunction) {
             app.system.__throwError('modal.implement(eventName, eventFunction) passed arguments not match required arguments');
@@ -203,7 +203,7 @@ app.modal = {
             modalObject = app.abstract.__tryExtend(modalName, modalObject.inherits, modalObject);
         }
 
-        app.debug('Invoke modal.register with params: {0} {1}', [modalName, modalObject]);
+        app.debug('Invoke modal.register with params: {0}', [modalName]);
 
         //Setting tyope of module
         modalObject.__type = 'MODAL';
@@ -232,7 +232,7 @@ app.modal = {
          * @param modalObject
          */
         modalObject.__createModalViewPath = function (modalObject) {
-            app.debug('Invoke modalObject.__createModalViewPath with params: {0}', [modalObject]);
+            app.debug('Invoke modalObject.__createModalViewPath with params:', []);
 
             modalObject.__view = app.config.rootPath + "/" + app.config.modalDirectory + "/" + modalObject.__lowerCaseName + "/" + modalObject.__lowerCaseName + ".view.html"
 
@@ -299,7 +299,7 @@ app.modal = {
          * @param modalPassedData
          */
         modalObject.__render = function (modalPassedData) {
-            app.debug('Invoke modalObject.__render with params: {0}', [modalPassedData]);
+            app.debug('Invoke modalObject.__render with params', []);
 
             app.modal[modalObject.__name] = $.extend(true,  {}, app.modal.__dataArchive[modalObject.__name]);
             app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
