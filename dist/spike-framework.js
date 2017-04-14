@@ -6046,7 +6046,7 @@ app.rest = {
           if(!app.rest.__interceptors[interceptors[i]]){
             app.system.__throwWarn(app.system.__messages.INTERCEPTOR_NOT_EXISTS, [interceptors[i]]);
           }else{
-            app.rest.__interceptors[interceptors[i]](requestData, response, promise);
+            app.rest.__interceptors[interceptors[i]](response, promise, requestData);
           }
 
         }
@@ -6054,7 +6054,7 @@ app.rest = {
       }
 
       for(var interceptorName in app.rest.__globalInterceptors){
-        app.rest.__globalInterceptors[interceptorName](requestData, response, promise);
+        app.rest.__globalInterceptors[interceptorName](response, promise, requestData);
       }
 
     },
