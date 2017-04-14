@@ -104,7 +104,7 @@ app.rest = {
      * @param promise
      * @param interceptors
      */
-    __invokeInterceptors: function(response, promise, interceptors){
+    __invokeInterceptors: function(requestData, response, promise, interceptors){
 
       if(interceptors) {
 
@@ -113,7 +113,7 @@ app.rest = {
           if(!app.rest.__interceptors[interceptors[i]]){
             app.system.__throwWarn(app.system.__messages.INTERCEPTOR_NOT_EXISTS, [interceptors[i]]);
           }else{
-            app.rest.__interceptors[interceptors[i]](response, promise);
+            app.rest.__interceptors[interceptors[i]](requestData, response, promise);
           }
 
         }
@@ -121,7 +121,7 @@ app.rest = {
       }
 
       for(var interceptorName in app.rest.__globalInterceptors){
-        app.rest.__globalInterceptors[interceptorName](response, promise);
+        app.rest.__globalInterceptors[interceptorName](requestData, response, promise);
       }
 
     },
@@ -272,7 +272,7 @@ app.rest = {
             }
         }
 
-        app.rest.__invokeInterceptors(data, promise, interceptors);
+        app.rest.__invokeInterceptors({}, data, promise, interceptors);
 
         return promise;
 
@@ -531,7 +531,7 @@ app.rest = {
                 }
             };
 
-            app.rest.__invokeInterceptors(result, promise, interceptors);
+            app.rest.__invokeInterceptors({ url: url, method: method, request: request}, result, promise, interceptors);
 
         }else{
             promise = callBackIsnt();
@@ -631,12 +631,14 @@ app.rest = {
 
         var promise = $.ajax(promiseObj);
 
+        var requestData = {url: url, method: method, pathParams: pathParams, urlParams: urlParams, headers: headers};
+
         promise.then(function(result){
-          app.rest.__invokeInterceptors(result, promise, interceptors);
+          app.rest.__invokeInterceptors(requestData, result, promise, interceptors);
         });
 
         promise.catch(function(error){
-          app.rest.__invokeInterceptors(error, promise, interceptors);
+          app.rest.__invokeInterceptors(requestData, error, promise, interceptors);
         });
 
         return promise;
@@ -737,12 +739,14 @@ app.rest = {
 
           var promise = $.ajax(promiseObj);
 
+          var requestData = {url: url, method: method, request: request, pathParams: pathParams, urlParams: urlParams, headers: headers};
+
             promise.then(function(result){
-                app.rest.__invokeInterceptors(result, promise, interceptors);
+                app.rest.__invokeInterceptors(requestData, result, promise, interceptors);
             });
 
             promise.catch(function(error){
-                app.rest.__invokeInterceptors(error, promise, interceptors);
+                app.rest.__invokeInterceptors(requestData, error, promise, interceptors);
             });
 
             return promise;
