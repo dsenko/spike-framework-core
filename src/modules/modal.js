@@ -301,7 +301,7 @@ app.modal = {
         modalObject.__render = function (modalPassedData) {
             app.debug('Invoke modalObject.__render with params', []);
 
-            app.modal[modalObject.__name] = $.extend(true,  {}, app.modal.__dataArchive[modalObject.__name]);
+            app.modal[modalObject.__name] = $.extend(  {}, app.modal.__dataArchive[modalObject.__name]);
             app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
 
             app.mCtx[modalObject.__name].__loadTemplate();
@@ -431,8 +431,8 @@ app.modal = {
         modalObject.__createModalViewPath(modalObject);
 
         //Creating copy of modal object in @private __dataArchive and in modal[modalName] variable
-        app.modal.__dataArchive[modalObject.__name] = $.extend(true,  {}, modalObject);
-        app.modal[modalObject.__name] = $.extend(true,  {}, modalObject);
+        app.modal.__dataArchive[modalObject.__name] = $.extend(  {}, modalObject);
+        app.modal[modalObject.__name] = $.extend(  {}, modalObject);
 
 
     },
