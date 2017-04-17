@@ -64,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '1.8',
+    version: '2.0',
 
 
     /**
@@ -309,6 +309,9 @@ app.system = {
      */
     __messages: {
 
+        APPLICATION_EVENT_CALLBACK_NULL: 'Applicaton event listener {0} is null',
+        APPLICATION_EVENT_NOT_EXIST: 'Application event {0} not exists',
+        APPLICATION_EVENT_ALREADY_EXIST: 'Application event {0} already exists',
         ROUTING_ENABLED_NOT_DEFINED: 'Routing is enabled but not defined in app.config',
         ROUTE_NAME_NOT_EXIST: 'Route name {0} not exists',
         ROUTE_NAME_EXIST: 'Route name {0} already exists, must be unique',
@@ -526,7 +529,20 @@ app.system = {
      *
      **/
     __throwError: function (errorMessage, errorMessageBinding) {
-        throw Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+        throw new Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+    },
+
+    /**
+     * @private
+     *
+     * Throws @error and @warn from Spike Framework
+     *
+     * @param errorMessage
+     * @param errorMessageBinding
+     */
+    __throwErrorAndWarn: function(errorMessage, errorMessageBinding){
+        app.system.__throwError(errorMessage, errorMessageBinding);
+        app.system.__throwWarn(errorMessage, errorMessageBinding);
     },
 
     /**
