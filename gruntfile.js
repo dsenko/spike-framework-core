@@ -67,8 +67,8 @@ var spike = {
 
 function crateDocsCommand() {
 
-    spike.docs.commandDirs += 'mkdir ' + spike.docs.dist.substring(2, spike.docs.dist.length) + ' && cd ' + spike.docs.dist.substring(2, spike.docs.dist.length) + ' && ';
-    spike.docs.commandDirs += 'mkdir ' + spike.docs.rootDir + ' && cd ' + spike.docs.rootDir + ' && ';
+    spike.docs.commandDirs += 'mkdir ' + spike.docs.dist.substring(2, spike.docs.dist.length) + ' && cd ' + spike.docs.dist.substring(2, spike.docs.dist.length) + ' && mkdir src && ';
+    spike.docs.commandDirs += 'cd src && ';
 
     for (var i = 0; i < spike.docs.dirs.length; i++) {
 
@@ -80,21 +80,17 @@ function crateDocsCommand() {
 
     }
 
-    console.log(spike.docs.commandDirs);
-
-    //spike.docs.command += ' cd .. && cd .. && '
+   // spike.docs.command += ' cd .. && cd .. && '
 
     for (var i = 0; i < spike.modules.length; i++) {
 
-        spike.docs.commandGenerate += 'dox < ' + spike.modules[i].substring(2, spike.modules[i].length) + ' > ' + spike.docs.dist.substring(2, spike.docs.dist.length) + spike.modules[i].substring(1, spike.modules[i].length).replace('.js', '') + '.json';
+        spike.docs.commandGenerate += 'dox < ../../' + spike.modules[i].substring(2, spike.modules[i].length) + ' > ../../' + spike.docs.dist.substring(2, spike.docs.dist.length) + spike.modules[i].substring(1, spike.modules[i].length).replace('.js', '') + '.json';
 
         if (i < spike.modules.length - 1) {
             spike.docs.commandGenerate += ' && ';
         }
 
     }
-
-    console.log(spike.docs.commandGenerate);
 
 }
 
