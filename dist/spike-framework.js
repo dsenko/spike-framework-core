@@ -309,6 +309,7 @@ app.system = {
      */
     __messages: {
 
+        ROUTING_ENABLED_NOT_DEFINED: 'Routing is enabled but not defined in app.config',
         ROUTE_NAME_NOT_EXIST: 'Route name {0} not exists',
         ROUTE_NAME_EXIST: 'Route name {0} already exists, must be unique',
         ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0} is already registered',
@@ -1299,6 +1300,10 @@ app.router = {
     __registerRouter: function () {
 
         if (app.config.routingEnabled) {
+
+            if(app.util.System.isEmpty(app.config.routing)){
+                app.system.__throwError(app.system.__messages.ROUTING_ENABLED_NOT_DEFINED, []);
+            }
 
             if (window.location.hash.substring(0, 2) !== '#/') {
                 window.location.hash = '#/';

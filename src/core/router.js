@@ -289,6 +289,10 @@ app.router = {
 
         if (app.config.routingEnabled) {
 
+            if(app.util.System.isEmpty(app.config.routing)){
+                app.system.__throwError(app.system.__messages.ROUTING_ENABLED_NOT_DEFINED, []);
+            }
+
             if (window.location.hash.substring(0, 2) !== '#/') {
                 window.location.hash = '#/';
             }
