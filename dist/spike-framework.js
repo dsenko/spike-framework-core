@@ -78,7 +78,7 @@ var app = {
 
         var endpoint = app.router.__getCurrentViewData().endpoint;
 
-        if(endpoint){
+        if (endpoint) {
             return endpoint.controller;
         }
 
@@ -592,7 +592,7 @@ app.system = {
         app.log('Rendering controller {0}', [controllerObject.__name]);
 
         //Scrolling to top of page
-        if(controllerObject.scrollTop == true){
+        if (controllerObject.scrollTop == true) {
             $(window).scrollTop(0);
         }
 
@@ -870,6 +870,34 @@ app.system = {
     },
 
     /**
+     * List of allowed events which can be binded by Spike Framework and compiled by Spike compiler
+     */
+    __allowedEvents: [
+        'click',
+        'change',
+        'keyup',
+        'keydown',
+        'keypress',
+        'blur',
+        'focus',
+        'dblclick',
+        'die',
+        'hover',
+        'keydown',
+        'mousemove',
+        'mouseover',
+        'mouseenter',
+        'mousedown',
+        'mouseleave',
+        'mouseout',
+        'submit',
+        'trigger',
+        'toggle',
+        'load',
+        'unload'
+    ],
+
+    /**
      * @private
      *
      * Finds all elements with attribute @spike-event
@@ -882,16 +910,22 @@ app.system = {
      */
     __bindEvents: function (rootSelector) {
 
-        rootSelector.find('[spike-event]').each(function (i, element) {
+        rootSelector.find('[spike-unbinded]').each(function (i, element) {
 
             element = $(element);
+            element.off();
 
-            var eventName = element.attr('spike-event');
-            element.removeAttr('spike-event');
+            for (var i = 0; i < app.system.__allowedEvents.length; i++) {
 
-            var eventFunctionBody = element.attr('spike-event-' + eventName);
+                var eventFunctionBody = element.attr('spike-event-' + app.system.__allowedEvents[i]);
 
-            element.off(eventName).on(eventName, Function('event', eventFunctionBody));
+                if (eventFunctionBody) {
+                    element.on(app.system.__allowedEvents[i], Function('event', eventFunctionBody));
+                }
+
+            }
+
+            element.removeAttr('spike-unbinded');
 
         });
 
@@ -2737,7 +2771,7 @@ app.component = {
                 app.component[componentObject.__name].__globalRendered = true;
             }
 
-            app.component[componentObject.__name] = $.extend(true,  {}, app.component.__dataArchive[componentObject.__name]);
+            app.component[componentObject.__name] = $.extend(  {}, app.component.__dataArchive[componentObject.__name]);
             app.com[componentObject.__name] = app.component[componentObject.__name];
 
             app.com[componentObject.__name].__loadTemplate();
@@ -2758,7 +2792,7 @@ app.component = {
             app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
 
             var inlineAttributes = componentSelector.attrs();
-            componentDataPassed = $.extend(true,  componentDataPassed, inlineAttributes);
+            componentDataPassed = $.extend(  componentDataPassed, inlineAttributes);
 
             componentSelector = app.component.__replaceComponent(componentObject.__name, componentSelector, app.com[componentObject.__name].__template);
             app.com[componentObject.__name].__componentSelector = componentSelector;
@@ -2769,7 +2803,7 @@ app.component = {
             //Translate DOM
             app.message.__translate();
 
-            componentDataPassed = $.extend(true,  componentDataPassed, app.router.__getCurrentViewData().data);
+            componentDataPassed = $.extend(  componentDataPassed, app.router.__getCurrentViewData().data);
 
             //Setting ready of module
             app.com[componentObject.__name].__rendered = true;
@@ -2841,8 +2875,8 @@ app.component = {
         componentObject.__createComponentViewPath(componentObject);
 
         //Creating copy of component object in @private __dataArchive and in component[componentName] variable
-        app.component.__dataArchive[componentObject.__name] = $.extend(true,  {}, componentObject);
-        app.component[componentObject.__name] = $.extend(true,  {}, componentObject);
+        app.component.__dataArchive[componentObject.__name] = $.extend(  {}, componentObject);
+        app.component[componentObject.__name] = $.extend(  {}, componentObject);
 
     },
 
@@ -3078,7 +3112,7 @@ app.controller = {
         controllerObject.__render = function (controllerPassedData) {
             app.debug('Invoke controllerObject.__render with params', []);
 
-            app.controller[controllerObject.__name] = $.extend(true,  {}, app.controller.__dataArchive[controllerObject.__name]);
+            app.controller[controllerObject.__name] = $.extend(  {}, app.controller.__dataArchive[controllerObject.__name]);
 
             var __oldControllerName = app.ctx ? app.ctx.__name : null;
 
@@ -3184,8 +3218,8 @@ app.controller = {
         controllerObject.__createControllerViewPath(controllerObject);
 
         //Creating copy of controller object in @private __dataArchive and in controller[controllerName]
-        app.controller.__dataArchive[controllerName] = $.extend(true,  {}, controllerObject);
-        app.controller[controllerName] = $.extend(true,  {}, controllerObject);
+        app.controller.__dataArchive[controllerName] = $.extend(  {}, controllerObject);
+        app.controller[controllerName] = $.extend(  {}, controllerObject);
 
     },
 
@@ -3517,7 +3551,7 @@ app.modal = {
         modalObject.__render = function (modalPassedData) {
             app.debug('Invoke modalObject.__render with params', []);
 
-            app.modal[modalObject.__name] = $.extend(true,  {}, app.modal.__dataArchive[modalObject.__name]);
+            app.modal[modalObject.__name] = $.extend(  {}, app.modal.__dataArchive[modalObject.__name]);
             app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
 
             app.mCtx[modalObject.__name].__loadTemplate();
@@ -3647,8 +3681,8 @@ app.modal = {
         modalObject.__createModalViewPath(modalObject);
 
         //Creating copy of modal object in @private __dataArchive and in modal[modalName] variable
-        app.modal.__dataArchive[modalObject.__name] = $.extend(true,  {}, modalObject);
-        app.modal[modalObject.__name] = $.extend(true,  {}, modalObject);
+        app.modal.__dataArchive[modalObject.__name] = $.extend(  {}, modalObject);
+        app.modal[modalObject.__name] = $.extend(  {}, modalObject);
 
 
     },
@@ -3779,7 +3813,7 @@ app.partial = {
 
     }
 
-    app.partial[partial.__name] = $.extend(true, {}, app.partial.__dataArchive[partial.__name]);
+    app.partial[partial.__name] = $.extend( {}, app.partial.__dataArchive[partial.__name]);
 
     app.debug('Returning partial {0} template ', [partial.__name]);
 
@@ -3792,7 +3826,7 @@ app.partial = {
 
     }
 
-    return partial.__template($.extend(true, partial, model));
+    return partial.__template($.extend( partial, model));
   },
 
   /**
@@ -3857,7 +3891,7 @@ app.partial = {
     partialObject.render = function (selector, model) {
       app.debug('Invoke partialObject.__render');
 
-      var __partialObject = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
+      var __partialObject = $.extend( {}, app.partial.__dataArchive[partialObject.__name]);
 
       if (!selector) {
         app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
@@ -3865,7 +3899,7 @@ app.partial = {
 
       __partialObject.rootSelector = selector;
 
-      var partialModel = $.extend(true, __partialObject, model);
+      var partialModel = $.extend( __partialObject, model);
 
       if (__partialObject.before && app.util.System.isFunction(__partialObject.before)) {
         app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
@@ -3949,8 +3983,8 @@ app.partial = {
     partialObject.__loadTemplate();
 
     //Creating copy of partial object in @private __dataArchive and in partial[partialName]
-    app.partial.__dataArchive[partialName] = $.extend(true, {}, partialObject);
-    app.partial[partialName] = $.extend(true, {}, partialObject);
+    app.partial.__dataArchive[partialName] = $.extend( {}, partialObject);
+    app.partial[partialName] = $.extend( {}, partialObject);
 
   },
 
@@ -4140,7 +4174,7 @@ app.abstract = {
      *
      */
     __extend: function(extendObjectName, extendedObject){
-        return $.extend(true, {}, app.abstract[extendObjectName], extendedObject);
+        return $.extend( {}, app.abstract[extendObjectName], extendedObject);
     }
 
 };/**

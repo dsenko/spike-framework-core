@@ -78,7 +78,7 @@ var app = {
 
         var endpoint = app.router.__getCurrentViewData().endpoint;
 
-        if(endpoint){
+        if (endpoint) {
             return endpoint.controller;
         }
 
@@ -592,7 +592,7 @@ app.system = {
         app.log('Rendering controller {0}', [controllerObject.__name]);
 
         //Scrolling to top of page
-        if(controllerObject.scrollTop == true){
+        if (controllerObject.scrollTop == true) {
             $(window).scrollTop(0);
         }
 
@@ -870,6 +870,34 @@ app.system = {
     },
 
     /**
+     * List of allowed events which can be binded by Spike Framework and compiled by Spike compiler
+     */
+    __allowedEvents: [
+        'click',
+        'change',
+        'keyup',
+        'keydown',
+        'keypress',
+        'blur',
+        'focus',
+        'dblclick',
+        'die',
+        'hover',
+        'keydown',
+        'mousemove',
+        'mouseover',
+        'mouseenter',
+        'mousedown',
+        'mouseleave',
+        'mouseout',
+        'submit',
+        'trigger',
+        'toggle',
+        'load',
+        'unload'
+    ],
+
+    /**
      * @private
      *
      * Finds all elements with attribute @spike-event
@@ -882,16 +910,22 @@ app.system = {
      */
     __bindEvents: function (rootSelector) {
 
-        rootSelector.find('[spike-event]').each(function (i, element) {
+        rootSelector.find('[spike-unbinded]').each(function (i, element) {
 
             element = $(element);
+            element.off();
 
-            var eventName = element.attr('spike-event');
-            element.removeAttr('spike-event');
+            for (var i = 0; i < app.system.__allowedEvents.length; i++) {
 
-            var eventFunctionBody = element.attr('spike-event-' + eventName);
+                var eventFunctionBody = element.attr('spike-event-' + app.system.__allowedEvents[i]);
 
-            element.off(eventName).on(eventName, Function('event', eventFunctionBody));
+                if (eventFunctionBody) {
+                    element.on(app.system.__allowedEvents[i], Function('event', eventFunctionBody));
+                }
+
+            }
+
+            element.removeAttr('spike-unbinded');
 
         });
 
