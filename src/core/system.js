@@ -309,7 +309,9 @@ app.system = {
      */
     __messages: {
 
-        ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0{ is already registered',
+        ROUTE_NAME_NOT_EXIST: 'Route name {0} not exists',
+        ROUTE_NAME_EXIST: 'Route name {0} already exists, must be unique',
+        ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0} is already registered',
         UTIL_ALREADY_REGISTRED: 'Util {0} is already registred',
         SERVICE_ALREADY_REGISTRED: 'Service {0} is already registred',
         INHERIT_ABSTRACT_NOT_EXIST: 'Inheriting abstracts into {0} - some abstracts not exists',
