@@ -2415,8 +2415,6 @@ app.events = {
      */
     listen: function (eventName, eventCallback) {
 
-        console.log(eventCallback.toString());
-
         if (app.util.System.isNull(app.events.__applicationEvents[eventName])) {
             app.system.__throwError(app.system.__messages.APPLICATION_EVENT_NOT_EXIST, [eventName]);
         }
