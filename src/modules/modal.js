@@ -317,6 +317,8 @@ app.modal = {
             //Setting ready of module
             app.modal[modalObject.__name].__rendered = true;
 
+            app.mCtx[modalObject.__name].__initData = modalPassedData;
+
             app.debug('Invoke modal {0} init() function', [app.mCtx[modalObject.__name].__name]);
             app.mCtx[modalObject.__name].init(modalPassedData);
 
