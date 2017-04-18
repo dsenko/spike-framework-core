@@ -53,7 +53,7 @@ app.partial = {
 
     }
 
-    app.partial[partial.__name] = $.extend(true, {}, app.partial.__dataArchive[partial.__name]);
+    app.partial[partial.__name] = $.extend( {}, app.partial.__dataArchive[partial.__name]);
 
     app.debug('Returning partial {0} template ', [partial.__name]);
 
@@ -66,7 +66,7 @@ app.partial = {
 
     }
 
-    return partial.__template($.extend(true, partial, model));
+    return partial.__template($.extend( partial, model));
   },
 
   /**
@@ -131,7 +131,7 @@ app.partial = {
     partialObject.render = function (selector, model) {
       app.debug('Invoke partialObject.__render');
 
-      var __partialObject = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
+      var __partialObject = $.extend( {}, app.partial.__dataArchive[partialObject.__name]);
 
       if (!selector) {
         app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
@@ -139,7 +139,7 @@ app.partial = {
 
       __partialObject.rootSelector = selector;
 
-      var partialModel = $.extend(true, __partialObject, model);
+      var partialModel = $.extend( __partialObject, model);
 
       if (__partialObject.before && app.util.System.isFunction(__partialObject.before)) {
         app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
@@ -223,8 +223,8 @@ app.partial = {
     partialObject.__loadTemplate();
 
     //Creating copy of partial object in @private __dataArchive and in partial[partialName]
-    app.partial.__dataArchive[partialName] = $.extend(true, {}, partialObject);
-    app.partial[partialName] = $.extend(true, {}, partialObject);
+    app.partial.__dataArchive[partialName] = $.extend( {}, partialObject);
+    app.partial[partialName] = $.extend( {}, partialObject);
 
   },
 

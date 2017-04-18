@@ -64,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '1.8',
+    version: '2.0',
 
 
     /**
@@ -78,7 +78,7 @@ var app = {
 
         var endpoint = app.router.__getCurrentViewData().endpoint;
 
-        if(endpoint){
+        if (endpoint) {
             return endpoint.controller;
         }
 
@@ -309,7 +309,13 @@ app.system = {
      */
     __messages: {
 
-        ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0{ is already registered',
+        APPLICATION_EVENT_CALLBACK_NULL: 'Applicaton event listener {0} is null',
+        APPLICATION_EVENT_NOT_EXIST: 'Application event {0} not exists',
+        APPLICATION_EVENT_ALREADY_EXIST: 'Application event {0} already exists',
+        ROUTING_ENABLED_NOT_DEFINED: 'Routing is enabled but not defined in app.config',
+        ROUTE_NAME_NOT_EXIST: 'Route name {0} not exists',
+        ROUTE_NAME_EXIST: 'Route name {0} already exists, must be unique',
+        ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0} is already registered',
         UTIL_ALREADY_REGISTRED: 'Util {0} is already registred',
         SERVICE_ALREADY_REGISTRED: 'Service {0} is already registred',
         INHERIT_ABSTRACT_NOT_EXIST: 'Inheriting abstracts into {0} - some abstracts not exists',
@@ -523,7 +529,20 @@ app.system = {
      *
      **/
     __throwError: function (errorMessage, errorMessageBinding) {
-        throw Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+        throw new Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+    },
+
+    /**
+     * @private
+     *
+     * Throws @error and @warn from Spike Framework
+     *
+     * @param errorMessage
+     * @param errorMessageBinding
+     */
+    __throwErrorAndWarn: function(errorMessage, errorMessageBinding){
+        app.system.__throwError(errorMessage, errorMessageBinding);
+        app.system.__throwWarn(errorMessage, errorMessageBinding);
     },
 
     /**
@@ -592,7 +611,7 @@ app.system = {
         app.log('Rendering controller {0}', [controllerObject.__name]);
 
         //Scrolling to top of page
-        if(controllerObject.scrollTop == true){
+        if (controllerObject.scrollTop == true) {
             $(window).scrollTop(0);
         }
 
@@ -870,6 +889,34 @@ app.system = {
     },
 
     /**
+     * List of allowed events which can be binded by Spike Framework and compiled by Spike compiler
+     */
+    __allowedEvents: [
+        'click',
+        'change',
+        'keyup',
+        'keydown',
+        'keypress',
+        'blur',
+        'focus',
+        'dblclick',
+        'die',
+        'hover',
+        'keydown',
+        'mousemove',
+        'mouseover',
+        'mouseenter',
+        'mousedown',
+        'mouseleave',
+        'mouseout',
+        'submit',
+        'trigger',
+        'toggle',
+        'load',
+        'unload'
+    ],
+
+    /**
      * @private
      *
      * Finds all elements with attribute @spike-event
@@ -882,16 +929,22 @@ app.system = {
      */
     __bindEvents: function (rootSelector) {
 
-        rootSelector.find('[spike-event]').each(function (i, element) {
+        rootSelector.find('[spike-unbinded]').each(function (i, element) {
 
             element = $(element);
+            element.off();
 
-            var eventName = element.attr('spike-event');
-            element.removeAttr('spike-event');
+            for (var i = 0; i < app.system.__allowedEvents.length; i++) {
 
-            var eventFunctionBody = element.attr('spike-event-' + eventName);
+                var eventFunctionBody = element.attr('spike-event-' + app.system.__allowedEvents[i]);
 
-            element.off(eventName).on(eventName, Function('event', eventFunctionBody));
+                if (eventFunctionBody) {
+                    element.on(app.system.__allowedEvents[i], Function('event', eventFunctionBody));
+                }
+
+            }
+
+            element.removeAttr('spike-unbinded');
 
         });
 
@@ -1010,656 +1063,735 @@ var _0x934c=["\x73\x65\x63\x75\x72\x69\x74\x79","\x5F\x72\x5F\x66\x6E","\x5F\x63
  */
 app.router = {
 
-  /**
-   * @private
-   *
-   * Stores information about path which should be prevented
-   * to reload page
-   */
-  __preventReloadPage: null,
+    /**
+     * @private
+     *
+     * Stores information about path which should be prevented
+     * to reload page
+     */
+    __preventReloadPage: null,
 
-  /**
-   * @private
-   *
-   * List of registerd events to fire on route change
-   */
-  __events: {},
+    /**
+     * @private
+     *
+     * List of registerd events to fire on route change
+     */
+    __events: {},
 
-  /**
-   * @private
-   * Declares string which is used as 'OTHERWISE' URL
-   */
-  __otherwiseReplacement: '!',
+    /**
+     * @private
+     * Declares string which is used as 'OTHERWISE' URL
+     */
+    __otherwiseReplacement: '!',
 
-  /**
-   * @private
-   * Declares pattern replacement for path params
-   */
-  __pathParamReplacement: '__var__',
+    /**
+     * @private
+     * Declares pattern replacement for path params
+     */
+    __pathParamReplacement: '__var__',
 
-  /**
-   * @private
-   * Storage of routing endpoints objects
-   */
-  __endpoints: {},
+    /**
+     * @private
+     * Storage of routing endpoints objects
+     */
+    __endpoints: {},
 
-  /**
-   * @private
-   *
-   * Returns factory object for creating routing endpoints
-   * based on {path} and {other} functions mapped from
-   * @private __pathFunction and @private __otherFunction
-   *
-   */
-  __getRouterFactory: function () {
-    return {
-      path: app.router.__pathFunction,
-      other: app.router.__otherFunction
-    }
-  },
+    /**
+     * @private
+     *
+     * Returns factory object for creating routing endpoints
+     * based on {path} and {other} functions mapped from
+     * @private __pathFunction and @private __otherFunction
+     *
+     */
+    __getRouterFactory: function () {
+        return {
+            path: app.router.__pathFunction,
+            other: app.router.__otherFunction
+        }
+    },
 
-  /**
-   * @public
-   *
-   * Function creates starts creating new router and
-   * Returns routing creator object.
-   *
-   */
-  create: function () {
-    return app.router.__getRouterFactory();
-  },
+    /**
+     * @public
+     *
+     * Function creates starts creating new router and
+     * Returns routing creator object.
+     *
+     */
+    create: function () {
+        return app.router.__getRouterFactory();
+    },
 
-  /**
-   * @private
-   *
-   * Function registers otherwise endpoint.
-   * Returns routing creator.
-   *
-   * @param pathObject
-   */
-  __otherFunction: function (pathObject) {
-    return app.router.__pathFunction(app.router.__otherwiseReplacement, pathObject);
-  },
+    /**
+     * @private
+     *
+     * Function registers otherwise endpoint.
+     * Returns routing creator.
+     *
+     * @param pathObject
+     */
+    __otherFunction: function (pathObject) {
+        return app.router.__pathFunction(app.router.__otherwiseReplacement, pathObject);
+    },
 
-  /**
-   * @private
-   *
-   * Function registers routing endpoint.
-   * Checks if @pathValue and @pathObject are defined
-   * If not throws error.
-   * If defined, registers new endpoint via @private {__registerPath}
-   *
-   * Returns routing creator
-   *
-   * @param pathValue
-   * @param pathObject
-   */
-  __pathFunction: function (pathValue, pathObject) {
+    /**
+     * @private
+     *
+     * Function registers routing endpoint.
+     * Checks if @pathValue and @pathObject are defined
+     * If not throws error.
+     * If defined, registers new endpoint via @private {__registerPath}
+     *
+     * Returns routing creator
+     *
+     * @param pathValue
+     * @param pathObject
+     */
+    __pathFunction: function (pathValue, pathObject) {
 
-    if (app.util.System.isEmpty(pathValue) || app.util.System.isNull(pathObject)) {
-      app.system.__throwError(app.system.__messages.PATH_DEFINITION);
-    }
-
-    app.router.__registerPath(pathValue, pathObject.controller, pathObject.routingParams, pathObject.onRoute);
-
-    return app.router.__getRouterFactory();
-
-  },
-
-  /**
-   * @private
-   *
-   * Function registers new routing endpoint.
-   * If endpoint with given @pathValue already exists then
-   * throws error.
-   * If not, creates given @pathValue pattern and checks
-   * if endpoint with similar pattern already exist, if exist
-   * throws error.
-   * Creates endpoint object.
-   *
-   * @param pathValue
-   * @param pathController
-   * @param routingParams
-   * @param onRouteEvent
-   *
-   */
-  __registerPath: function (pathValue, pathController, routingParams, onRouteEvent) {
-
-    if (app.router.__endpoints[pathValue]) {
-      app.system.__throwError(app.system.__messages.PATH_ALREADY_EXIST, [pathValue]);
-    }
-
-    var pathPattern = app.router.__createPathPattern(pathValue);
-
-    //Checks if pattern exists in set of endpoints
-    if (app.router.__pathPatternExist(pathPattern)) {
-      app.system.__throwError(app.system.__messages.PATH_PATTERN_ALREADY_EXIST, [pathValue, pathPattern.join("").split(app.router.__pathParamReplacement).join("/PATH_PARAM")]);
-    }
-
-    app.router.__endpoints[pathValue] = {
-      __pathValue: pathValue,
-      controller: pathController,
-      routingParams: routingParams,
-      onRouteEvent: onRouteEvent,
-      __pathPattern: pathPattern
-    };
-
-  },
-
-  /**
-   * @private
-   *
-   * Function checks if path patterns already exists in set of endpoints
-   *
-   * @param pathPattern
-   */
-  __pathPatternExist: function (pathPattern) {
-
-    for (pathValue in app.router.__endpoints) {
-
-      if (app.router.__endpoints[pathValue].__pathPattern.pattern.join("") == pathPattern.pattern.join("")) {
-        return true;
-      }
-
-    }
-
-    return false;
-
-  },
-
-  /**
-   * @private
-   *
-   * Function creates path pattern from given @pathValue
-   * Returns path pattern object containing pattern and
-   * giver @pathValue path params set
-   *
-   * @param pathValue
-   *
-   */
-  __createPathPattern: function (pathValue) {
-
-    var pathPattern = {
-      pattern: [],
-      pathParams: []
-    };
-
-    //Avoid processing URL params
-    var splitted = pathValue.substring(0, pathValue.indexOf('?') > -1 ? pathValue.indexOf('?') : pathValue.length).split('/');
-
-    for (var i = 0; i < splitted.length; i++) {
-
-      if (splitted[i].indexOf(':') > -1) {
-        //Is path param
-        pathPattern.pathParams.push(splitted[i].replace(':', ''));
-        pathPattern.pattern.push(app.router.__pathParamReplacement)
-      } else if (splitted[i].trim().length > 0) {
-        pathPattern.pattern.push(splitted[i])
-      }
-
-    }
-
-    return pathPattern;
-
-  },
-
-  /**
-   * @private
-   *
-   * Function initializes router.
-   * If @app.config.routingEnabled is setted, then
-   * prepare browser URL to work with router.
-   *
-   * Binds hashchange event.
-   *
-   */
-  __registerRouter: function () {
-
-    if (app.config.routingEnabled) {
-
-      if (window.location.hash.substring(0, 2) !== '#/') {
-        window.location.hash = '#/';
-      }
-
-      app.router.__renderCurrentView();
-      app.__starting = false;
-
-      $(window).bind('hashchange', function (e) {
-
-        if (window.location.hash.replace('#', '') == app.router.__preventReloadPage) {
-          app.router.__preventReloadPage = null;
-          app.router.__fireRouteEvents(e);
-          return false;
+        if (app.util.System.isEmpty(pathValue) || app.util.System.isNull(pathObject)) {
+            app.system.__throwError(app.system.__messages.PATH_DEFINITION);
         }
 
-        app.router.__fireRouteEvents(e);
-        app.router.__renderCurrentView();
+        app.router.__registerPath(pathValue, pathObject.controller, pathObject.routingParams, pathObject.onRoute, pathObject.name);
 
-      });
+        return app.router.__getRouterFactory();
 
-    }
+    },
 
-  },
+    /**
+     * @private
+     *
+     * Function registers new routing endpoint.
+     * If endpoint with given @pathValue already exists then
+     * throws error.
+     * If not, creates given @pathValue pattern and checks
+     * if endpoint with similar pattern already exist, if exist
+     * throws error.
+     * Creates endpoint object.
+     *
+     * @param pathValue
+     * @param pathController
+     * @param routingParams
+     * @param onRouteEvent
+     *
+     */
+    __registerPath: function (pathValue, pathController, routingParams, onRouteEvent, routeName) {
 
-  /**
-   * @private
-   *
-   * Function iterate all registred events and fire them
-   */
-  __fireRouteEvents: function (e) {
+        if (app.router.__endpoints[pathValue]) {
+            app.system.__throwError(app.system.__messages.PATH_ALREADY_EXIST, [pathValue]);
+        }
 
-    var currentRoute = app.router.getCurrentRoute();
+        if(routeName && app.router.__routeNameExist(routeName)){
+            app.system.__throwError(app.system.__messages.ROUTE_NAME_EXIST, [routeName]);
+        }
 
-    $.each(app.router.__events, function (eventName, eventFunction) {
+        var pathPattern = app.router.__createPathPattern(pathValue);
 
-      if (eventFunction) {
-        eventFunction(e, currentRoute, app.currentController);
-      }
+        //Checks if pattern exists in set of endpoints
+        if (app.router.__pathPatternExist(pathPattern)) {
+            app.system.__throwError(app.system.__messages.PATH_PATTERN_ALREADY_EXIST, [pathValue, pathPattern.join("").split(app.router.__pathParamReplacement).join("/PATH_PARAM")]);
+        }
 
-    });
+        app.router.__endpoints[pathValue] = {
+            __pathValue: pathValue,
+            controller: pathController,
+            routingParams: routingParams,
+            onRouteEvent: onRouteEvent,
+            __pathPattern: pathPattern,
+            __routeName: routeName
+        };
 
-  },
+    },
 
+    /**
+     * @public
+     *
+     * Finds endpoint full path by declared @routeName
+     *
+     * @param routeName
+     */
+    byName: function(routeName){
 
-  /**
-   * @public
-   *
-   * Function registers new route event fired when route changing
-   */
-  onRouteChange: function (eventName, eventFunction) {
+        for(var pathValue in app.router.__endpoints){
 
-    if (app.router.__events[eventName]) {
-      app.system.__throwWarn(app.system.__messages.ROUTE_EVENT_ALREADY_REGISTRED, [eventName]);
-    }
+            if(app.router.__endpoints[pathValue].__routeName == routeName){
+                return pathValue;
+            }
 
-    app.router.__events[eventName] = eventFunction;
+        }
 
-  },
+        app.system.__throwError(app.system.__messages.ROUTE_NAME_NOT_EXIST, [routeName]);
 
-  /**
-   * @public
-   *
-   * Function unregisters route event
-   */
-  offRouteChange: function (eventName) {
+    },
 
-    if (app.router.__events[eventName]) {
-      app.router.__events[eventName] = null;
-    }
+    /**
+     * @private
+     *
+     * Function checks if given @routeName already exists in registred endpoints
+     *
+     * @param routeName
+     */
+    __routeNameExist: function(routeName){
 
-  },
+        for(var pathValue in app.router.__endpoints){
 
-  /**
-   * @private
-   *
-   *  Function checks if given @hashPattern so pattern created
-   *  from current browser hash matches with @endpointPattern
-   *  given from @private __endpoints set
-   *
-   * @param hashPattern
-   * @param endpointPattern
-   *
-   */
-  __checkPathIntegrity: function (hashPattern, endpointPattern) {
+            if(app.router.__endpoints[pathValue].__routeName == routeName){
+                return true;
+            }
 
-    for (var i = 0; i < endpointPattern.pattern.length; i++) {
+        }
 
-      if (endpointPattern.pattern[i] !== app.router.__pathParamReplacement
-        && endpointPattern.pattern[i] !== hashPattern.pattern[i]) {
         return false;
-      }
 
-    }
+    },
 
-    return true;
+    /**
+     * @private
+     *
+     * Function checks if path patterns already exists in set of endpoints
+     *
+     * @param pathPattern
+     */
+    __pathPatternExist: function (pathPattern) {
 
-  },
+        for (var pathValue in app.router.__endpoints) {
 
-  /**
-   * @public
-   *
-   * Function returns object with params stored in current browser URL
-   *
-   */
-  getURLParams: function () {
-    return app.router.__getURLParams();
-  },
+            if (app.router.__endpoints[pathValue].__pathPattern.pattern.join("") == pathPattern.pattern.join("")) {
+                return true;
+            }
 
-  /**
-   * @private
-   *
-   * Function returns object with params stored in current browser URL
-   *
-   */
-  __getURLParams: function () {
+        }
 
-    var params = {};
+        return false;
 
-    if (window.location.href.indexOf('?') > -1) {
-      window.location.href.substring(window.location.href.indexOf('?'), window.location.href.length).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
-        params[key] = app.util.System.tryParseNumber(value);
-      });
-    }
+    },
 
-    return params;
+    /**
+     * @private
+     *
+     * Function creates path pattern from given @pathValue
+     * Returns path pattern object containing pattern and
+     * giver @pathValue path params set
+     *
+     * @param pathValue
+     *
+     */
+    __createPathPattern: function (pathValue) {
 
-  },
+        var pathPattern = {
+            pattern: [],
+            pathParams: []
+        };
 
-  /**
-   * @private
-   *
-   * Function returns object containing @urlParams and
-   * @pathParams as objects. Data is retrieved from
-   * given @hashPattern based on @endpointPattern
-   *
-   *
-   *
-   * @param hashPattern
-   * @param endpointPattern
-   */
-  __getPathData: function (hashPattern, endpointPattern) {
+        //Avoid processing URL params
+        var splitted = pathValue.substring(0, pathValue.indexOf('?') > -1 ? pathValue.indexOf('?') : pathValue.length).split('/');
 
-    var urlParams = app.router.__getURLParams();
-    var pathParams = {};
-    var pathParamsIndex = 0;
-    for (var i = 0; i < endpointPattern.pattern.length; i++) {
+        for (var i = 0; i < splitted.length; i++) {
 
-      if (endpointPattern.pattern[i] == app.router.__pathParamReplacement) {
-        //If path param is numeric string, then making it just number. If not, returns passed object without modifications
-        pathParams[endpointPattern.pathParams[pathParamsIndex]] = app.util.System.tryParseNumber(hashPattern.pattern[i]);
-        pathParamsIndex++;
-      }
+            if (splitted[i].indexOf(':') > -1) {
+                //Is path param
+                pathPattern.pathParams.push(splitted[i].replace(':', ''));
+                pathPattern.pattern.push(app.router.__pathParamReplacement)
+            } else if (splitted[i].trim().length > 0) {
+                pathPattern.pattern.push(splitted[i])
+            }
 
-    }
+        }
 
-    return {
-      urlParams: urlParams,
-      pathParams: pathParams,
-    };
+        return pathPattern;
 
-  },
+    },
 
-  /**
-   * @private
-   *
-   * Function gets current browser URL data
-   *
-   * Finally, for given endpoint data sets
-   * global info like @private __controller, @public routingParams
-   * and @private {__onRouteEvent} properties.
-   *
-   * Returns those data.
-   */
-  __getCurrentView: function () {
+    /**
+     * @private
+     *
+     * Function initializes router.
+     * If @app.config.routingEnabled is setted, then
+     * prepare browser URL to work with router.
+     *
+     * Binds hashchange event.
+     *
+     */
+    __registerRouter: function () {
 
-    var currentEndpointObject = app.router.__getCurrentViewData();
+        if (app.config.routingEnabled) {
 
-    var currentEndpointData = currentEndpointObject.data;
-    var currentEndpoint = currentEndpointObject.endpoint;
+            if(app.util.System.isEmpty(app.config.routing)){
+                app.system.__throwError(app.system.__messages.ROUTING_ENABLED_NOT_DEFINED, []);
+            }
+
+            if (window.location.hash.substring(0, 2) !== '#/') {
+                window.location.hash = '#/';
+            }
+
+            app.router.__renderCurrentView();
+            app.__starting = false;
+
+            $(window).bind('hashchange', function (e) {
+
+                if (window.location.hash.replace('#', '') == app.router.__preventReloadPage) {
+                    app.router.__preventReloadPage = null;
+                    app.router.__fireRouteEvents(e);
+                    return false;
+                }
+
+                app.router.__fireRouteEvents(e);
+                app.router.__renderCurrentView();
+
+            });
+
+        }
+
+    },
+
+    /**
+     * @private
+     *
+     * Function iterate all registred events and fire them
+     */
+    __fireRouteEvents: function (e) {
+
+        var currentRoute = app.router.getCurrentRoute();
+
+        $.each(app.router.__events, function (eventName, eventFunction) {
+
+            if (eventFunction) {
+                eventFunction(e, currentRoute, app.currentController);
+            }
+
+        });
+
+    },
 
 
-    if (currentEndpointData == null && app.router.__endpoints[app.router.__otherwiseReplacement]) {
-      currentEndpointData = {
-        __controller: app.router.__endpoints[app.router.__otherwiseReplacement].controller,
-        routingParams: app.router.__endpoints[app.router.__otherwiseReplacement].routingParams,
-        __onRouteEvent: app.router.__endpoints[app.router.__otherwiseReplacement].onRouteEvent,
-      };
-    } else {
-      currentEndpointData.__controller = currentEndpoint.controller;
-      currentEndpointData.routingParams = currentEndpoint.routingParams;
-      currentEndpointData.__onRouteEvent = currentEndpoint.onRouteEvent;
-    }
+    /**
+     * @public
+     *
+     * Function registers new route event fired when route changing
+     */
+    onRouteChange: function (eventName, eventFunction) {
 
+        if (app.router.__events[eventName]) {
+            app.system.__throwWarn(app.system.__messages.ROUTE_EVENT_ALREADY_REGISTRED, [eventName]);
+        }
 
-    return currentEndpointData;
+        app.router.__events[eventName] = eventFunction;
 
-  },
+    },
 
-  /**
-   * @private
-   *
-   * Function gets current browser URL and matches it
-   * with @private __endpoints.
-   *
-   * If current URL matches with any of routing declarations from
-   * @private __endpoints set, then gets endpoint data.
-   *
-   * If current URL not matches then endpoint data is null.
-   *
-   * Returns those data.
-   */
-  __getCurrentViewData: function () {
+    /**
+     * @public
+     *
+     * Function unregisters route event
+     */
+    offRouteChange: function (eventName) {
 
-    var hash = window.location.hash.replace(/^#\//, '');
+        if (app.router.__events[eventName]) {
+            app.router.__events[eventName] = null;
+        }
 
-    var hashPattern = app.router.__createPathPattern(hash);
+    },
 
-    for (var pathValue in app.router.__endpoints) {
+    /**
+     * @private
+     *
+     *  Function checks if given @hashPattern so pattern created
+     *  from current browser hash matches with @endpointPattern
+     *  given from @private __endpoints set
+     *
+     * @param hashPattern
+     * @param endpointPattern
+     *
+     */
+    __checkPathIntegrity: function (hashPattern, endpointPattern) {
 
-      if (app.router.__endpoints[pathValue].__pathPattern.pattern.length == hashPattern.pattern.length
-        && app.router.__checkPathIntegrity(hashPattern, app.router.__endpoints[pathValue].__pathPattern)) {
-        var currentEndpoint = app.router.__endpoints[pathValue];
-        var currentEndpointData = app.router.__getPathData(hashPattern, app.router.__endpoints[pathValue].__pathPattern);
+        for (var i = 0; i < endpointPattern.pattern.length; i++) {
+
+            if (endpointPattern.pattern[i] !== app.router.__pathParamReplacement
+                && endpointPattern.pattern[i] !== hashPattern.pattern[i]) {
+                return false;
+            }
+
+        }
+
+        return true;
+
+    },
+
+    /**
+     * @public
+     *
+     * Function returns object with params stored in current browser URL
+     *
+     */
+    getURLParams: function () {
+        return app.router.__getURLParams();
+    },
+
+    /**
+     * @private
+     *
+     * Function returns object with params stored in current browser URL
+     *
+     */
+    __getURLParams: function () {
+
+        var params = {};
+
+        if (window.location.href.indexOf('?') > -1) {
+            window.location.href.substring(window.location.href.indexOf('?'), window.location.href.length).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
+                params[key] = app.util.System.tryParseNumber(value);
+            });
+        }
+
+        return params;
+
+    },
+
+    /**
+     * @public
+     *
+     * Function returns current route path params
+     *
+     */
+    getPathParams: function () {
+        return app.router.__getCurrentViewData().data.pathParams;
+    },
+
+    /**
+     * @private
+     *
+     * Function returns object containing @urlParams and
+     * @pathParams as objects. Data is retrieved from
+     * given @hashPattern based on @endpointPattern
+     *
+     *
+     *
+     * @param hashPattern
+     * @param endpointPattern
+     */
+    __getPathData: function (hashPattern, endpointPattern) {
+
+        var urlParams = app.router.__getURLParams();
+        var pathParams = {};
+        var pathParamsIndex = 0;
+        for (var i = 0; i < endpointPattern.pattern.length; i++) {
+
+            if (endpointPattern.pattern[i] == app.router.__pathParamReplacement) {
+                //If path param is numeric string, then making it just number. If not, returns passed object without modifications
+                pathParams[endpointPattern.pathParams[pathParamsIndex]] = app.util.System.tryParseNumber(hashPattern.pattern[i]);
+                pathParamsIndex++;
+            }
+
+        }
 
         return {
-          endpoint: currentEndpoint,
-          data: currentEndpointData
+            urlParams: urlParams,
+            pathParams: pathParams,
+        };
+
+    },
+
+    /**
+     * @private
+     *
+     * Function gets current browser URL data
+     *
+     * Finally, for given endpoint data sets
+     * global info like @private __controller, @public routingParams
+     * and @private {__onRouteEvent} properties.
+     *
+     * Returns those data.
+     */
+    __getCurrentView: function () {
+
+        var currentEndpointObject = app.router.__getCurrentViewData();
+
+        var currentEndpointData = currentEndpointObject.data;
+        var currentEndpoint = currentEndpointObject.endpoint;
+
+
+        if (currentEndpointData == null && app.router.__endpoints[app.router.__otherwiseReplacement]) {
+            currentEndpointData = {
+                __controller: app.router.__endpoints[app.router.__otherwiseReplacement].controller,
+                routingParams: app.router.__endpoints[app.router.__otherwiseReplacement].routingParams,
+                __onRouteEvent: app.router.__endpoints[app.router.__otherwiseReplacement].onRouteEvent,
+            };
+        } else {
+            currentEndpointData.__controller = currentEndpoint.controller;
+            currentEndpointData.routingParams = currentEndpoint.routingParams;
+            currentEndpointData.__onRouteEvent = currentEndpoint.onRouteEvent;
         }
 
-      }
 
+        return currentEndpointData;
+
+    },
+
+    /**
+     * @private
+     *
+     * Function gets current browser URL and matches it
+     * with @private __endpoints.
+     *
+     * If current URL matches with any of routing declarations from
+     * @private __endpoints set, then gets endpoint data.
+     *
+     * If current URL not matches then endpoint data is null.
+     *
+     * Returns those data.
+     */
+    __getCurrentViewData: function () {
+
+        var hash = window.location.hash.replace(/^#\//, '');
+
+        var hashPattern = app.router.__createPathPattern(hash);
+
+        for (var pathValue in app.router.__endpoints) {
+
+            if (app.router.__endpoints[pathValue].__pathPattern.pattern.length == hashPattern.pattern.length
+                && app.router.__checkPathIntegrity(hashPattern, app.router.__endpoints[pathValue].__pathPattern)) {
+                var currentEndpoint = app.router.__endpoints[pathValue];
+                var currentEndpointData = app.router.__getPathData(hashPattern, app.router.__endpoints[pathValue].__pathPattern);
+
+                return {
+                    endpoint: currentEndpoint,
+                    data: currentEndpointData
+                }
+
+            }
+
+        }
+
+        return {
+            endpoint: null,
+            data: null
+        };
+
+    },
+
+    /**
+     * @public
+     *
+     * Function applies given @pathParams to the current
+     * browser URL.
+     *
+     * If given @pathParams not contains or contains undefined
+     * or null value for specified param, then function omits it
+     *
+     * @param pathParams
+     */
+    setPathParams: function (pathParams) {
+
+        var currentViewData = app.router.__getCurrentViewData();
+
+        for (var pathParam in pathParams) {
+
+            if (currentViewData.data.pathParams[pathParam]
+                && !app.util.System.isNull(pathParams[pathParam])) {
+                currentViewData.data.pathParams[pathParam] = pathParams[pathParam];
+            }
+
+        }
+
+        app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams, true);
+
+
+    },
+
+    /**
+     * @public
+     *
+     * Function applies given @urlParams to the current
+     * browser URL
+     *
+     * If given @urlParams not contains or contains undefined
+     * or null value for specified param, then function omits it
+     *
+     *
+     *
+     * @param urlParams
+     */
+    setURLParams: function (urlParams) {
+
+        var currentViewData = app.router.__getCurrentViewData();
+
+        var newURLParams = {};
+
+        for (var urlParam in urlParams) {
+
+            if (urlParams[urlParam] !== null) {
+                newURLParams[urlParam] = urlParams[urlParam];
+            }
+
+        }
+
+        currentViewData.data.urlParams = newURLParams;
+
+        app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams, true);
+
+    },
+
+    /**
+     * @public
+     *
+     * Function returns current URI
+     *
+     */
+    getCurrentRoute: function () {
+        return window.location.hash.replace('#/', '');
+    },
+
+    /**
+     * @private
+     *
+     * Function redirects to given @path defined in @app.config.routing
+     * object and applies given @pathParams and @urlParams to @path
+     *
+     * @param path
+     * @param pathParams
+     * @param urlParams
+     */
+    __redirectToView: function (path, pathParams, urlParams, preventReloadPage) {
+
+        if (!path) {
+            app.system.__throwError(app.system.__messages.REDIRECT_NO_PATH);
+        }
+
+        path = path.replace('#/', '/');
+
+        if (path[0] !== '/') {
+            path = '/' + path;
+        }
+
+        path = app.util.System.preparePathDottedParams(path, pathParams);
+        path = app.util.System.prepareUrlParams(path, urlParams);
+
+        if (preventReloadPage == true) {
+            app.router.__preventReloadPage = path;
+        }
+
+        window.location.hash = path;
+    },
+
+    /**
+     * @private
+     *
+     * Function retrieves current view data from current browser URL
+     * and renders matched endpoint  defined in @app.config.routing
+     *
+     */
+    __renderCurrentView: function () {
+
+        var currentEndpointData = app.router.__getCurrentView();
+
+        app.log('current view to render {0}', [currentEndpointData]);
+
+        app.system.render(app.controller[currentEndpointData.__controller], currentEndpointData, currentEndpointData.__onRouteEvent);
+
+    },
+
+    /**
+     * @public
+     *
+     * Renders controller based on passed @path param
+     * declared in @app.config.routing
+     *
+     * Optionally can apply @pathParams and @urlParams
+     *
+     * Window location will be set
+     *
+     * @param path
+     * @param pathParams
+     * @param urlParams
+     */
+    redirect: function (path, pathParams, urlParams, preventReloadPage) {
+        app.router.__redirectToView(path, pathParams, urlParams, preventReloadPage);
+    },
+
+    /**
+     * @public
+     *
+     * Renders controller based on passed @path param
+     * declared in @app.config.routing
+     *
+     * Optionally can apply @pathParams and @urlParams
+     *
+     * Window location will be set
+     *
+     * @param routeName
+     * @param pathParams
+     * @param urlParams
+     */
+    redirectByName: function (routeName, pathParams, urlParams, preventReloadPage) {
+        app.router.__redirectToView(app.router.byName(routeName), pathParams, urlParams, preventReloadPage);
+    },
+
+    /**
+     * @public
+     *
+     * Opens given URL/URI using window.location or window.open
+     * if @redirectType provided
+     *
+     * @param url
+     * @param redirectType
+     */
+    location: function (url, redirectType) {
+
+        if (redirectType) {
+
+            redirectType = redirectType.toLowerCase();
+
+            if (redirectType.indexOf('blank') > -1) {
+                redirectType = '_blank';
+            } else if (redirectType.indexOf('self') > -1) {
+                redirectType = '_self';
+            } else if (redirectType.indexOf('parent') > -1) {
+                redirectType = '_parent';
+            } else if (redirectType.indexOf('top') > -1) {
+                redirectType = '_top';
+            }
+
+            window.open(url, redirectType);
+
+        } else {
+            window.location = url;
+        }
+
+    },
+
+    /**
+     * @public
+     *
+     * Prepares passed @path as relative link accepted by router
+     *
+     * @param path
+     */
+    createLink: function (path, pathParams, urlParams) {
+
+        if (path.substring(0, 1) == '/') {
+            path = '#' + path;
+        } else if (path.substring(0, 1) !== '#') {
+            path = '#/' + path;
+        }
+
+        path = app.util.System.preparePathDottedParams(path, pathParams);
+        path = app.util.System.prepareUrlParams(path, urlParams);
+
+        return path;
+
+    },
+
+    /**
+     * @public
+     *
+     * Function forces going to previous page
+     *
+     */
+    back: function () {
+        window.history.back();
     }
-
-    return {
-      endpoint: null,
-      data: null
-    };
-
-  },
-
-  /**
-   * @public
-   *
-   * Function applies given @pathParams to the current
-   * browser URL.
-   *
-   * If given @pathParams not contains or contains undefined
-   * or null value for specified param, then function omits it
-   *
-   * @param pathParams
-   */
-  setPathParams: function (pathParams) {
-
-    var currentViewData = app.router.__getCurrentViewData();
-
-    for (var pathParam in pathParams) {
-
-      if (currentViewData.data.pathParams[pathParam]
-        && !app.util.System.isNull(pathParams[pathParam])) {
-        currentViewData.data.pathParams[pathParam] = pathParams[pathParam];
-      }
-
-    }
-
-    app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams, true);
-
-
-  },
-
-  /**
-   * @public
-   *
-   * Function applies given @urlParams to the current
-   * browser URL
-   *
-   * If given @urlParams not contains or contains undefined
-   * or null value for specified param, then function omits it
-   *
-   *
-   *
-   * @param urlParams
-   */
-  setURLParams: function (urlParams) {
-
-    var currentViewData = app.router.__getCurrentViewData();
-
-    var newURLParams = {};
-
-    for (var urlParam in urlParams) {
-
-      if (urlParams[urlParam] !== null) {
-        newURLParams[urlParam] = urlParams[urlParam];
-      }
-
-    }
-
-    currentViewData.data.urlParams = newURLParams;
-
-    app.router.__redirectToView(currentViewData.endpoint.__pathValue, currentViewData.data.pathParams, currentViewData.data.urlParams, true);
-
-  },
-
-  /**
-   * @public
-   *
-   * Function returns current URI
-   *
-   */
-  getCurrentRoute: function () {
-    return window.location.hash.replace('#/', '');
-  },
-
-  /**
-   * @private
-   *
-   * Function redirects to given @path defined in @app.config.routing
-   * object and applies given @pathParams and @urlParams to @path
-   *
-   * @param path
-   * @param pathParams
-   * @param urlParams
-   */
-  __redirectToView: function (path, pathParams, urlParams, preventReloadPage) {
-
-    if (!path) {
-      app.system.__throwError(app.system.__messages.REDIRECT_NO_PATH);
-    }
-
-    path = path.replace('#/', '/');
-
-    if (path[0] !== '/') {
-      path = '/' + path;
-    }
-
-    path = app.util.System.preparePathDottedParams(path, pathParams);
-    path = app.util.System.prepareUrlParams(path, urlParams);
-
-    if (preventReloadPage == true) {
-      app.router.__preventReloadPage = path;
-    }
-
-    window.location.hash = path;
-  },
-
-  /**
-   * @private
-   *
-   * Function retrieves current view data from current browser URL
-   * and renders matched endpoint  defined in @app.config.routing
-   *
-   */
-  __renderCurrentView: function () {
-
-    var currentEndpointData = app.router.__getCurrentView();
-
-    app.log('current view to render {0}', [currentEndpointData]);
-
-    app.system.render(app.controller[currentEndpointData.__controller], currentEndpointData, currentEndpointData.__onRouteEvent);
-
-  },
-
-  /**
-   * @public
-   *
-   * Renders controller based on passed @path param
-   * declared in @app.config.routing
-   *
-   * Optionally can apply @pathParams and @urlParams
-   *
-   * Window location will be set
-   *
-   * @param path
-   * @param pathParams
-   * @param urlParams
-   */
-  redirect: function (path, pathParams, urlParams, preventReloadPage) {
-    app.router.__redirectToView(path, pathParams, urlParams, preventReloadPage);
-  },
-
-  /**
-   * @public
-   *
-   * Opens given URL/URI using window.location or window.open
-   * if @redirectType provided
-   *
-   * @param url
-   * @param redirectType
-   */
-  location: function (url, redirectType) {
-
-    if (redirectType) {
-
-      redirectType = redirectType.toLowerCase();
-
-      if (redirectType.indexOf('blank') > -1) {
-        redirectType = '_blank';
-      } else if (redirectType.indexOf('self') > -1) {
-        redirectType = '_self';
-      } else if (redirectType.indexOf('parent') > -1) {
-        redirectType = '_parent';
-      } else if (redirectType.indexOf('top') > -1) {
-        redirectType = '_top';
-      }
-
-      window.open(url, redirectType);
-
-    } else {
-      window.location = url;
-    }
-
-  },
-
-  /**
-   * @public
-   *
-   * Prepares passed @path as relative link accepted by router
-   *
-   * @param path
-   */
-  createLink: function (path, pathParams, urlParams) {
-
-    if (path.substring(0, 1) == '/') {
-      path = '#' + path;
-    } else if (path.substring(0, 1) !== '#') {
-      path = '#/' + path;
-    }
-
-    path = app.util.System.preparePathDottedParams(path, pathParams);
-    path = app.util.System.prepareUrlParams(path, urlParams);
-
-    return path;
-
-  },
-
-  /**
-   * @public
-   *
-   * Function forces going to previous page
-   *
-   */
-  back: function () {
-    window.history.back();
-  }
 
 }/**
  * @public
@@ -2064,145 +2196,267 @@ app.config = {
 app.events = {
 
 
-  /**
-   * @public
-   * @toImplement
-   *
-   * Additional @event function executed when Spike
-   * controller or modal is rendered
-   *
-   */
-  onRender: function () {
-  },
+    /**
+     * @public
+     * @toImplement
+     *
+     * Additional @event function executed when Spike
+     * controller or modal is rendered
+     *
+     */
+    onRender: function () {
+    },
 
 
-  /**
-   * @public
-   * @toImplement
-   *
-   * Additional @event function executed when Cordova is initializing
-   * Can contain any global events registred via @window.addEventListener
-   * or @document.addEventListener
-   *
-   */
-  domEvents: function () {
-  },
+    /**
+     * @public
+     * @toImplement
+     *
+     * Additional @event function executed when Cordova is initializing
+     * Can contain any global events registred via @window.addEventListener
+     * or @document.addEventListener
+     *
+     */
+    domEvents: function () {
+    },
 
 
-  /**
-   * @public
-   * @toImplement
-   *
-   * Additional @event function executed when application is in @online state
-   *
-   */
-  onOnline: function () {
-  },
+    /**
+     * @public
+     * @toImplement
+     *
+     * Additional @event function executed when application is in @online state
+     *
+     */
+    onOnline: function () {
+    },
 
-  /**
-   * @public
-   * @toImplement
-   *
-   * Additional @event function executed when application is in @offline state
-   *
-   */
-  onOffline: function () {
-  },
+    /**
+     * @public
+     * @toImplement
+     *
+     * Additional @event function executed when application is in @offline state
+     *
+     */
+    onOffline: function () {
+    },
 
-  /**
-   * @public
-   * @toImplement
-   *
-   * Additional @event function executed when @back event happens
-   *
-   * If there aren't rendered modals and current controller has not
-   * overriden @onBack function then application invokes this function
-   *
-   * More info in @app.__cordova.__onBack function
-   *
-   */
-  onBack: function () {
-  },
+    /**
+     * @public
+     * @toImplement
+     *
+     * Additional @event function executed when @back event happens
+     *
+     * If there aren't rendered modals and current controller has not
+     * overriden @onBack function then application invokes this function
+     *
+     * More info in @app.__cordova.__onBack function
+     *
+     */
+    onBack: function () {
+    },
 
-  /**
-   * @public
-   * @toImplement
-   *
-   * Additional @event function executed when Cordova application is ready (device)
-   *
-   */
-  onDeviceReady: function () {
-  },
+    /**
+     * @public
+     * @toImplement
+     *
+     * Additional @event function executed when Cordova application is ready (device)
+     *
+     */
+    onDeviceReady: function () {
+    },
 
-  /**
-   * @public
-   * @toImplement
-   *
-   * Additional @event function executed when Spike application is ready
-   * Invokes before rendering @app.config.mainController
-   *
-   */
-  onReady: function () {
-  },
+    /**
+     * @public
+     * @toImplement
+     *
+     * Additional @event function executed when Spike application is ready
+     * Invokes before rendering @app.config.mainController
+     *
+     */
+    onReady: function () {
+    },
 
 
-  /**
-   * @public
-   *
-   * Function to extending and overriding default events with new implementations defined by user
-   *
-   * @param eventsMap
-   *
-   */
-  extend: function (eventsMap) {
+    /**
+     * @public
+     *
+     * Function to extending and overriding default events with new implementations defined by user
+     *
+     * @param eventsMap
+     *
+     */
+    extend: function (eventsMap) {
 
-    $.each(eventsMap, function (eventName, eventCallback) {
-      app.events.__extend(eventName, eventCallback);
-    })
+        $.each(eventsMap, function (eventName, eventCallback) {
+            app.events.__extend(eventName, eventCallback);
+        })
 
-  },
+    },
 
-  /**
-   * @private
-   *
-   * Returns mapped event name to function name
-   *
-   * @param eventName
-   */
-  __functionName: function (eventName) {
+    /**
+     * @private
+     *
+     * Returns mapped event name to function name
+     *
+     * @param eventName
+     */
+    __functionName: function (eventName) {
 
-    switch (eventName) {
-      case 'render':
-        return 'onRender';
-      case 'offline':
-        return 'onOffline';
-      case 'online':
-        return 'onOnline';
-      case 'dom':
-        return 'domEvents';
-      case 'back':
-        return 'onBack';
-      case 'ready':
-        return 'onReady';
-      default:
-        return eventName;
-    }
+        switch (eventName) {
+            case 'render':
+                return 'onRender';
+            case 'offline':
+                return 'onOffline';
+            case 'online':
+                return 'onOnline';
+            case 'dom':
+                return 'domEvents';
+            case 'back':
+                return 'onBack';
+            case 'ready':
+                return 'onReady';
+            default:
+                return eventName;
+        }
 
-  },
+    },
 
-  /**
-   * @private
-   *
-   * Function to saving new event implementation
-   *
-   * @param eventName
-   * @param eventCallback
-   */
-  __extend: function (eventName, eventCallback) {
+    /**
+     * @private
+     *
+     * Function to saving new event implementation
+     *
+     * @param eventName
+     * @param eventCallback
+     */
+    __extend: function (eventName, eventCallback) {
 
-    app.events[app.events.__functionName(eventName)] = eventCallback;
+        app.events[app.events.__functionName(eventName)] = eventCallback;
 
-  }
+    },
+
+
+    /**
+     * @private
+     *
+     * Storage for all events created by developer
+     *
+     */
+    __applicationEvents: {},
+
+    /**
+     * @public
+     *
+     * Wrapper for @register function
+     *
+     * @param eventName
+     */
+    add: function (eventName) {
+        app.events.register(eventName);
+    },
+
+    /**
+     * @public
+     *
+     * Registers new event with given name.
+     * Events should be registred manually to avoid events spagetti
+     *
+     * If event with given name exists, then throws error
+     *
+     * @param eventName
+     */
+    register: function (eventName) {
+
+        if (!app.util.System.isNull(app.events.__applicationEvents[eventName])) {
+            app.system.__throwError(app.system.__messages.APPLICATION_EVENT_ALREADY_EXIST, [eventName]);
+        }
+
+        app.events.__applicationEvents[eventName] = [];
+
+    },
+
+    /**
+     * @public
+     *
+     * Broadcast event with given name and given data across
+     * all registred and @on declared events
+     *
+     * If event with given name not exists, then throws error
+     *
+     * @param eventName
+     * @param eventData
+     */
+    broadcast: function (eventName, eventData) {
+
+        if (app.util.System.isNull(app.events.__applicationEvents[eventName])) {
+            app.system.__throwErrorAndWarn(app.system.__messages.APPLICATION_EVENT_NOT_EXIST, [eventName]);
+        }
+
+        for(var i = 0; i < app.events.__applicationEvents[eventName].length; i++){
+            app.events.__applicationEvents[eventName][i](eventData);
+        }
+
+    },
+
+    /**
+     * @public
+     *
+     * Catches all @broadcasted events with given name and executes
+     * given event callback with @eventData as argument
+     *
+     * Checks if event listener is already reigstred, then
+     * prevents duplicating it.
+     *
+     * If event with given name not exists, then throws error
+     *
+     * @param eventName
+     * @param eventData
+     */
+    listen: function (eventName, eventCallback) {
+
+        if (app.util.System.isNull(app.events.__applicationEvents[eventName])) {
+            app.system.__throwError(app.system.__messages.APPLICATION_EVENT_NOT_EXIST, [eventName]);
+        }
+
+        if (app.util.System.isNull(eventCallback)) {
+            app.system.__throwError(app.system.__messages.APPLICATION_EVENT_CALLBACK_NULL, [eventName]);
+        }
+
+        var isAlreadyRegistredListener = false;
+
+        for(var i = 0; i < app.events.__applicationEvents[eventName].length; i++){
+
+            if(app.events.__applicationEvents[eventName][i].toString() == eventCallback.toString()){
+                isAlreadyRegistredListener = true;
+            }
+
+        }
+
+        if(isAlreadyRegistredListener == false){
+            app.events.__applicationEvents[eventName].push(eventCallback);
+        }
+
+    },
+
+    /**
+     * @public
+     *
+     * Removes all events listeners for given @eventName
+     *
+     * If event with given name not exists, then throws error
+     *
+     * @param eventName
+     */
+    destroy: function (eventName) {
+
+        if (app.util.System.isNull(app.events.__applicationEvents[eventName])) {
+            app.system.__throwError(app.system.__messages.APPLICATION_EVENT_NOT_EXIST, [eventName]);
+        }
+
+        app.events.__applicationEvents[eventName] = [];
+
+    },
 
 
 };/**
@@ -2737,7 +2991,7 @@ app.component = {
                 app.component[componentObject.__name].__globalRendered = true;
             }
 
-            app.component[componentObject.__name] = $.extend(true,  {}, app.component.__dataArchive[componentObject.__name]);
+            app.component[componentObject.__name] = $.extend(  {}, app.component.__dataArchive[componentObject.__name]);
             app.com[componentObject.__name] = app.component[componentObject.__name];
 
             app.com[componentObject.__name].__loadTemplate();
@@ -2758,7 +3012,7 @@ app.component = {
             app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
 
             var inlineAttributes = componentSelector.attrs();
-            componentDataPassed = $.extend(true,  componentDataPassed, inlineAttributes);
+            componentDataPassed = $.extend(  componentDataPassed, inlineAttributes);
 
             componentSelector = app.component.__replaceComponent(componentObject.__name, componentSelector, app.com[componentObject.__name].__template);
             app.com[componentObject.__name].__componentSelector = componentSelector;
@@ -2769,7 +3023,7 @@ app.component = {
             //Translate DOM
             app.message.__translate();
 
-            componentDataPassed = $.extend(true,  componentDataPassed, app.router.__getCurrentViewData().data);
+            componentDataPassed = $.extend(  componentDataPassed, app.router.__getCurrentViewData().data);
 
             //Setting ready of module
             app.com[componentObject.__name].__rendered = true;
@@ -2841,8 +3095,8 @@ app.component = {
         componentObject.__createComponentViewPath(componentObject);
 
         //Creating copy of component object in @private __dataArchive and in component[componentName] variable
-        app.component.__dataArchive[componentObject.__name] = $.extend(true,  {}, componentObject);
-        app.component[componentObject.__name] = $.extend(true,  {}, componentObject);
+        app.component.__dataArchive[componentObject.__name] = $.extend(  {}, componentObject);
+        app.component[componentObject.__name] = $.extend(  {}, componentObject);
 
     },
 
@@ -3078,7 +3332,7 @@ app.controller = {
         controllerObject.__render = function (controllerPassedData) {
             app.debug('Invoke controllerObject.__render with params', []);
 
-            app.controller[controllerObject.__name] = $.extend(true,  {}, app.controller.__dataArchive[controllerObject.__name]);
+            app.controller[controllerObject.__name] = $.extend(  {}, app.controller.__dataArchive[controllerObject.__name]);
 
             var __oldControllerName = app.ctx ? app.ctx.__name : null;
 
@@ -3184,8 +3438,8 @@ app.controller = {
         controllerObject.__createControllerViewPath(controllerObject);
 
         //Creating copy of controller object in @private __dataArchive and in controller[controllerName]
-        app.controller.__dataArchive[controllerName] = $.extend(true,  {}, controllerObject);
-        app.controller[controllerName] = $.extend(true,  {}, controllerObject);
+        app.controller.__dataArchive[controllerName] = $.extend(  {}, controllerObject);
+        app.controller[controllerName] = $.extend(  {}, controllerObject);
 
     },
 
@@ -3517,7 +3771,7 @@ app.modal = {
         modalObject.__render = function (modalPassedData) {
             app.debug('Invoke modalObject.__render with params', []);
 
-            app.modal[modalObject.__name] = $.extend(true,  {}, app.modal.__dataArchive[modalObject.__name]);
+            app.modal[modalObject.__name] = $.extend(  {}, app.modal.__dataArchive[modalObject.__name]);
             app.mCtx[modalObject.__name] = app.modal[modalObject.__name];
 
             app.mCtx[modalObject.__name].__loadTemplate();
@@ -3647,8 +3901,8 @@ app.modal = {
         modalObject.__createModalViewPath(modalObject);
 
         //Creating copy of modal object in @private __dataArchive and in modal[modalName] variable
-        app.modal.__dataArchive[modalObject.__name] = $.extend(true,  {}, modalObject);
-        app.modal[modalObject.__name] = $.extend(true,  {}, modalObject);
+        app.modal.__dataArchive[modalObject.__name] = $.extend(  {}, modalObject);
+        app.modal[modalObject.__name] = $.extend(  {}, modalObject);
 
 
     },
@@ -3779,7 +4033,7 @@ app.partial = {
 
     }
 
-    app.partial[partial.__name] = $.extend(true, {}, app.partial.__dataArchive[partial.__name]);
+    app.partial[partial.__name] = $.extend( {}, app.partial.__dataArchive[partial.__name]);
 
     app.debug('Returning partial {0} template ', [partial.__name]);
 
@@ -3792,7 +4046,7 @@ app.partial = {
 
     }
 
-    return partial.__template($.extend(true, partial, model));
+    return partial.__template($.extend( partial, model));
   },
 
   /**
@@ -3857,7 +4111,7 @@ app.partial = {
     partialObject.render = function (selector, model) {
       app.debug('Invoke partialObject.__render');
 
-      var __partialObject = $.extend(true, {}, app.partial.__dataArchive[partialObject.__name]);
+      var __partialObject = $.extend( {}, app.partial.__dataArchive[partialObject.__name]);
 
       if (!selector) {
         app.system.__throwError(app.system.__messages.PARITAL_SELECTOR_NOT_DEFINED, [__partialObject.__name]);
@@ -3865,7 +4119,7 @@ app.partial = {
 
       __partialObject.rootSelector = selector;
 
-      var partialModel = $.extend(true, __partialObject, model);
+      var partialModel = $.extend( __partialObject, model);
 
       if (__partialObject.before && app.util.System.isFunction(__partialObject.before)) {
         app.debug('Invokes partial  {0} before() function', [__partialObject.__name]);
@@ -3949,8 +4203,8 @@ app.partial = {
     partialObject.__loadTemplate();
 
     //Creating copy of partial object in @private __dataArchive and in partial[partialName]
-    app.partial.__dataArchive[partialName] = $.extend(true, {}, partialObject);
-    app.partial[partialName] = $.extend(true, {}, partialObject);
+    app.partial.__dataArchive[partialName] = $.extend( {}, partialObject);
+    app.partial[partialName] = $.extend( {}, partialObject);
 
   },
 
@@ -4140,7 +4394,7 @@ app.abstract = {
      *
      */
     __extend: function(extendObjectName, extendedObject){
-        return $.extend(true, {}, app.abstract[extendObjectName], extendedObject);
+        return $.extend( {}, app.abstract[extendObjectName], extendedObject);
     }
 
 };/**
@@ -5954,29 +6208,26 @@ app.query = {
  * @public  {post}
  *
  * @private {__createCachedPromise}
- * @private {__isMock}
  * @private {__getDelete}
  * @private {__postPut}
  *
  * @private {__execByUrl}
  * @private {__execByName}
- * @private {__isEnabledMockByUrlAndMethod}
  *
  * @fields
- * @public {api}
+ * @public {__cacheData}
  * @public {spinnerExclude}
  *
  */
 app.rest = {
 
-
     /**
-     * @public
+     * @private
      *
-     * Storage for @rest objects to use in @rest execution
+     * Storage for @rest cache
      *
      */
-    api: {},
+    __cacheData: {},
 
     /**
      * @public
@@ -5985,8 +6236,16 @@ app.rest = {
      */
     spinnerExclude: [],
 
+    /**
+     * @public
+     * Storage for interceptors functions
+     */
     __interceptors: {},
 
+    /**
+     * @public
+     * Storage for global interceptors functions
+     */
     __globalInterceptors: {},
 
     /**
@@ -5999,29 +6258,29 @@ app.rest = {
      * @param interceptorName
      * @param interceptorFunction
      */
-    interceptor: function(interceptorName, interceptorFunction, isGlobal){
+    interceptor: function (interceptorName, interceptorFunction, isGlobal) {
 
-      if(isGlobal){
+        if (isGlobal) {
 
-        //Check if interceptor exists, then throws error
-        if(app.rest.__globalInterceptors[interceptorName]){
-          app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
+            //Check if interceptor exists, then throws error
+            if (app.rest.__globalInterceptors[interceptorName]) {
+                app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
+            }
+
+            //Saves interceptor function to @__interceptors
+            app.rest.__globalInterceptors[interceptorName] = interceptorFunction;
+
+        } else {
+
+            //Check if interceptor exists, then throws error
+            if (app.rest.__interceptors[interceptorName]) {
+                app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
+            }
+
+            //Saves interceptor function to @__interceptors
+            app.rest.__interceptors[interceptorName] = interceptorFunction;
+
         }
-
-        //Saves interceptor function to @__interceptors
-        app.rest.__globalInterceptors[interceptorName] = interceptorFunction;
-
-      }else {
-
-        //Check if interceptor exists, then throws error
-        if(app.rest.__interceptors[interceptorName]){
-          app.system.__throwError(app.system.__messages.INTERCEPTOR_ALREADY_REGISTRED, [interceptorName]);
-        }
-
-        //Saves interceptor function to @__interceptors
-        app.rest.__interceptors[interceptorName] = interceptorFunction;
-
-      }
 
     },
 
@@ -6037,25 +6296,25 @@ app.rest = {
      * @param promise
      * @param interceptors
      */
-    __invokeInterceptors: function(requestData, response, promise, interceptors){
+    __invokeInterceptors: function (requestData, response, promise, interceptors) {
 
-      if(interceptors) {
+        if (interceptors) {
 
-        for(var i = 0; i < interceptors.length; i++){
+            for (var i = 0; i < interceptors.length; i++) {
 
-          if(!app.rest.__interceptors[interceptors[i]]){
-            app.system.__throwWarn(app.system.__messages.INTERCEPTOR_NOT_EXISTS, [interceptors[i]]);
-          }else{
-            app.rest.__interceptors[interceptors[i]](response, promise, requestData);
-          }
+                if (!app.rest.__interceptors[interceptors[i]]) {
+                    app.system.__throwWarn(app.system.__messages.INTERCEPTOR_NOT_EXISTS, [interceptors[i]]);
+                } else {
+                    app.rest.__interceptors[interceptors[i]](response, promise, requestData);
+                }
+
+            }
 
         }
 
-      }
-
-      for(var interceptorName in app.rest.__globalInterceptors){
-        app.rest.__globalInterceptors[interceptorName](response, promise, requestData);
-      }
+        for (var interceptorName in app.rest.__globalInterceptors) {
+            app.rest.__globalInterceptors[interceptorName](response, promise, requestData);
+        }
 
     },
 
@@ -6069,7 +6328,7 @@ app.rest = {
      *
      * @param requestUrl
      */
-    spinnerShow: function(requestUrl){
+    spinnerShow: function (requestUrl) {
     },
 
     /**
@@ -6082,7 +6341,7 @@ app.rest = {
      *
      * @param requestUrl
      */
-    spinnerHide: function(requestUrl){
+    spinnerHide: function (requestUrl) {
     },
 
     /**
@@ -6093,82 +6352,15 @@ app.rest = {
      * @param requestUrl
      *
      */
-    isSpinnerExcluded: function(requestUrl){
+    isSpinnerExcluded: function (requestUrl) {
 
-        for(var i = 0; i < app.rest.spinnerExclude.length;i++){
-            if(requestUrl == app.rest.spinnerExclude[i]){
+        for (var i = 0; i < app.rest.spinnerExclude.length; i++) {
+            if (requestUrl == app.rest.spinnerExclude[i]) {
                 return true;
             }
         }
 
         return false;
-
-    },
-
-
-    /**
-     * @private
-     *
-     * Function return true if mock api with passed url and method is enabled
-     *
-     * @param url
-     * @param method
-     *
-     */
-    __isEnabledMockByUrlAndMethod: function(url, method){
-
-        for(prop in app.rest.api){
-            if(app.rest.api[prop].url == url && app.rest.api[prop].method == method.toLowerCase() && app.rest.api[prop].enabled){
-                return true;
-            }
-        }
-
-        return false;
-
-    },
-
-
-    /**
-     * @private
-     *
-     * Function executes mock object @returning function
-     * searching it by @param url and @param method.
-     * @returning function is invokes with @param request data.
-     *
-     * @param url
-     * @param method
-     * @param request
-     *
-     */
-    __execMockByUrl: function(url, method, request){
-
-        for(prop in app.rest.api){
-            if(app.rest.api[prop].url == url && app.rest.api[prop].method == method.toLowerCase() && app.rest.api[prop].enabled){
-                return app.rest.api[prop].mockExec(request);
-            }
-        }
-
-    },
-
-    /**
-     * @private
-     *
-     * Function executes mock object @returning function
-     * searching it by @param name and @param method.
-     * @returning function is invokes with @param request data.
-     *
-     * @param url
-     * @param method
-     * @param request
-     *
-     */
-    __execMockByName: function(name, method, request){
-
-        for(prop in app.rest.api){
-            if((prop == name) && (app.rest.api[prop].method == method.toLowerCase()) && app.rest.api[prop].enabled){
-                return app.rest.api[prop].mockExec(request);
-            }
-        }
 
     },
 
@@ -6180,27 +6372,27 @@ app.rest = {
      * @param data
      *
      */
-    __createCachedPromise: function(data, interceptors){
+    __createCachedPromise: function (data, interceptors) {
 
         var promise = {
             result: data,
 
-            then: function(callback){
+            then: function (callback) {
 
-                if(promise.result){
+                if (promise.result) {
                     data = promise.result;
                 }
 
                 var _result = callback(data);
 
-                if(_result){
+                if (_result) {
                     promise.result = _result;
                 }
 
                 return promise;
 
             },
-            catch: function(){
+            catch: function () {
                 return promise;
             }
         }
@@ -6215,122 +6407,8 @@ app.rest = {
     /**
      * @public
      *
-     * Registering @array of rest @object
-     *
-     * @param restObjectsList {
-     *  @fields
-     *  @public name
-     *  @public url
-     *  @public method
-     *  @public mock {
-     *      @fields
-     *      @public enabled
-     *      @public returning
-     *  }
-     * }
-     *
-     */
-    list: function(restObjectsList){
-
-        $.each(restObjectsList, function(i, restObj){
-            app.rest.register(restObj.name, restObj.url, restObj.method, restObj.mock.returning, restObj.mock.enabled);
-        });
-
-    },
-
-    /**
-     * @public
-     *
-     * Substitute method for register
-     *
-     * @param restName
-     * @param restUrl
-     * @param restMethod
-     * @param mockReturningFunction
-     * @param mockEnabled -- optional (default false)
-     *
-     */
-    add: function(restName, restUrl, restMethod, mockReturningFunction, mockEnabled){
-        this.register(restName, restUrl, restMethod, config, mockReturningFunction, mockEnabled);
-    },
-
-    /**
-     * @public
-     *
-     * Creates new rest object
-     * @param mockUrl can be string as well as function
-     *
-     * @param restName
-     * @param restUrl
-     * @param restMethod
-     * @param mockReturningFunction
-     * @param mockEnabled -- optional (default false)
-     *
-     */
-    register: function(restName, restUrl, restMethod, mockReturningFunction, mockEnabled){
-
-        if(app.util.System.isNull(mockEnabled)){
-            mockEnabled = false;
-        }
-
-        var urlVal = null;
-
-        if(typeof restUrl == 'string'){
-            urlVal = restUrl;
-        }else{
-            urlVal = restUrl();
-        }
-
-        restMethod = restMethod.toLowerCase();
-
-        app.rest.api[restName] = {
-            url: urlVal,
-            method: restMethod,
-            mockExec: mockReturningFunction,
-            mockEnabled: mockEnabled,
-            promise: app.rest.__getExecFunction(urlVal, restMethod)
-        }
-
-    },
-
-    __getExecFunction: function(url, method){
-
-        if(method == 'get'){
-
-            return function(config){
-                return app.rest.get(url, config || {});
-            }
-
-        }else if(method == 'delete'){
-
-            return function(config){
-                return app.rest.delete(url, config || {});
-            }
-
-        }else if(method == 'post'){
-
-            return function(request, config){
-                return app.rest.post(url, request, config || {});
-            }
-
-        }else if(method == 'put'){
-
-            return function(request, config){
-                return app.rest.put(url, request, config || {});
-            }
-
-        }
-
-
-    },
-
-    /**
-     * @public
-     *
      * Function executes GET request
      * Function return promise with execution params for passed @param urlOrCachedData
-     *
-     * If @rest has @mock.enabled = true then use @mock
      *
      * @param urlOrCachedData
      * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
@@ -6340,10 +6418,10 @@ app.rest = {
 
         propertiesObject = propertiesObject || {};
 
-        if(typeof urlOrCachedData == 'string'){
+        if (typeof urlOrCachedData == 'string') {
             return app.rest.__getDelete(urlOrCachedData, 'GET', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
-        }else{
-           return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
+        } else {
+            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
     },
@@ -6354,8 +6432,6 @@ app.rest = {
      * Function executes DELETE request
      * Function return promise with execution params for passed @param urlOrCachedData
      *
-     * If @rest has @mock.enabled = true then use @mock
-     *
      * @param urlOrCachedData
      * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
@@ -6364,9 +6440,9 @@ app.rest = {
 
         propertiesObject = propertiesObject || {};
 
-        if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__getDelete(urlOrCachedData, 'DELETE', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
-        }else{
+        if (typeof urlOrCachedData == 'string') {
+            return app.rest.__getDelete(urlOrCachedData, 'DELETE', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
+        } else {
             return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
@@ -6379,8 +6455,6 @@ app.rest = {
      * Function executes PUT request
      * Function return promise with execution params for passed @param urlOrCachedData
      *
-     * If @rest has @mock.enabled = true then use @mock
-     *
      * @param urlOrCachedData
      * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
@@ -6389,9 +6463,9 @@ app.rest = {
 
         propertiesObject = propertiesObject || {};
 
-        if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__postPut(urlOrCachedData, 'PUT', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
-        }else{
+        if (typeof urlOrCachedData == 'string') {
+            return app.rest.__postPut(urlOrCachedData, 'PUT', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
+        } else {
             return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
 
@@ -6403,8 +6477,6 @@ app.rest = {
      * Function executes POST request
      * Function return promise with execution params for passed @param urlOrCachedData
      *
-     * If @rest has @mock.enabled = true then use @mock
-     *
      * @param urlOrCachedData
      * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
@@ -6413,64 +6485,11 @@ app.rest = {
 
         propertiesObject = propertiesObject || {};
 
-        if(typeof urlOrCachedData == 'string'){
-            return  app.rest.__postPut(urlOrCachedData, 'POST', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
-        }else{
+        if (typeof urlOrCachedData == 'string') {
+            return app.rest.__postPut(urlOrCachedData, 'POST', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
+        } else {
             return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
         }
-
-    },
-
-    /**
-     * @private
-     *
-     * Function decides if endpoint is mocked and mock is enabled then
-     * execute mock @returning function.
-     *
-     * If no mock available then process normal way using REST.
-     *
-     * Returns promise
-     *
-     * @param url
-     * @param method
-     * @param request
-     * @param callBackIsnt
-     *
-     */
-    __isMock: function(url, method, request, interceptors, callBackIsnt){
-
-        var promise = null;
-        if(app.rest.__isEnabledMockByUrlAndMethod(url, method)){
-
-            var result = app.rest.__execMockByUrl(url, method, request);
-
-            promise = {
-                result: result,
-                then: function(callBack){
-
-                    var _result = callback(promise.result);
-
-                    if(_result){
-                        promise.result = _result;
-                    }
-
-                    callBack(promise.result);
-
-                    return promise;
-
-                },
-                catch: function(callBack){
-                    return promise;
-                }
-            };
-
-            app.rest.__invokeInterceptors({ url: url, method: method, request: request}, result, promise, interceptors);
-
-        }else{
-            promise = callBackIsnt();
-        }
-
-        return promise;
 
     },
 
@@ -6491,69 +6510,68 @@ app.rest = {
      */
     __getDelete: function (url, method, pathParams, headers, urlParams, interceptors) {
 
-      return app.rest.__isMock(url, method, null, interceptors, function(){
 
         var preparedUrl = url;
 
-        if(pathParams !== undefined && pathParams !== null){
-          preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
+        if (pathParams !== undefined && pathParams !== null) {
+            preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
         }
 
-        if(urlParams !== undefined && urlParams !== null){
-          preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
+        if (urlParams !== undefined && urlParams !== null) {
+            preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
         }
 
-        var dataType =  "json";
+        var dataType = "json";
         var contentType = "application/json; charset=utf-8";
 
 
         var promiseObj = {
-          url: preparedUrl,
-          type: method,
-          beforeSend: function () {
+            url: preparedUrl,
+            type: method,
+            beforeSend: function () {
 
-            if(!app.rest.isSpinnerExcluded(url)){
-              app.rest.spinnerShow(url);
-            }
+                if (!app.rest.isSpinnerExcluded(url)) {
+                    app.rest.spinnerShow(url);
+                }
 
-          },
-          complete: function () {
+            },
+            complete: function () {
 
-            if(!app.rest.isSpinnerExcluded(url)){
-              app.rest.spinnerHide(url);
-            }
+                if (!app.rest.isSpinnerExcluded(url)) {
+                    app.rest.spinnerHide(url);
+                }
 
-          },
+            },
 
         };
 
 
-        if(!headers){
-          headers = {}
+        if (!headers) {
+            headers = {}
         }
 
-        if(headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
-          contentType = headers['Content-Type'];
+        if (headers['Content-Type'] !== null && headers['Content-Type'] !== undefined) {
+            contentType = headers['Content-Type'];
         }
 
-        if(headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
-          dataType = headers['Data-Type'];
+        if (headers['Data-Type'] !== null && headers['Data-Type'] !== undefined) {
+            dataType = headers['Data-Type'];
         }
 
 
-        if(headers['Content-Type'] !== null){
-          promiseObj.contentType = headers['Content-Type'] || contentType;
+        if (headers['Content-Type'] !== null) {
+            promiseObj.contentType = headers['Content-Type'] || contentType;
         }
 
-        if(headers['Data-Type'] !== null){
-          promiseObj.dataType = headers['Data-Type'] || dataType;
+        if (headers['Data-Type'] !== null) {
+            promiseObj.dataType = headers['Data-Type'] || dataType;
         }
 
         var newHeaders = {};
-        for(var prop in headers){
-          if(headers[prop] !== undefined && headers[prop] !== null){
-            newHeaders[prop] = headers[prop];
-          }
+        for (var prop in headers) {
+            if (headers[prop] !== undefined && headers[prop] !== null) {
+                newHeaders[prop] = headers[prop];
+            }
         }
 
         headers = newHeaders;
@@ -6566,18 +6584,15 @@ app.rest = {
 
         var requestData = {url: url, method: method, pathParams: pathParams, urlParams: urlParams, headers: headers};
 
-        promise.then(function(result){
-          app.rest.__invokeInterceptors(requestData, result, promise, interceptors);
+        promise.then(function (result) {
+            app.rest.__invokeInterceptors(requestData, result, promise, interceptors);
         });
 
-        promise.catch(function(error){
-          app.rest.__invokeInterceptors(requestData, error, promise, interceptors);
+        promise.catch(function (error) {
+            app.rest.__invokeInterceptors(requestData, error, promise, interceptors);
         });
 
         return promise;
-
-        });
-
 
 
     },
@@ -6599,92 +6614,96 @@ app.rest = {
      */
     __postPut: function (url, method, request, pathParams, headers, urlParams, interceptors) {
 
-        return app.rest.__isMock(url, method, request, interceptors, function(){
 
-            var jsonData = JSON.stringify(request);
+        var jsonData = JSON.stringify(request);
 
-            var preparedUrl = url;
+        var preparedUrl = url;
 
-            if(pathParams !== undefined && pathParams !== null){
-                preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
-            }
+        if (pathParams !== undefined && pathParams !== null) {
+            preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
+        }
 
-            if(urlParams !== undefined && urlParams !== null){
-                preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
-            }
+        if (urlParams !== undefined && urlParams !== null) {
+            preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
+        }
 
-            var dataType =  "json";
-            var contentType = "application/json; charset=utf-8";
+        var dataType = "json";
+        var contentType = "application/json; charset=utf-8";
 
-            var promiseObj = {
-                url: preparedUrl,
-                data: jsonData,
-                type: method,
-                beforeSend: function () {
+        var promiseObj = {
+            url: preparedUrl,
+            data: jsonData,
+            type: method,
+            beforeSend: function () {
 
-                    if(!app.rest.isSpinnerExcluded(url)){
-                        app.rest.spinnerShow(url);
-                    }
-
-                },
-                complete: function () {
-
-                    if(!app.rest.isSpinnerExcluded(url)){
-                        app.rest.spinnerHide(url);
-                    }
-
+                if (!app.rest.isSpinnerExcluded(url)) {
+                    app.rest.spinnerShow(url);
                 }
-            };
 
-          if(!headers){
-            headers = {}
-          }
+            },
+            complete: function () {
 
-          if(headers['Content-Type'] !== null && headers['Content-Type'] !== undefined){
-            contentType = headers['Content-Type'];
-          }
+                if (!app.rest.isSpinnerExcluded(url)) {
+                    app.rest.spinnerHide(url);
+                }
 
-          if(headers['Data-Type'] !== null && headers['Data-Type'] !== undefined){
-            dataType = headers['Data-Type'];
-          }
-
-
-          if(headers['Content-Type'] !== null){
-            promiseObj.contentType = headers['Content-Type'] || contentType;
-          }
-
-          if(headers['Data-Type'] !== null){
-            promiseObj.dataType = headers['Data-Type'] || dataType;
-          }
-
-          var newHeaders = {};
-          for(var prop in headers){
-            if(headers[prop] !== undefined && headers[prop] !== null){
-              newHeaders[prop] = headers[prop];
             }
-          }
+        };
 
-          headers = newHeaders;
+        if (!headers) {
+            headers = {}
+        }
+
+        if (headers['Content-Type'] !== null && headers['Content-Type'] !== undefined) {
+            contentType = headers['Content-Type'];
+        }
+
+        if (headers['Data-Type'] !== null && headers['Data-Type'] !== undefined) {
+            dataType = headers['Data-Type'];
+        }
 
 
-          promiseObj.headers = headers;
+        if (headers['Content-Type'] !== null) {
+            promiseObj.contentType = headers['Content-Type'] || contentType;
+        }
+
+        if (headers['Data-Type'] !== null) {
+            promiseObj.dataType = headers['Data-Type'] || dataType;
+        }
+
+        var newHeaders = {};
+        for (var prop in headers) {
+            if (headers[prop] !== undefined && headers[prop] !== null) {
+                newHeaders[prop] = headers[prop];
+            }
+        }
+
+        headers = newHeaders;
 
 
-          var promise = $.ajax(promiseObj);
+        promiseObj.headers = headers;
 
-          var requestData = {url: url, method: method, request: request, pathParams: pathParams, urlParams: urlParams, headers: headers};
 
-            promise.then(function(result){
-                app.rest.__invokeInterceptors(requestData, result, promise, interceptors);
-            });
+        var promise = $.ajax(promiseObj);
 
-            promise.catch(function(error){
-                app.rest.__invokeInterceptors(requestData, error, promise, interceptors);
-            });
+        var requestData = {
+            url: url,
+            method: method,
+            request: request,
+            pathParams: pathParams,
+            urlParams: urlParams,
+            headers: headers
+        };
 
-            return promise;
-
+        promise.then(function (result) {
+            app.rest.__invokeInterceptors(requestData, result, promise, interceptors);
         });
+
+        promise.catch(function (error) {
+            app.rest.__invokeInterceptors(requestData, error, promise, interceptors);
+        });
+
+        return promise;
 
     },
 

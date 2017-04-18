@@ -64,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '1.8',
+    version: '2.0',
 
 
     /**
@@ -78,7 +78,7 @@ var app = {
 
         var endpoint = app.router.__getCurrentViewData().endpoint;
 
-        if(endpoint){
+        if (endpoint) {
             return endpoint.controller;
         }
 
@@ -309,7 +309,13 @@ app.system = {
      */
     __messages: {
 
-        ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0{ is already registered',
+        APPLICATION_EVENT_CALLBACK_NULL: 'Applicaton event listener {0} is null',
+        APPLICATION_EVENT_NOT_EXIST: 'Application event {0} not exists',
+        APPLICATION_EVENT_ALREADY_EXIST: 'Application event {0} already exists',
+        ROUTING_ENABLED_NOT_DEFINED: 'Routing is enabled but not defined in app.config',
+        ROUTE_NAME_NOT_EXIST: 'Route name {0} not exists',
+        ROUTE_NAME_EXIST: 'Route name {0} already exists, must be unique',
+        ENUMERATOR_ALREADY_REGISTRED: 'Enumerator {0} is already registered',
         UTIL_ALREADY_REGISTRED: 'Util {0} is already registred',
         SERVICE_ALREADY_REGISTRED: 'Service {0} is already registred',
         INHERIT_ABSTRACT_NOT_EXIST: 'Inheriting abstracts into {0} - some abstracts not exists',
@@ -523,7 +529,20 @@ app.system = {
      *
      **/
     __throwError: function (errorMessage, errorMessageBinding) {
-        throw Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+        throw new Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+    },
+
+    /**
+     * @private
+     *
+     * Throws @error and @warn from Spike Framework
+     *
+     * @param errorMessage
+     * @param errorMessageBinding
+     */
+    __throwErrorAndWarn: function(errorMessage, errorMessageBinding){
+        app.system.__throwError(errorMessage, errorMessageBinding);
+        app.system.__throwWarn(errorMessage, errorMessageBinding);
     },
 
     /**
@@ -592,7 +611,7 @@ app.system = {
         app.log('Rendering controller {0}', [controllerObject.__name]);
 
         //Scrolling to top of page
-        if(controllerObject.scrollTop == true){
+        if (controllerObject.scrollTop == true) {
             $(window).scrollTop(0);
         }
 
@@ -870,6 +889,34 @@ app.system = {
     },
 
     /**
+     * List of allowed events which can be binded by Spike Framework and compiled by Spike compiler
+     */
+    __allowedEvents: [
+        'click',
+        'change',
+        'keyup',
+        'keydown',
+        'keypress',
+        'blur',
+        'focus',
+        'dblclick',
+        'die',
+        'hover',
+        'keydown',
+        'mousemove',
+        'mouseover',
+        'mouseenter',
+        'mousedown',
+        'mouseleave',
+        'mouseout',
+        'submit',
+        'trigger',
+        'toggle',
+        'load',
+        'unload'
+    ],
+
+    /**
      * @private
      *
      * Finds all elements with attribute @spike-event
@@ -882,16 +929,22 @@ app.system = {
      */
     __bindEvents: function (rootSelector) {
 
-        rootSelector.find('[spike-event]').each(function (i, element) {
+        rootSelector.find('[spike-unbinded]').each(function (i, element) {
 
             element = $(element);
+            element.off();
 
-            var eventName = element.attr('spike-event');
-            element.removeAttr('spike-event');
+            for (var i = 0; i < app.system.__allowedEvents.length; i++) {
 
-            var eventFunctionBody = element.attr('spike-event-' + eventName);
+                var eventFunctionBody = element.attr('spike-event-' + app.system.__allowedEvents[i]);
 
-            element.off(eventName).on(eventName, Function('event', eventFunctionBody));
+                if (eventFunctionBody) {
+                    element.on(app.system.__allowedEvents[i], Function('event', eventFunctionBody));
+                }
+
+            }
+
+            element.removeAttr('spike-unbinded');
 
         });
 

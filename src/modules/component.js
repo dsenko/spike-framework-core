@@ -119,7 +119,7 @@ app.component = {
                 app.component[componentObject.__name].__globalRendered = true;
             }
 
-            app.component[componentObject.__name] = $.extend(true,  {}, app.component.__dataArchive[componentObject.__name]);
+            app.component[componentObject.__name] = $.extend(  {}, app.component.__dataArchive[componentObject.__name]);
             app.com[componentObject.__name] = app.component[componentObject.__name];
 
             app.com[componentObject.__name].__loadTemplate();
@@ -140,7 +140,7 @@ app.component = {
             app.debug('Reading component {0} inline params', [app.com[componentObject.__name].__name]);
 
             var inlineAttributes = componentSelector.attrs();
-            componentDataPassed = $.extend(true,  componentDataPassed, inlineAttributes);
+            componentDataPassed = $.extend(  componentDataPassed, inlineAttributes);
 
             componentSelector = app.component.__replaceComponent(componentObject.__name, componentSelector, app.com[componentObject.__name].__template);
             app.com[componentObject.__name].__componentSelector = componentSelector;
@@ -151,7 +151,7 @@ app.component = {
             //Translate DOM
             app.message.__translate();
 
-            componentDataPassed = $.extend(true,  componentDataPassed, app.router.__getCurrentViewData().data);
+            componentDataPassed = $.extend(  componentDataPassed, app.router.__getCurrentViewData().data);
 
             //Setting ready of module
             app.com[componentObject.__name].__rendered = true;
@@ -223,8 +223,8 @@ app.component = {
         componentObject.__createComponentViewPath(componentObject);
 
         //Creating copy of component object in @private __dataArchive and in component[componentName] variable
-        app.component.__dataArchive[componentObject.__name] = $.extend(true,  {}, componentObject);
-        app.component[componentObject.__name] = $.extend(true,  {}, componentObject);
+        app.component.__dataArchive[componentObject.__name] = $.extend(  {}, componentObject);
+        app.component[componentObject.__name] = $.extend(  {}, componentObject);
 
     },
 
