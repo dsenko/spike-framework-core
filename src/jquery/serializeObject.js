@@ -8,27 +8,39 @@
  *
  */
 jQuery.fn.extend({
-    
-    serializeObject: function() {
-        
-        var serializedArray = this.serializeArray();
-        var serializedObject = {};
-        
-        for(var i = 0;i<serializedArray.length;i++){
 
-            var value = serializedArray[i].value;
+  serializeObject: function () {
 
-            if(value == 'on'){
-                value = true;
-            }else if(value == 'off'){
-                value = false;
-            }
+    var serializedArray = this.serializeArray();
+    var serializedObject = {};
 
-            serializedObject[serializedArray[i].name] = app.util.System.tryParseNumber(value);
-        }
-        
-        return serializedObject;
-        
+    for (var i = 0; i < serializedArray.length; i++) {
+
+      var value = serializedArray[i].value;
+
+      if (value == 'on') {
+        value = true;
+      } else if (value == 'off') {
+        value = false;
+      }
+
+      serializedObject[serializedArray[i].name] = app.util.System.tryParseNumber(value);
     }
-    
+
+    $(this).find('input[type="checkbox"][name]').each(function () {
+
+      var name = $(this).attr('name');
+
+      if (serializedObject[name] === undefined) {
+
+        serializedObject[name] = $(this).is(':checked');
+
+      }
+
+    });
+
+    return serializedObject;
+
+  }
+
 });
