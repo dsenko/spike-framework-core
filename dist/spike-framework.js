@@ -6736,7 +6736,7 @@ jQuery.fn.extend({
                 value = false;
             }
 
-            serializedObject[serializedArray[i].name] = value;
+            serializedObject[serializedArray[i].name] = app.util.System.tryParseNumber(value);
         }
         
         return serializedObject;
