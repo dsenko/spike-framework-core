@@ -6726,12 +6726,13 @@ jQuery.fn.extend({
 
   serializeObject: function () {
 
-    var serializedArray = this.serializeArray();
+    var formSelector = $(this);
     var serializedObject = {};
 
-    for (var i = 0; i < serializedArray.length; i++) {
+    var serializeField = function(){
 
-      var value = serializedArray[i].value;
+      var value = $(this).val();
+      var name = $(this).attr('name');
 
       if (value == 'on') {
         value = true;
@@ -6739,18 +6740,18 @@ jQuery.fn.extend({
         value = false;
       }
 
-      serializedObject[serializedArray[i].name] = app.util.System.tryParseNumber(value);
-    }
+      serializedObject[name] = app.util.System.tryParseNumber(value);
 
-    $(this).find('input[type="checkbox"][name]').each(function () {
+    };
+
+    formSelector.find('input[name]').each(serializeField);
+    formSelector.find('select[name]').each(serializeField);
+    formSelector.find('textarea[name]').each(serializeField);
+
+    formSelector.find('input[type="checkbox"][name]').each(function () {
 
       var name = $(this).attr('name');
-
-      if (serializedObject[name] === undefined) {
-
-        serializedObject[name] = $(this).is(':checked');
-
-      }
+      serializedObject[name] = $(this).is(':checked');
 
     });
 
