@@ -369,6 +369,7 @@ app.rest = {
 
         if (headers['Data-Type'] !== null && headers['Data-Type'] !== undefined) {
             dataType = headers['Data-Type'];
+            headers['Data-Type'] = undefined;
         }
 
 
@@ -378,6 +379,7 @@ app.rest = {
 
         if (headers['Data-Type'] !== null) {
             promiseObj.dataType = headers['Data-Type'] || dataType;
+            headers['Data-Type'] = undefined;
         }
 
         var newHeaders = {};
@@ -473,6 +475,7 @@ app.rest = {
 
         if (headers['Data-Type'] !== null && headers['Data-Type'] !== undefined) {
             dataType = headers['Data-Type'];
+            headers['Data-Type'] = undefined;
         }
 
 
@@ -482,6 +485,7 @@ app.rest = {
 
         if (headers['Data-Type'] !== null) {
             promiseObj.dataType = headers['Data-Type'] || dataType;
+            headers['Data-Type'] = undefined;
         }
 
         var newHeaders = {};
