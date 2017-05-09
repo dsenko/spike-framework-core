@@ -449,16 +449,23 @@ app.system = {
 
         selectors.names = {};
 
-        //Creating names selectors functions
-        $.each(nameList, function (i, name) {
+          //Creating names selectors functions
+          $.each(nameList, function (i, name) {
+
+            //Creating new hash for identifier
+            var newName = name + '-' + app.util.System.hash();
 
             selectors.names[name] = function () {
-                return $('[name="' + name + '"]');
+              return $('[spike-name="' + newName + '"]');
             }
 
-        });
+            //Replacing identifier with generated hash
+            templateHtml = templateHtml.replace('name="' + name + '"', 'spike-name="' + newName + '" name="' + name + '"');
 
-        //Creating identifiers selectors functions
+          });
+
+
+      //Creating identifiers selectors functions
         $.each(idList, function (i, id) {
 
             //Creating new hash for identifier
