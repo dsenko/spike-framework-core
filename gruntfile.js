@@ -122,7 +122,8 @@ module.exports = function (grunt) {
                         expand: true,
                         cwd: './dist',
                         src: ['spike-framework.js', 'spike-framework.min.js'],
-                        dest: 'D:/xampp/htdocs/spike-framework-starter/dist/libs/spike-framework-core/dist'
+                        dest: 'D:/xampp/htdocs/spike-playground/dist/libs/spike-framework-core/dist'
+                        //dest: 'D:/xampp/htdocs/spike-framework-starter/dist/libs/spike-framework-core/dist'
                         //dest: 'F:/spike-framework-starter/dist/libs/spike-framework-core/dist'
                     }
                 ],
