@@ -117,7 +117,7 @@ app.util = {
      * @param objectOrArrayParams
      * @returns {*}
      */
-    bindStringParams: function (string, objectOrArrayParams) {
+    bindStringParams: function (string, objectOrArrayParams, noStringify) {
 
       if (!string) {
         return '';
@@ -132,13 +132,13 @@ app.util = {
         if (objectOrArrayParams instanceof Array) {
 
           for (var i = 0; i < objectOrArrayParams.length; i++) {
-            string = string.replace('{' + i + '}', JSON.stringify(objectOrArrayParams[i]))
+            string = string.replace('{' + i + '}', noStringify ? objectOrArrayParams[i] : JSON.stringify(objectOrArrayParams[i]))
           }
 
         } else {
 
           for (var paramName in objectOrArrayParams) {
-            string = string.replace('{' + paramName + '}', JSON.stringify(objectOrArrayParams[paramName]));
+            string = string.replace('{' + paramName + '}', noStringify ? objectOrArrayParams[paramName] : JSON.stringify(objectOrArrayParams[paramName]));
           }
 
         }

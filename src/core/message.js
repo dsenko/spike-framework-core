@@ -176,6 +176,9 @@ app.message = {
                 app.system.__throwWarn(app.system.__messages.TRANSLATION_MESSAGE_NOT_FOUND, [messageName])
             }
 
+            $(this).removeAttr(app.__attributes.TRANSLATION);
+            $(this).attr('translation', messageName);
+
             $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
 
         });

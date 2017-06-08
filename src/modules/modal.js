@@ -317,6 +317,8 @@ app.modal = {
             //Setting ready of module
             app.modal[modalObject.__name].__rendered = true;
 
+            app.modal[modalObject.__name].__initData = modalPassedData;
+
             app.debug('Invoke modal {0} init() function', [app.mCtx[modalObject.__name].__name]);
             app.mCtx[modalObject.__name].init(modalPassedData);
 
@@ -385,11 +387,13 @@ app.modal = {
          *
          * @returns {jQuery|HTMLElement}
          */
-        modalObject.__getWrapperModalSelector = function () {
+        modalObject.__getWrapperModalSelector = function (unsafe) {
 
             var wrapperSelectorChildrens = app.modal[modalObject.__name].__wrapperSelector().children();
 
-            if (wrapperSelectorChildrens.length == 1) {
+            if(unsafe && wrapperSelectorChildrens.length !== 0) {
+                return null;
+            } else if (wrapperSelectorChildrens.length == 1) {
                 return wrapperSelectorChildrens;
             } else if (wrapperSelectorChildrens.length > 1) {
                 app.system.__throwError('Modal {0} view can only have one parent DOM element, found {1}', [modalObject.__name, wrapperSelectorChildrens.length]);
@@ -420,7 +424,13 @@ app.modal = {
         modalObject.hide = function () {
             app.modal.__onModalHideEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalHideEventDefault);
 
-            var wrapperSelector = app.modal[modalObject.__name].__getWrapperModalSelector().parent();
+            var wrapperSelector = app.modal[modalObject.__name].__getWrapperModalSelector(true);
+
+            if(wrapperSelector == null){
+                return;
+            }
+
+            wrapperSelector = wrapperSelector.parent();
 
             setTimeout(function(){
                 wrapperSelector.remove();
