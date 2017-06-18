@@ -89,6 +89,7 @@ jQuery.fn.extend({
             _spike_jquery_set_setFunction($(this), _value);
         }
 
+        return $(this);
 
     },
 
