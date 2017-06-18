@@ -449,23 +449,23 @@ app.system = {
 
         selectors.names = {};
 
-          //Creating names selectors functions
-          $.each(nameList, function (i, name) {
+        //Creating names selectors functions
+        $.each(nameList, function (i, name) {
 
             //Creating new hash for identifier
             var newName = name + '-' + app.util.System.hash();
 
             selectors.names[name] = function () {
-              return $('[spike-name="' + newName + '"]');
+                return $('[spike-name="' + newName + '"]');
             }
 
             //Replacing identifier with generated hash
             templateHtml = templateHtml.replace('name="' + name + '"', 'spike-name="' + newName + '" name="' + name + '"');
 
-          });
+        });
 
 
-      //Creating identifiers selectors functions
+        //Creating identifiers selectors functions
         $.each(idList, function (i, id) {
 
             //Creating new hash for identifier
@@ -536,8 +536,31 @@ app.system = {
      *
      **/
     __throwError: function (errorMessage, errorMessageBinding) {
-        throw new Error('Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding));
+
+        var error = 'Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding);
+        app.system.__errors.push(error);
+        app.system.printExceptions();
+        throw new Error(error);
     },
+
+    /**
+     * @private
+     * Storage for all exceptions
+     */
+    __errors: [],
+
+    /**
+     * @public
+     * Prints all exceptions to console
+     */
+    printExceptions: function(){
+
+        for(var i = 0; i < app.system.__errors.length; i++){
+            console.error('Error '+i+': '+app.system.__errors[i]);
+        }
+
+    },
+
 
     /**
      * @private
@@ -547,7 +570,7 @@ app.system = {
      * @param errorMessage
      * @param errorMessageBinding
      */
-    __throwErrorAndWarn: function(errorMessage, errorMessageBinding){
+    __throwErrorAndWarn: function (errorMessage, errorMessageBinding) {
         app.system.__throwError(errorMessage, errorMessageBinding);
         app.system.__throwWarn(errorMessage, errorMessageBinding);
     },
