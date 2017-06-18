@@ -250,6 +250,7 @@ app.partial = {
       rootElementPart += ' id="' + selectorId + '" ';
     }
 
+    // #61 seems be done
     if(selectorClasses && selectorClasses.length > 0){
 
       if(rootElementPart.indexOf('class="') > -1){
