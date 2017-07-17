@@ -1716,6 +1716,25 @@ app.router = {
   },
 
   /**
+   * @public
+   *
+   * Substitute function to @getCurrentViewData
+   */
+  getViewData: function(){
+    var currentViewData = app.router.__getCurrentViewData();
+    return $.extend({}, currentViewData.endpoint, currentViewData.data);
+  },
+
+  /**
+   * @public
+   *
+   * Substitute function to @renderCurrentView
+   */
+  reloadView: function(){
+    app.router.__renderCurrentView();
+  },
+
+  /**
    * @private
    *
    * Function retrieves current view data from current browser URL
