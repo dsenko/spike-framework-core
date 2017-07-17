@@ -382,7 +382,6 @@ app.util = {
 
     },
 
-
     /**
      * @public
      *

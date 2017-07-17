@@ -1595,8 +1595,6 @@ app.router = {
           currentEndpoint.controller = app.previousController;
         }
 
-        app.log('currentEndpoint : {0} ', [currentEndpoint]);
-
         return {
           endpoint: currentEndpoint,
           data: currentEndpointData
@@ -1727,18 +1725,20 @@ app.router = {
   __renderCurrentView: function () {
 
     var currentEndpointData = app.router.__getCurrentView();
-
-    app.log('current view to render {0}', [currentEndpointData]);
+    app.debug('current view to render {0}', [currentEndpointData]);
 
     if (currentEndpointData.__isModal == true) {
 
-      app.log('rendering controller & modal, previous controller: '+app.previousController);
+      app.debug('rendering controller & modal, previous controller: '+app.previousController);
 
       if(app.previousController == null){
-        app.log('rendering controller & modal, default controller: '+currentEndpointData.__defaultController);
+
+        app.debug('rendering controller & modal, default controller: '+currentEndpointData.__defaultController);
+
         app.system.render(app.controller[currentEndpointData.__defaultController], currentEndpointData, currentEndpointData.__onRouteEventWithModal);
       }else{
         app.system.render(app.modal[currentEndpointData.__modal], currentEndpointData, currentEndpointData.__onRouteEvent);
+        app.router.__refreshCurrentHyperlinkCache();
       }
 
     } else {
@@ -1746,6 +1746,52 @@ app.router = {
     }
 
     app.previousController = currentEndpointData.__controller;
+
+  },
+
+  /**
+   * @private
+   *
+   * Refresh all hyperlinks on page redirecting to modals
+   * Refresh for current route only
+   *
+   */
+  __refreshCurrentHyperlinkCache: function(){
+
+    var currentEndpoint = app.router.__getCurrentViewData();
+
+    var timestamp = new Date().getTime();
+
+    $('a[href*="'+app.router.__getPathValueWithoutParams(currentEndpoint.endpoint.__pathValue)+'"]').each(function(){
+
+      var hyperLinkUrl = $(this).attr('href');
+
+      if(hyperLinkUrl.indexOf('?') > -1){
+        hyperLinkUrl += '&t='+timestamp;
+      }else{
+        hyperLinkUrl += '?t='+timestamp;
+      }
+
+      $(this).attr('href', hyperLinkUrl);
+
+    });
+
+  },
+
+  /**
+   * @private
+   *
+   * Returns path value without path params
+   *
+   * @param pathValue
+   */
+  __getPathValueWithoutParams: function(pathValue){
+
+    if(pathValue.indexOf(':') > -1){
+      return pathValue.substring(0, pathValue.indexOf(':'));
+    }
+
+    return pathValue;
 
   },
 
@@ -5163,7 +5209,6 @@ app.util = {
       return arr2;
 
     },
-
 
     /**
      * @public
