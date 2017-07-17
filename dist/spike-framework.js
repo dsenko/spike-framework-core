@@ -6499,6 +6499,20 @@ app.rest = {
 
     },
 
+  /**
+   * @public
+   *
+   * Substitute method for @update
+   *
+   * @param urlOrCachedData
+   * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
+   *
+   */
+    put: function (urlOrCachedData, request, propertiesObject) {
+      return app.rest.update(urlOrCachedData, request, propertiesObject);
+    },
+
+
     /**
      * @public
      *
