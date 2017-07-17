@@ -64,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '2.0',
+    version: '2.2.5',
 
 
     /**
@@ -73,6 +73,13 @@ var app = {
      * Stores name of current rendered controller
      */
     currentController: null,
+
+    /**
+     * @public
+     *
+     * Stores name of previous rendered controller
+     */
+    previousController: null,
 
     getCurrentController: function () {
 
