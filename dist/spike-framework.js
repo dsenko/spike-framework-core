@@ -1592,7 +1592,13 @@ app.router = {
         var currentEndpointData = app.router.__getPathData(hashPattern, app.router.__endpoints[pathValue].__pathPattern);
 
         if(currentEndpoint.__isModal == true){
-          currentEndpoint.controller = app.previousController;
+
+          if(app.util.System.isEmpty(app.previousController)){
+            currentEndpoint.controller = currentEndpoint.defaultController;
+          }else{
+            currentEndpoint.controller = app.previousController;
+          }
+
         }
 
         return {
