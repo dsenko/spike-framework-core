@@ -316,6 +316,7 @@ app.system = {
      */
     __messages: {
 
+        REST_API_NULL_PATHPARAM: 'REST endpoint has undefined or null path params: {0}',
         APPLICATION_EVENT_CALLBACK_NULL: 'Applicaton event listener {0} is null',
         APPLICATION_EVENT_NOT_EXIST: 'Application event {0} not exists',
         APPLICATION_EVENT_ALREADY_EXIST: 'Application event {0} already exists',
@@ -5176,6 +5177,18 @@ app.util = {
     /**
      * @public
      *
+     * Removes binded undefined pathParams from given url
+     *
+     * @param url
+     * @returns {string}
+     */
+    removeUndefinedPathParams: function(url){
+      return url.split('/undefined').join('').split('/null').join('');
+    },
+
+    /**
+     * @public
+     *
      * Function to adding URL params (typical) with passed
      * values from params map
      *
@@ -6667,9 +6680,15 @@ app.rest = {
 
         var preparedUrl = url;
 
-        if (pathParams !== undefined && pathParams !== null) {
+          if (pathParams !== undefined && pathParams !== null) {
             preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
-        }
+
+            if(preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1){
+              app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
+              preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
+            }
+
+          }
 
         if (urlParams !== undefined && urlParams !== null) {
             preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
@@ -6777,6 +6796,12 @@ app.rest = {
 
         if (pathParams !== undefined && pathParams !== null) {
             preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
+
+            if(preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1){
+                app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
+                preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
+            }
+
         }
 
         if (urlParams !== undefined && urlParams !== null) {
