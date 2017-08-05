@@ -151,7 +151,7 @@ app.component = {
             //Translate DOM
             app.message.__translate();
 
-            componentDataPassed = $.extend(  componentDataPassed, app.router.__getCurrentViewData().data);
+            componentDataPassed = $.extend( componentDataPassed, app.router.__getCurrentView());
 
             //Setting ready of module
             app.com[componentObject.__name].__rendered = true;

@@ -64,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '2.2.5',
+    version: '2.2.9',
 
 
     /**
@@ -3155,7 +3155,7 @@ app.component = {
             //Translate DOM
             app.message.__translate();
 
-            componentDataPassed = $.extend(  componentDataPassed, app.router.__getCurrentViewData().data);
+            componentDataPassed = $.extend( componentDataPassed, app.router.__getCurrentView());
 
             //Setting ready of module
             app.com[componentObject.__name].__rendered = true;

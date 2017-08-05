@@ -64,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '2.2.5',
+    version: '2.2.9',
 
 
     /**
