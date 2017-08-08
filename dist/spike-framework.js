@@ -514,6 +514,8 @@ app.system = {
 
         });
 
+       templateHtml = templateHtml.replace('di=', 'id=');
+
         return {
             html: templateHtml,
             selectors: selectors
