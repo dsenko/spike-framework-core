@@ -284,6 +284,20 @@ app.rest = {
 
     },
 
+  /**
+   * @public
+   *
+   * Substitute method for @update
+   *
+   * @param urlOrCachedData
+   * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
+   *
+   */
+    put: function (urlOrCachedData, request, propertiesObject) {
+      return app.rest.update(urlOrCachedData, request, propertiesObject);
+    },
+
+
     /**
      * @public
      *
@@ -326,9 +340,15 @@ app.rest = {
 
         var preparedUrl = url;
 
-        if (pathParams !== undefined && pathParams !== null) {
+          if (pathParams !== undefined && pathParams !== null) {
             preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
-        }
+
+            if(preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1){
+              app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
+              preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
+            }
+
+          }
 
         if (urlParams !== undefined && urlParams !== null) {
             preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
@@ -436,6 +456,12 @@ app.rest = {
 
         if (pathParams !== undefined && pathParams !== null) {
             preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
+
+            if(preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1){
+                app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
+                preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
+            }
+
         }
 
         if (urlParams !== undefined && urlParams !== null) {

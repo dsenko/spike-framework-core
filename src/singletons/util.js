@@ -323,6 +323,18 @@ app.util = {
     /**
      * @public
      *
+     * Removes binded undefined pathParams from given url
+     *
+     * @param url
+     * @returns {string}
+     */
+    removeUndefinedPathParams: function(url){
+      return url.split('/undefined').join('').split('/null').join('');
+    },
+
+    /**
+     * @public
+     *
      * Function to adding URL params (typical) with passed
      * values from params map
      *
@@ -381,7 +393,6 @@ app.util = {
       return arr2;
 
     },
-
 
     /**
      * @public

@@ -125,7 +125,7 @@ app.router = {
       app.system.__throwError(app.system.__messages.PATH_DEFINITION);
     }
 
-    app.router.__registerPath(pathValue, pathObject.controller || pathObject.modal, pathObject.routingParams, pathObject.onRoute, pathObject.name, pathObject.modal ? true : false);
+    app.router.__registerPath(pathValue, pathObject.controller, pathObject.routingParams, pathObject.onRoute, pathObject.name, pathObject.modal, pathObject.defaultController);
 
     return app.router.__getRouterFactory();
 
@@ -148,7 +148,7 @@ app.router = {
    * @param onRouteEvent
    *
    */
-  __registerPath: function (pathValue, pathController, routingParams, onRouteEvent, routeName, isModal) {
+  __registerPath: function (pathValue, pathController, routingParams, onRouteEvent, routeName, pathModal, pathModalDefaultController) {
 
     if (app.router.__endpoints[pathValue]) {
       app.system.__throwError(app.system.__messages.PATH_ALREADY_EXIST, [pathValue]);
@@ -168,11 +168,13 @@ app.router = {
     app.router.__endpoints[pathValue] = {
       __pathValue: pathValue,
       controller: pathController,
+      defaultController: pathModalDefaultController,
+      modal: pathModal,
       routingParams: routingParams,
       onRouteEvent: onRouteEvent,
       __pathPattern: pathPattern,
       __routeName: routeName,
-      __isModal: isModal
+      __isModal: !app.util.System.isEmpty(pathModal)
     };
 
   },
@@ -486,17 +488,34 @@ app.router = {
 
 
     if (currentEndpointData == null && app.router.__endpoints[app.router.__otherwiseReplacement]) {
+
       currentEndpointData = {
         __controller: app.router.__endpoints[app.router.__otherwiseReplacement].controller,
+        __modal: app.router.__endpoints[app.router.__otherwiseReplacement].modal,
+        __defaultController: app.router.__endpoints[app.router.__otherwiseReplacement].defaultController,
         __isModal: app.router.__endpoints[app.router.__otherwiseReplacement].__isModal,
         routingParams: app.router.__endpoints[app.router.__otherwiseReplacement].routingParams,
         __onRouteEvent: app.router.__endpoints[app.router.__otherwiseReplacement].onRouteEvent,
+        __onRouteEventWithModal: app.router.__endpoints[app.router.__otherwiseReplacement].onRouteEvent,
       };
+
     } else {
-      currentEndpointData.__controller = currentEndpoint.controller;
+
+      if(currentEndpointData.__isModal == true && !app.util.System.isEmpty(app.previousController)){
+        currentEndpointData.__controller = app.previousController;
+      }else{
+        currentEndpointData.__controller = currentEndpoint.controller;
+      }
+
+      currentEndpointData.__defaultController = currentEndpoint.defaultController;
+      currentEndpointData.__modal = currentEndpoint.modal;
       currentEndpointData.__isModal = currentEndpoint.__isModal;
       currentEndpointData.routingParams = currentEndpoint.routingParams;
       currentEndpointData.__onRouteEvent = currentEndpoint.onRouteEvent;
+      currentEndpointData.__onRouteEventWithModal = function(){
+        app.system.render(app.modal[currentEndpointData.__modal], currentEndpointData, currentEndpointData.__onRouteEvent);
+      }
+
     }
 
 
@@ -529,6 +548,16 @@ app.router = {
         && app.router.__checkPathIntegrity(hashPattern, app.router.__endpoints[pathValue].__pathPattern)) {
         var currentEndpoint = app.router.__endpoints[pathValue];
         var currentEndpointData = app.router.__getPathData(hashPattern, app.router.__endpoints[pathValue].__pathPattern);
+
+        if(currentEndpoint.__isModal == true){
+
+          if(app.util.System.isEmpty(app.previousController)){
+            currentEndpoint.controller = currentEndpoint.defaultController;
+          }else{
+            currentEndpoint.controller = app.previousController;
+          }
+
+        }
 
         return {
           endpoint: currentEndpoint,
@@ -651,6 +680,25 @@ app.router = {
   },
 
   /**
+   * @public
+   *
+   * Substitute function to @getCurrentViewData
+   */
+  getViewData: function(){
+    var currentViewData = app.router.__getCurrentViewData();
+    return $.extend({}, currentViewData.endpoint, currentViewData.data);
+  },
+
+  /**
+   * @public
+   *
+   * Substitute function to @renderCurrentView
+   */
+  reloadView: function(){
+    app.router.__renderCurrentView();
+  },
+
+  /**
    * @private
    *
    * Function retrieves current view data from current browser URL
@@ -660,15 +708,73 @@ app.router = {
   __renderCurrentView: function () {
 
     var currentEndpointData = app.router.__getCurrentView();
+    app.debug('current view to render {0}', [currentEndpointData]);
 
-    app.log('current view to render {0}', [currentEndpointData]);
+    if (currentEndpointData.__isModal == true) {
 
-    if(currentEndpointData.__isModal == true){
-      app.system.render(app.modal[currentEndpointData.__controller], currentEndpointData, currentEndpointData.__onRouteEvent);
-    }else{
+      app.debug('rendering controller & modal, previous controller: '+app.previousController);
+
+      if(app.previousController == null){
+
+        app.debug('rendering controller & modal, default controller: '+currentEndpointData.__defaultController);
+
+        app.system.render(app.controller[currentEndpointData.__defaultController], currentEndpointData, currentEndpointData.__onRouteEventWithModal);
+      }else{
+        app.system.render(app.modal[currentEndpointData.__modal], currentEndpointData, currentEndpointData.__onRouteEvent);
+        app.router.__refreshCurrentHyperlinkCache();
+      }
+
+    } else {
       app.system.render(app.controller[currentEndpointData.__controller], currentEndpointData, currentEndpointData.__onRouteEvent);
     }
 
+    app.previousController = currentEndpointData.__controller;
+
+  },
+
+  /**
+   * @private
+   *
+   * Refresh all hyperlinks on page redirecting to modals
+   * Refresh for current route only
+   *
+   */
+  __refreshCurrentHyperlinkCache: function(){
+
+    var currentEndpoint = app.router.__getCurrentViewData();
+
+    var timestamp = new Date().getTime();
+
+    $('a[href*="'+app.router.__getPathValueWithoutParams(currentEndpoint.endpoint.__pathValue)+'"]').each(function(){
+
+      var hyperLinkUrl = $(this).attr('href');
+
+      if(hyperLinkUrl.indexOf('?') > -1){
+        hyperLinkUrl += '&t='+timestamp;
+      }else{
+        hyperLinkUrl += '?t='+timestamp;
+      }
+
+      $(this).attr('href', hyperLinkUrl);
+
+    });
+
+  },
+
+  /**
+   * @private
+   *
+   * Returns path value without path params
+   *
+   * @param pathValue
+   */
+  __getPathValueWithoutParams: function(pathValue){
+
+    if(pathValue.indexOf(':') > -1){
+      return pathValue.substring(0, pathValue.indexOf(':'));
+    }
+
+    return pathValue;
 
   },
 

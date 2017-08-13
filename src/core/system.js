@@ -64,7 +64,7 @@ var app = {
      *
      * Spike framework version
      */
-    version: '2.0',
+    version: '2.2.9',
 
 
     /**
@@ -73,6 +73,13 @@ var app = {
      * Stores name of current rendered controller
      */
     currentController: null,
+
+    /**
+     * @public
+     *
+     * Stores name of previous rendered controller
+     */
+    previousController: null,
 
     getCurrentController: function () {
 
@@ -309,6 +316,7 @@ app.system = {
      */
     __messages: {
 
+        REST_API_NULL_PATHPARAM: 'REST endpoint has undefined or null path params: {0}',
         APPLICATION_EVENT_CALLBACK_NULL: 'Applicaton event listener {0} is null',
         APPLICATION_EVENT_NOT_EXIST: 'Application event {0} not exists',
         APPLICATION_EVENT_ALREADY_EXIST: 'Application event {0} already exists',
@@ -505,6 +513,8 @@ app.system = {
             templateHtml = templateHtml.replace('id="' + id + '"', 'id="' + newId + '"');
 
         });
+
+       templateHtml = templateHtml.replace('di=', 'id=');
 
         return {
             html: templateHtml,
