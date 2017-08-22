@@ -3283,7 +3283,14 @@ app.component = {
                         app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED, [componentName]);
                     }
 
-                    app.component[componentName].__render(componentParams);
+                      if(componentParams.enabled === undefined) {
+                        app.component[componentName].__render(componentParams);
+                      }else if(componentParams.enabled == true){
+                        app.component[componentName].__render(componentParams);
+                      }else if(typeof componentParams.enabled === "function" && componentParams.enabled() == true){
+                        app.component[componentName].__render(componentParams);
+                      }
+
                 });
 
             }
