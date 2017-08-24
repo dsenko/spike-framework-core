@@ -1444,8 +1444,10 @@ app.router = {
       window.location.href.substring(window.location.href.indexOf('?'), window.location.href.length).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
         params[key] = app.util.System.tryParseNumber(value);
 
-        if(params[key].indexOf('#/') > -1){
-          params[key] = params[key].replace('#/','');
+        if(!app.util.System.isNull(params[key])){
+          if(params[key].indexOf('#/') > -1){
+            params[key] = params[key].replace('#/','');
+          }
         }
 
       });
