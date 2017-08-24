@@ -1443,6 +1443,11 @@ app.router = {
     if (window.location.href.indexOf('?') > -1) {
       window.location.href.substring(window.location.href.indexOf('?'), window.location.href.length).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
         params[key] = app.util.System.tryParseNumber(value);
+
+        if(params[key].indexOf('#/') > -1){
+          params[key] = params[key].replace('#/','');
+        }
+
       });
     }
 
