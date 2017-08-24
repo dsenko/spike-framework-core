@@ -61,7 +61,7 @@ app.partial = {
       app.debug('Invokes partial  {0} after() function', [partial.__name]);
 
       setTimeout(function(){
-        partial.after(model, partial.rootSelector);
+        partial.after(model, partial.__replace == true ? $('#'+partial.rootSelector.attr('id')) : partial.rootSelector);
       }, 500);
 
     }
@@ -170,7 +170,8 @@ app.partial = {
 
       if (__partialObject.after && app.util.System.isFunction(__partialObject.after)) {
         app.debug('Invokes partial  {0} after() function', [__partialObject.__name]);
-        __partialObject.after(partialModel, __partialObject.rootSelector);
+
+        __partialObject.after(partialModel, __partialObject.__replace == true ? $('#'+__partialObject.rootSelector.attr('id')) : __partialObject.rootSelector);
       }
 
       //Binds spike events
