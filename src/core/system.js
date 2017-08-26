@@ -262,26 +262,7 @@ var app = {
                 color = 'black';
         }
 
-        if (type == 'ERROR') {
-
-            var stack = new Error().stack;
-            var lineAccessingLogger = stack.split("\n");
-
-            var stackStr = '';
-            for (var i = 0; i < lineAccessingLogger.length; i++) {
-                if (i == lineAccessingLogger.length - 1) {
-                    stackStr += "\n ERROR HERE: " + lineAccessingLogger[i];
-                } else {
-                    stackStr += "\n" + lineAccessingLogger[i];
-                }
-            }
-
-            console.log('%c' + app.util.System.currentDateLog() + ' Spike Framework: ' + message + ' stacktrace: ', 'color: ' + color);
-            console.log('%c' + stackStr, 'color: ' + color);
-
-        } else {
-            console.log('%c' + app.util.System.currentDateLog() + ' Spike Framework: ' + message, 'color: ' + color);
-        }
+        console.log('%c' + app.util.System.currentDateLog() + ' Spike Framework: ' + message, 'color: ' + color);
 
     }
 

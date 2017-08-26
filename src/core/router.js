@@ -438,8 +438,18 @@ app.router = {
                 return false;
             }
 
+   if (window.location.href.indexOf('?') > -1) {
+      window.location.href.substring(window.location.href.indexOf('?'), window.location.href.length).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
+        params[key] = app.util.System.tryParseNumber(value);
+
+        if(!app.util.System.isNull(params[key]) && typeof  params[key] == 'string'){
+          if(params[key].indexOf('#/') > -1){
+            params[key] = params[key].replace('#/','');
+          }
         }
 
+      });
+    }
         return true;
 
     },
