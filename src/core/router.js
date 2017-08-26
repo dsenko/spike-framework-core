@@ -71,6 +71,13 @@ app.router = {
     /**
      * @private
      *
+     * Defines if HTML5 mode is available
+     */
+    __routerHTML5Mode: false,
+
+    /**
+     * @private
+     *
      * Returns factory object for creating routing endpoints
      * based on {path} and {other} functions mapped from
      * @private __pathFunction and @private __otherFunction
@@ -140,6 +147,7 @@ app.router = {
      * If not, creates given @pathValue pattern and checks
      * if endpoint with similar pattern already exist, if exist
      * throws error.
+     *
      * Creates endpoint object.
      *
      * @param pathValue
@@ -281,13 +289,6 @@ app.router = {
     /**
      * @private
      *
-     * Defines if HTML5 mode is available
-     */
-    __routerHTML5Mode: false,
-
-    /**
-     * @private
-     *
      * Detects history API exists and sets @__routerHTML5Mode to TRUE if exists
      *
      */
@@ -328,7 +329,7 @@ app.router = {
             app.router.__renderCurrentView();
             app.__starting = false;
 
-            if(app.router.__routerHTML5Mode == false){
+            if (app.router.__routerHTML5Mode == false) {
 
                 $(window).bind('hashchange', function (e) {
 
@@ -349,9 +350,9 @@ app.router = {
 
     },
 
-    __onHistoryChanges: function(){
+    __onHistoryChanges: function () {
 
-        if(app.router.__routerHTML5Mode == true){
+        if (app.router.__routerHTML5Mode == true) {
 
             app.debug('Executes app.router.__onHistoryChanges');
 
@@ -438,18 +439,8 @@ app.router = {
                 return false;
             }
 
-   if (window.location.href.indexOf('?') > -1) {
-      window.location.href.substring(window.location.href.indexOf('?'), window.location.href.length).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
-        params[key] = app.util.System.tryParseNumber(value);
-
-        if(!app.util.System.isNull(params[key]) && typeof  params[key] == 'string'){
-          if(params[key].indexOf('#/') > -1){
-            params[key] = params[key].replace('#/','');
-          }
         }
 
-      });
-    }
         return true;
 
     },
@@ -477,6 +468,13 @@ app.router = {
         if (window.location.href.indexOf('?') > -1) {
             window.location.href.substring(window.location.href.indexOf('?'), window.location.href.length).replace(/[?&]+([^=&]+)=([^&]*)/gi, function (str, key, value) {
                 params[key] = app.util.System.tryParseNumber(value);
+
+                if (!app.util.System.isNull(params[key]) && typeof params[key] == 'string') {
+                    if (params[key].indexOf('#/') > -1) {
+                        params[key] = params[key].replace('#/', '');
+                    }
+                }
+
             });
         }
 
@@ -535,7 +533,7 @@ app.router = {
      *
      * Finally, for given endpoint data sets
      * global info like @private __controller, @public routingParams
-     * and @private {__onRouteEvent} properties.
+     * and @private {__onRouteEfvent} properties.
      *
      * Returns those data.
      */
@@ -600,12 +598,11 @@ app.router = {
 
         var hash = null;
 
-        if(app.router.__routerHTML5Mode == false){
+        if (app.router.__routerHTML5Mode == false) {
             hash = window.location.hash.replace(/^#\//, '');
-        }else{
+        } else {
             hash = window.location.pathname;
         }
-
 
         var hashPattern = app.router.__createPathPattern(hash);
 
@@ -712,8 +709,8 @@ app.router = {
      */
     getCurrentRoute: function () {
 
-        if(app.router.__routerHTML5Mode == true){
-            return window.location.pathname.substring(1,window.location.pathname.length);
+        if (app.router.__routerHTML5Mode == true) {
+            return window.location.pathname.substring(1, window.location.pathname.length);
         }
 
         return window.location.hash.replace('#/', '');
@@ -749,7 +746,18 @@ app.router = {
             app.router.__preventReloadPage = path;
         }
 
-        window.location.hash = path;
+        if(app.router.__routerHTML5Mode == true){
+            app.router.__pushState(path);
+        }else{
+            window.location.hash = path;
+        }
+
+    },
+
+    __pushState: function(path){
+
+        history.pushState({ state: path }, null, path);
+
     },
 
     /**
@@ -929,7 +937,7 @@ app.router = {
      */
     createLink: function (path, pathParams, urlParams) {
 
-        if(app.router.__routerHTML5Mode == false){
+        if (app.router.__routerHTML5Mode == false) {
 
             if (path.substring(0, 1) == '/') {
                 path = '#' + path;
@@ -958,11 +966,11 @@ app.router = {
 
 };
 
-(function(history){
+(function (history) {
 
     var pushState = history.pushState;
 
-    history.pushState = function(state) {
+    history.pushState = function (state) {
 
         if (typeof history.onpushstate == "function") {
             history.onpushstate({state: state});
@@ -975,7 +983,7 @@ app.router = {
 
     };
 
-    window.addEventListener('popstate', function(e){
+    window.addEventListener('popstate', function (e) {
         app.router.__onHistoryChanges();
     });
 
