@@ -297,7 +297,6 @@ app.system = {
      */
     __messages: {
 
-        PAGE_NOT_FOUND: 'Page {0} not found in routing',
         REST_API_NULL_PATHPARAM: 'REST endpoint has undefined or null path params: {0}',
         APPLICATION_EVENT_CALLBACK_NULL: 'Applicaton event listener {0} is null',
         APPLICATION_EVENT_NOT_EXIST: 'Application event {0} not exists',
@@ -1380,32 +1379,45 @@ app.router = {
             app.__starting = false;
 
             if (app.router.__routerHTML5Mode == false) {
-
-                $(window).bind('hashchange', function (e) {
-
-                    if (window.location.hash.replace('#', '') == app.router.__preventReloadPage) {
-                        app.router.__preventReloadPage = null;
-                        app.router.__fireRouteEvents(e);
-                        return false;
-                    }
-
-                    app.router.__fireRouteEvents(e);
-                    app.router.__renderCurrentView();
-
-                });
-
+                $(window).bind('hashchange', app.router.__onHashChanges);
             }
 
         }
 
     },
 
+    /**
+     * @private
+     *
+     * Event function executes when hash changes in not html5 mode
+     */
+    __onHashChanges: function(e){
+
+        app.debug('Executes app.router.__onHashChanges');
+
+        if (window.location.hash.replace('#', '') == app.router.__preventReloadPage) {
+            app.router.__preventReloadPage = null;
+            app.router.__fireRouteEvents(e);
+            return false;
+        }
+
+        app.router.__clearCacheViewData();
+
+        app.router.__fireRouteEvents(e);
+        app.router.__renderCurrentView();
+
+    },
+
+    /**
+     * @private
+     *
+     * Event function executes when history changes in html5 mode
+     */
     __onHistoryChanges: function () {
 
         if (app.router.__routerHTML5Mode == true) {
 
             app.debug('Executes app.router.__onHistoryChanges');
-
 
             if (window.location.pathname == app.router.__preventReloadPage) {
                 app.router.__preventReloadPage = null;
@@ -1413,6 +1425,7 @@ app.router = {
                 return false;
             }
 
+            app.router.__clearCacheViewData();
 
             app.router.__fireRouteEvents({});
             app.router.__renderCurrentView();
@@ -1579,6 +1592,26 @@ app.router = {
     /**
      * @private
      *
+     * Clears cached current view data
+     */
+    __clearCacheViewData: function(){
+
+        app.router.__getCurrentViewCache = null;
+        app.router.__getCurrentViewDataCache = null;
+
+    },
+
+    /**
+     * @private
+     *
+     * Stores cache of @__getCurrentView function result
+     * Restores to null on history change
+     */
+    __getCurrentViewCache: null,
+
+    /**
+     * @private
+     *
      * Function gets current browser URL data
      *
      * Finally, for given endpoint data sets
@@ -1589,11 +1622,15 @@ app.router = {
      */
     __getCurrentView: function () {
 
+        if(app.router.__getCurrentViewCache !== null){
+            app.debug('Using @__getCurrentViewCache cache');
+            return app.router.__getCurrentViewCache;
+        }
+
         var currentEndpointObject = app.router.__getCurrentViewData();
 
         var currentEndpointData = currentEndpointObject.data;
         var currentEndpoint = currentEndpointObject.endpoint;
-
 
         if (currentEndpointData == null && app.router.__endpoints[app.router.__otherwiseReplacement]) {
 
@@ -1626,10 +1663,19 @@ app.router = {
 
         }
 
+        app.router.__getCurrentViewCache = currentEndpointData;
 
         return currentEndpointData;
 
     },
+
+    /**
+     * @private
+     *
+     * Stores cache of @__getCurrentViewData function result
+     * Restored to null when history change
+     */
+    __getCurrentViewDataCache: null,
 
     /**
      * @private
@@ -1646,6 +1692,11 @@ app.router = {
      */
     __getCurrentViewData: function () {
 
+        if(app.router.__getCurrentViewDataCache !== null){
+            app.debug('Using @__getCurrentViewDataCache cache');
+            return app.router.__getCurrentViewDataCache;
+        }
+
         var hash = null;
 
         if (app.router.__routerHTML5Mode == false) {
@@ -1655,6 +1706,11 @@ app.router = {
         }
 
         var hashPattern = app.router.__createPathPattern(hash);
+
+        var viewData = {
+            endpoint: null,
+            data: null
+        };
 
         for (var pathValue in app.router.__endpoints) {
 
@@ -1673,19 +1729,20 @@ app.router = {
 
                 }
 
-                return {
+                viewData = {
                     endpoint: currentEndpoint,
                     data: currentEndpointData
-                }
+                };
+
+                break;
 
             }
 
         }
 
-        return {
-            endpoint: null,
-            data: null
-        };
+        app.router.__getCurrentViewDataCache = viewData;
+
+        return viewData;
 
     },
 
@@ -1804,10 +1861,13 @@ app.router = {
 
     },
 
+    /**
+     * @private
+     *
+     * Wrapper for history.pushState
+     */
     __pushState: function(path){
-
         history.pushState({ state: path }, null, path);
-
     },
 
     /**
