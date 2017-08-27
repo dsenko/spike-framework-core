@@ -297,6 +297,7 @@ app.system = {
      */
     __messages: {
 
+        CACHED_PROMISE_DEPRECADES: '@__createCachedPromise has been deprecated. Use @cache param instead',
         REST_API_NULL_PATHPARAM: 'REST endpoint has undefined or null path params: {0}',
         APPLICATION_EVENT_CALLBACK_NULL: 'Applicaton event listener {0} is null',
         APPLICATION_EVENT_NOT_EXIST: 'Application event {0} not exists',

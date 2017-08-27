@@ -297,6 +297,7 @@ app.system = {
      */
     __messages: {
 
+        CACHED_PROMISE_DEPRECADES: '@__createCachedPromise has been deprecated. Use @cache param instead',
         REST_API_NULL_PATHPARAM: 'REST endpoint has undefined or null path params: {0}',
         APPLICATION_EVENT_CALLBACK_NULL: 'Applicaton event listener {0} is null',
         APPLICATION_EVENT_NOT_EXIST: 'Application event {0} not exists',
@@ -6546,7 +6547,6 @@ app.query = {
  * @public  {update}
  * @public  {post}
  *
- * @private {__createCachedPromise}
  * @private {__getDelete}
  * @private {__postPut}
  *
@@ -6711,11 +6711,12 @@ app.rest = {
      * @param data
      *
      */
-    __createCachedPromise: function (data, interceptors) {
+    __createCachedPromise: function (url, method, interceptors) {
+
+        var data = app.rest.__cacheData[url + '_' + method].__data;
 
         var promise = {
             result: data,
-
             then: function (callback) {
 
                 if (promise.result) {
@@ -6734,12 +6735,40 @@ app.rest = {
             catch: function () {
                 return promise;
             }
-        }
+        };
 
         app.rest.__invokeInterceptors({}, data, promise, interceptors);
 
         return promise;
 
+
+    },
+
+    __isCached: function (url, method) {
+
+        var data = app.rest.__cacheData[url + '_' + method];
+
+        if (app.util.System.isNull(data)) {
+            return false;
+        }
+
+        if(data.__filled == false){
+            return false;
+        }
+
+        if (data.__cacheType == 'TIME') {
+
+            if (data.__cacheTime + data.__cachePeriod < new Date().getTime()) {
+                return false;
+            }
+
+            return true;
+
+        } else if (data.__cacheType == 'PERSIST') {
+            return true;
+        }
+
+        return false;
 
     },
 
@@ -6753,14 +6782,20 @@ app.rest = {
      * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
-    get: function (urlOrCachedData, propertiesObject) {
+    get: function (url, propertiesObject) {
 
         propertiesObject = propertiesObject || {};
 
-        if (typeof urlOrCachedData == 'string') {
-            return app.rest.__getDelete(urlOrCachedData, 'GET', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
+        if (typeof url == 'string') {
+
+            if (app.rest.__isCached(url, 'GET', propertiesObject)) {
+                return app.rest.__createCachedPromise(url, 'GET', propertiesObject.interceptors || []);
+            } else {
+                return app.rest.__getDelete(url, 'GET', propertiesObject);
+            }
+
         } else {
-            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
+            app.system.__throwWarn(app.system.__messages.CACHED_PROMISE_DEPRECADES);
         }
 
     },
@@ -6775,14 +6810,20 @@ app.rest = {
      * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
-    delete: function (urlOrCachedData, propertiesObject) {
+    delete: function (url, propertiesObject) {
 
         propertiesObject = propertiesObject || {};
 
-        if (typeof urlOrCachedData == 'string') {
-            return app.rest.__getDelete(urlOrCachedData, 'DELETE', propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
+        if (typeof url == 'string') {
+
+            if (app.rest.__isCached(url, 'DELETE', propertiesObject)) {
+                return app.rest.__createCachedPromise(url, 'DELETE', propertiesObject.interceptors || []);
+            } else {
+                return app.rest.__getDelete(url, 'DELETE', propertiesObject);
+            }
+
         } else {
-            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
+            app.system.__throwWarn(app.system.__messages.CACHED_PROMISE_DEPRECADES);
         }
 
 
@@ -6798,29 +6839,35 @@ app.rest = {
      * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
      *
      */
-    update: function (urlOrCachedData, request, propertiesObject) {
+    update: function (url, request, propertiesObject) {
 
         propertiesObject = propertiesObject || {};
 
-        if (typeof urlOrCachedData == 'string') {
-            return app.rest.__postPut(urlOrCachedData, 'PUT', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
+        if (typeof url == 'string') {
+
+            if (app.rest.__isCached(url, 'PUT', propertiesObject)) {
+                return app.rest.__createCachedPromise(url, 'PUT', propertiesObject.interceptors || []);
+            } else {
+                return app.rest.__postPut(url, 'PUT', request, propertiesObject);
+            }
+
         } else {
-            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
+            app.system.__throwWarn(app.system.__messages.CACHED_PROMISE_DEPRECADES);
         }
 
     },
 
-  /**
-   * @public
-   *
-   * Substitute method for @update
-   *
-   * @param urlOrCachedData
-   * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
-   *
-   */
+    /**
+     * @public
+     *
+     * Substitute method for @update
+     *
+     * @param urlOrCachedData
+     * @param propertiesObject -- optional {headers, pathParams, urlParams, interceptors}
+     *
+     */
     put: function (urlOrCachedData, request, propertiesObject) {
-      return app.rest.update(urlOrCachedData, request, propertiesObject);
+        return app.rest.update(urlOrCachedData, request, propertiesObject);
     },
 
 
@@ -6838,10 +6885,16 @@ app.rest = {
 
         propertiesObject = propertiesObject || {};
 
-        if (typeof urlOrCachedData == 'string') {
-            return app.rest.__postPut(urlOrCachedData, 'POST', request, propertiesObject.pathParams, propertiesObject.headers, propertiesObject.urlParams, propertiesObject.interceptors || []);
+        if (typeof url == 'string') {
+
+            if (app.rest.__isCached(url, 'POST', propertiesObject)) {
+                return app.rest.__createCachedPromise(url, 'POST', propertiesObject.interceptors || []);
+            } else {
+                return app.rest.__postPut(url, 'POST', request, propertiesObject);
+            }
+
         } else {
-            return this.__createCachedPromise(urlOrCachedData, propertiesObject.interceptors || []);
+            app.system.__throwWarn(app.system.__messages.CACHED_PROMISE_DEPRECADES);
         }
 
     },
@@ -6861,20 +6914,24 @@ app.rest = {
      * @param urlParams
      *
      */
-    __getDelete: function (url, method, pathParams, headers, urlParams, interceptors) {
+    __getDelete: function (url, method, propertiesObject) {
 
+        var pathParams = propertiesObject.pathParams;
+        var headers = propertiesObject.headers;
+        var urlParams = propertiesObject.urlParams;
+        var interceptors = propertiesObject.interceptors || [];
 
         var preparedUrl = url;
 
-          if (pathParams !== undefined && pathParams !== null) {
+        if (pathParams !== undefined && pathParams !== null) {
             preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
 
-            if(preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1){
-              app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
-              preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
+            if (preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1) {
+                app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
+                preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
             }
 
-          }
+        }
 
         if (urlParams !== undefined && urlParams !== null) {
             preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
@@ -6883,6 +6940,9 @@ app.rest = {
         var dataType = "json";
         var contentType = "application/json; charset=utf-8";
 
+        if(!app.util.System.isNull(propertiesObject.cache) && app.util.System.isNull(app.rest.__cacheData[url+'_'+method])){
+            app.rest.__createCacheObject(url, method, propertiesObject.cache);
+        }
 
         var promiseObj = {
             url: preparedUrl,
@@ -6894,7 +6954,11 @@ app.rest = {
                 }
 
             },
-            complete: function () {
+            complete: function (xhr) {
+
+                if(!app.util.System.isNull(propertiesObject.cache)){
+                    app.rest.__fillCache(url, method, xhr.responseJSON);
+                }
 
                 if (!app.rest.isSpinnerExcluded(url)) {
                     app.rest.spinnerHide(url);
@@ -6973,7 +7037,12 @@ app.rest = {
      * @param urlParams
      *
      */
-    __postPut: function (url, method, request, pathParams, headers, urlParams, interceptors) {
+    __postPut: function (url, method, request, propertiesObject) {
+
+        var pathParams = propertiesObject.pathParams;
+        var headers = propertiesObject.headers;
+        var urlParams = propertiesObject.urlParams;
+        var interceptors = propertiesObject.interceptors || [];
 
 
         var jsonData = JSON.stringify(request);
@@ -6983,7 +7052,7 @@ app.rest = {
         if (pathParams !== undefined && pathParams !== null) {
             preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
 
-            if(preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1){
+            if (preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1) {
                 app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
                 preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
             }
@@ -6997,6 +7066,10 @@ app.rest = {
         var dataType = "json";
         var contentType = "application/json; charset=utf-8";
 
+        if(!app.util.System.isNull(propertiesObject.cache) && app.util.System.isNull(app.rest.__cacheData[url+'_'+method])){
+            app.rest.__createCacheObject(url, method, propertiesObject.cache);
+        }
+
         var promiseObj = {
             url: preparedUrl,
             data: jsonData,
@@ -7009,6 +7082,8 @@ app.rest = {
 
             },
             complete: function () {
+
+                app.rest.__fillCache(url, method, result);
 
                 if (!app.rest.isSpinnerExcluded(url)) {
                     app.rest.spinnerHide(url);
@@ -7074,6 +7149,38 @@ app.rest = {
 
         return promise;
 
+    },
+
+    /**
+     * @private
+     *
+     * Fills cache with data
+     *
+     */
+    __fillCache: function(url, method, data){
+
+        app.rest.__cacheData[url+'_'+method].__filled = true;
+        app.rest.__cacheData[url+'_'+method].__data = data;
+        app.rest.__cacheData[url+'_'+method].__cacheTime = new Date().getTime();
+
+    },
+
+    /**
+     * @private
+     *
+     * Creates new cache object
+     *
+     */
+    __createCacheObject: function(url, method, cache){
+
+        app.rest.__cacheData[url+'_'+method] = {
+            __filled: false,
+            __cacheTime: new Date().getTime(),
+            __cacheType: cache == true ? 'PERSIST' : 'TIME',
+            __cachePeriod: cache == true ? null : cache,
+            __data: null
+        };
+        
     },
 
 
