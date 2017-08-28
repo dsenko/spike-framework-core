@@ -3314,6 +3314,10 @@ app.component = {
 
             var componentSelector = $('component[name="' + app.com[componentObject.__name].__lowerCaseName + '"]');
 
+            if(componentSelector.length === 0){
+                componentSelector = $('[component-name="' + app.com[componentObject.__name].__name + '"]');
+            }
+
             //Throws exception if component was declared in some module ex. controller, but is not declared in it's view
             if(componentSelector.length === 0){
                 app.system.__throwError(app.system.__messages.COMPONENT_NOT_DECLARED_IN_VIEW, [componentObject.__name]);
@@ -3344,7 +3348,7 @@ app.component = {
             app.com[componentObject.__name].init(componentDataPassed);
 
 
-        }
+        };
 
 
         /**
@@ -3432,6 +3436,22 @@ app.component = {
         selector.replaceWith(templateHtml);
 
         return $('[component-name="'+componentName+'"]');
+
+    },
+
+    /**
+     * @public
+     *
+     * Function reloads given component
+     * Optionally can pass additional params
+     *
+     */
+    reloadComponent: function(component, componentData){
+
+        var componentMap = {};
+        componentMap[component.__name] = componentData || {};
+
+        app.component.__initComponents(componentMap);
 
     },
 
