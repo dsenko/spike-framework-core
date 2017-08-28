@@ -41,16 +41,30 @@ app.service = {
         // Filter if name is invalid (can break application)
         app.system.__filterRestrictedNames(serviceName);
 
-        if(serviceObject.inherits){
+        if (serviceObject.inherits) {
             // Apply extending from abstracts
             serviceObject = app.abstract.__tryExtend(serviceName, serviceObject.inherits, serviceObject);
         }
 
-        if(app.service[serviceName]){
-            app.system.__throwError(app.system.__messages.SERVICE_ALREADY_REGISTRED,[serviceName]);
+        if (app.service[serviceName]) {
+            app.system.__throwError(app.system.__messages.SERVICE_ALREADY_REGISTRED, [serviceName]);
         }
 
         app.service[serviceName] = serviceObject;
+
+    },
+
+    /**
+     * @public
+     *
+     * Function to extending and overriding
+     *
+     */
+    extend: function (serviceObject) {
+
+        for (var prop in serviceObject) {
+            this[prop] = serviceObject[prop];
+        }
 
     }
 

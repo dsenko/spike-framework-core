@@ -217,6 +217,13 @@ app.rest = {
 
     },
 
+    /**
+     * @private
+     *
+     * Checks if endpoint is already cached, filled
+     * depends on cache type.
+     *
+     */
     __isCached: function (url, method) {
 
         var data = app.rest.__cacheData[url + '_' + method];

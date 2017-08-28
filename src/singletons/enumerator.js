@@ -22,7 +22,7 @@ app.enumerator = {
      * @param enumeratorName
      * @param enumeratorObject
      */
-    add: function(enumeratorName, enumeratorObject){
+    add: function (enumeratorName, enumeratorObject) {
         this.register(enumeratorName, enumeratorObject);
     },
 
@@ -34,13 +34,27 @@ app.enumerator = {
      * @param enumeratorName
      * @param enumeratorObject
      */
-    register: function(enumeratorName, enumeratorObject){
+    register: function (enumeratorName, enumeratorObject) {
 
-        if(app.enumerator[enumeratorName]){
-            app.system.__throwError(app.system.__messages.ENUMERATOR_ALREADY_REGISTRED,[enumeratorName]);
+        if (app.enumerator[enumeratorName]) {
+            app.system.__throwError(app.system.__messages.ENUMERATOR_ALREADY_REGISTRED, [enumeratorName]);
         }
 
         app.enumerator[enumeratorName] = enumeratorObject;
+    },
+
+    /**
+     * @public
+     *
+     * Function to extending and overriding
+     *
+     */
+    extend: function (enumeratorObject) {
+
+        for (var prop in enumeratorObject) {
+            this[prop] = enumeratorObject[prop];
+        }
+
     }
 
 };

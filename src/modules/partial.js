@@ -61,7 +61,7 @@ app.partial = {
       app.debug('Invokes partial  {0} after() function', [partial.__name]);
 
       setTimeout(function(){
-        partial.after(model, partial.__replace == true ? $('#'+partial.rootSelector.attr('id')) : partial.rootSelector);
+        partial.after(model, partial.rootSelector);
       }, 500);
 
     }
