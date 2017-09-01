@@ -294,7 +294,7 @@ app.router = {
      */
     __detectHTML5Mode: function () {
 
-        if (window.history && window.history.pushState) {
+        if (window.history && window.history.pushState && app.config.html5Mode == true) {
             app.router.__routerHTML5Mode = true;
         }
 
