@@ -151,6 +151,7 @@ app.component = {
 
             //Binds spike events
             app.system.__bindEvents(componentSelector);
+            app.system.__bindLinks(componentSelector);
 
             //Translate DOM
             app.message.__translate();

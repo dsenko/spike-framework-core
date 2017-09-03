@@ -352,6 +352,7 @@ app.modal = {
 
             //Binds spike events
             app.system.__bindEvents(modalSelector);
+            app.system.__bindLinks(modalSelector);
 
             app.modal.__onModalRenderEvent(modalSelector, app.mCtx[modalObject.__name]);
 

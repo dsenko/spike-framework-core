@@ -496,7 +496,7 @@ app.system = {
 
         });
 
-       templateHtml = templateHtml.replace('di=', 'id=');
+        templateHtml = templateHtml.replace('di=', 'id=');
 
         return {
             html: templateHtml,
@@ -545,10 +545,10 @@ app.system = {
      * @public
      * Prints all exceptions to console
      */
-    printExceptions: function(){
+    printExceptions: function () {
 
-        for(var i = 0; i < app.system.__errors.length; i++){
-            console.error('Error '+i+': '+app.system.__errors[i]);
+        for (var i = 0; i < app.system.__errors.length; i++) {
+            console.error('Error ' + i + ': ' + app.system.__errors[i]);
         }
 
     },
@@ -967,6 +967,41 @@ app.system = {
             }
 
             element.removeAttr('spike-unbinded');
+
+        });
+
+    },
+
+    /**
+     * @private
+     *
+     * Finds all @a elements
+     * in given (root) selector.
+     *
+     * Binds @click event to prevent default browser navigation
+     * and use @app.router.redirect or @app.router.locations
+     *
+     * @param rootSelector
+     */
+    __bindLinks: function (rootSelector) {
+
+        rootSelector.find('a').each(function (i, element) {
+
+            element = $(element);
+            element.off();
+
+            element.on('click', function (e) {
+                e.preventDefault();
+
+                var link = $(this).attr('href');
+
+                if (link.indexOf('www') > -1 || link.indexOf('http') > -1) {
+                    app.router.location(link, $(this).attr('target') || '_blank');
+                } else {
+                    app.router.redirect(link);
+                }
+
+            });
 
         });
 

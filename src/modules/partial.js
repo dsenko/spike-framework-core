@@ -176,6 +176,7 @@ app.partial = {
 
       //Binds spike events
       app.system.__bindEvents(selector);
+      app.system.__bindLinks(selector);
 
       //Translate DOM
       app.message.__translate();

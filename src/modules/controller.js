@@ -146,6 +146,7 @@ app.controller = {
 
             //Binds spike events
             app.system.__bindEvents(app.controller.__getView());
+            app.system.__bindLinks(app.controller.__getView());
 
             app.component.__initComponents(app.ctx.components);
 
