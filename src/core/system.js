@@ -994,36 +994,39 @@ app.system = {
     rootSelector.find('a').each(function (i, element) {
 
       element = $(element);
-      element.off();
 
-      element.on('click', function (e) {
-        e.preventDefault();
+      if(element.attr('plain-href') == undefined){
 
-        var link = $(this).attr('href');
+        element.off().on('click', function (e) {
+          e.preventDefault();
 
-        if (app.router.__routerHTML5Mode == true) {
-          link = link.replace('#', '');
+          var link = $(this).attr('href');
 
-          if (link.trim() == '') {
-            link = '/';
+          if (app.router.__routerHTML5Mode == true) {
+            link = link.replace('#', '');
+
+            if (link.trim() == '') {
+              link = '/';
+            }
+
+          } else {
+
+            if (link.trim() == '') {
+              link = '/#/';
+            }
+
           }
 
-        } else {
 
-          if (link.trim() == '') {
-            link = '/#/';
+          if (link.indexOf('www') > -1 || link.indexOf('http') > -1) {
+            app.router.location(link, $(this).attr('target') || '_blank');
+          } else {
+            app.router.redirect(link);
           }
 
-        }
+        });
 
-
-        if (link.indexOf('www') > -1 || link.indexOf('http') > -1) {
-          app.router.location(link, $(this).attr('target') || '_blank');
-        } else {
-          app.router.redirect(link);
-        }
-
-      });
+      }
 
     });
 
