@@ -502,6 +502,10 @@ app.modal = {
 
         });
 
+      $('body').removeClass('modal-open');
+      $('div.modal-backdrop').remove();
+      $('[spike-modals]').empty();
+
     },
 
     /**
