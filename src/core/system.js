@@ -995,7 +995,7 @@ app.system = {
 
       element = $(element);
 
-      if(element.attr('plain-href') == undefined){
+      if(app.util.System.isEmpty(element.attr('plain-href'))){
 
         element.off().on('click', function (e) {
           e.preventDefault();
