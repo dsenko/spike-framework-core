@@ -995,7 +995,7 @@ app.system = {
 
       element = $(element);
 
-      if(element.attr('plain-href') == undefined){
+      if(app.util.System.isEmpty(element.attr('plain-href'))){
 
         element.off().on('click', function (e) {
           e.preventDefault();
@@ -1224,6 +1224,16 @@ app.router = {
   },
 
   /**
+   * @public
+   * @ToImplement
+   *
+   * Function invokes before @__pathFunction registers new endpoint in routing
+   * Developer can change path value using @pathValue nad @pathObject args
+   *
+   */
+  pathFunctionHandler: null,
+
+  /**
    * @private
    *
    * Function registers routing endpoint.
@@ -1240,6 +1250,10 @@ app.router = {
 
     if (app.util.System.isEmpty(pathValue) || app.util.System.isNull(pathObject)) {
       app.system.__throwError(app.system.__messages.PATH_DEFINITION);
+    }
+
+    if(app.router.pathFunctionHandler){
+      pathValue = app.router.pathFunctionHandler(pathValue, pathObject);
     }
 
     app.router.__registerPath(pathValue, pathObject.controller, pathObject.routingParams, pathObject.onRoute, pathObject.name, pathObject.modal, pathObject.defaultController);
@@ -1912,6 +1926,15 @@ app.router = {
   },
 
   /**
+   * @public
+   * @ToImplement
+   *
+   * Function invokes after preparing path in @_redirectToView function
+   * Developer can change @path value using given arguments
+   */
+  redirectToViewHandler: null,
+
+  /**
    * @private
    *
    * Function redirects to given @path defined in @app.config.routing
@@ -1938,6 +1961,9 @@ app.router = {
     path = app.util.System.preparePathDottedParams(path, pathParams);
     path = app.util.System.prepareUrlParams(path, urlParams);
 
+    if(app.router.redirectToViewHandler){
+     path = app.router.redirectToViewHandler(path, pathParams, urlParams, preventReloadPage);
+    }
     if (preventReloadPage == true) {
       app.router.__preventReloadPage = path;
     }
@@ -2131,6 +2157,14 @@ app.router = {
 
   /**
    * @public
+   * @ToImplement
+   *
+   * Handler for @createLink function which is invoked before returning path
+   */
+  createLinkHandler: null,
+
+  /**
+   * @public
    *
    * Prepares passed @path as relative link accepted by router
    *
@@ -2150,6 +2184,10 @@ app.router = {
 
     path = app.util.System.preparePathDottedParams(path, pathParams);
     path = app.util.System.prepareUrlParams(path, urlParams);
+
+    if(app.router.createLinkHandler){
+      path = app.router.createLinkHandler(path, pathParams, urlParams);
+    }
 
     return path;
 
