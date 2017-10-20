@@ -7181,7 +7181,7 @@ app.rest = {
 
     };
 
-    if(propertiesObject.async){
+    if(propertiesObject.async !== undefined){
       promiseObj.async = propertiesObject.async;
     }
 
@@ -7311,7 +7311,7 @@ app.rest = {
 
     };
 
-    if(propertiesObject.async){
+    if(propertiesObject.async !== undefined){
       promiseObj.async = propertiesObject.async;
     }
 
