@@ -7181,6 +7181,9 @@ app.rest = {
 
     };
 
+    if(propertiesObject.async){
+      promiseObj.async = propertiesObject.async;
+    }
 
     if (!headers) {
       headers = {}
@@ -7307,6 +7310,10 @@ app.rest = {
       }
 
     };
+
+    if(propertiesObject.async){
+      promiseObj.async = propertiesObject.async;
+    }
 
     if (!headers) {
       headers = {}
