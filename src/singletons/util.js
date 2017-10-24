@@ -245,6 +245,10 @@ app.util = {
 
             if (!app.util.System.isEmpty(obj) && $.isNumeric(obj)) {
 
+                if(obj.indexOf('e') > -1 || obj.indexOf('E') > -1){
+                    return obj;
+                }
+
                 if (app.util.System.isInt(parseFloat(obj))) {
                     return parseInt(obj, 10);
                 } else {
