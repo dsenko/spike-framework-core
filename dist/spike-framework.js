@@ -5672,7 +5672,7 @@ app.util = {
         escapeQuotes: function (text) {
 
             try {
-                text = text.replace(/'/g, "\\'");
+              text = text.replace(/'/g, "\\'").replace(/"/g, "\\'");
             } catch (err) {
                 app.warn('Could not escape single quotes in string: ' + text);
             }
