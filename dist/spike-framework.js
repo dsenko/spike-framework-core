@@ -2200,7 +2200,7 @@ app.router = {
    *
    */
   back: function () {
-    window.history.back();
+    window.history.go(-1);
   }
 
 };
