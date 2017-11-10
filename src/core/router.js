@@ -382,7 +382,7 @@ app.router = {
 
       app.debug('Executes app.router.__onHistoryChanges');
 
-      if (window.location.pathname == app.router.__preventReloadPage) {
+      if (app.router.getPathName() == app.router.__preventReloadPage) {
         app.router.__preventReloadPage = null;
         app.router.__fireRouteEvents({});
         return false;
@@ -690,10 +690,10 @@ app.router = {
 
     if (app.router.__routerHTML5Mode == false) {
       hash = window.location.hash.replace(/^#\//, '');
-    } else if (window.location.pathname.indexOf('/') > 0) {
-      hash = '/' + window.location.pathname;
+    } else if (app.router.getPathName().indexOf('/') > 0) {
+      hash = '/' + app.router.getPathName();
     } else {
-      hash = window.location.pathname;
+      hash = app.router.getPathName();
     }
 
     var hashPattern = app.router.__createPathPattern(hash);
@@ -808,7 +808,7 @@ app.router = {
   getCurrentRoute: function () {
 
     if (app.router.__routerHTML5Mode == true) {
-      return window.location.pathname.substring(1, window.location.pathname.length);
+      return app.router.getPathName().substring(1, app.router.getPathName().length);
     }
 
     return window.location.hash.replace('#/', '');
@@ -1091,6 +1091,16 @@ app.router = {
    */
   back: function () {
     window.history.go(-1);
+  },
+
+  /**
+   * Return current pathname
+   * Can be overriden for custom purposes
+   *
+   * @returns {string}
+   */
+  getPathName: function(){
+    return window.location.pathname;
   }
 
 };
