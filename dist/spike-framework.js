@@ -1918,7 +1918,13 @@ app.router = {
   getCurrentRoute: function () {
 
     if (app.router.__routerHTML5Mode == true) {
-      return app.router.getPathName().substring(1, app.router.getPathName().length);
+
+      if(app.router.getPathName().indexOf('/') == 1){
+        return app.router.getPathName().substring(1, app.router.getPathName().length);
+      }
+
+      return app.router.getPathName();
+
     }
 
     return window.location.hash.replace('#/', '');
@@ -6931,9 +6937,11 @@ app.rest = {
    * @param data
    *
    */
-  __createCachedPromise: function (url, method, interceptors) {
+  __createCachedPromise: function (url, method, propertiesObject) {
 
-    var data = app.rest.__cacheData[url + '_' + method].__data;
+    url = app.rest.__prepareUrl(url, propertiesObject.pathParams, propertiesObject.urlParams)+'_'+method;
+
+    var data = app.rest.__cacheData[url].__data;
 
     var promise = {
       result: data,
@@ -6957,7 +6965,7 @@ app.rest = {
       }
     };
 
-    app.rest.__invokeInterceptors({}, data, promise, interceptors);
+    app.rest.__invokeInterceptors({}, data, promise, propertiesObject.interceptors || []);
 
     return promise;
 
@@ -6971,9 +6979,11 @@ app.rest = {
    * depends on cache type.
    *
    */
-  __isCached: function (url, method) {
+  __isCached: function (url, method, propertiesObject) {
 
-    var data = app.rest.__cacheData[url + '_' + method];
+    url = app.rest.__prepareUrl(url, propertiesObject.pathParams, propertiesObject.urlParams)+'_'+method;
+
+    var data = app.rest.__cacheData[url];
 
     if (app.util.System.isNull(data)) {
       return false;
@@ -7016,7 +7026,7 @@ app.rest = {
     if (typeof url == 'string') {
 
       if (app.rest.__isCached(url, 'GET', propertiesObject)) {
-        return app.rest.__createCachedPromise(url, 'GET', propertiesObject.interceptors || []);
+        return app.rest.__createCachedPromise(url, 'GET', propertiesObject);
       } else {
         return app.rest.__getDelete(url, 'GET', propertiesObject);
       }
@@ -7044,7 +7054,7 @@ app.rest = {
     if (typeof url == 'string') {
 
       if (app.rest.__isCached(url, 'DELETE', propertiesObject)) {
-        return app.rest.__createCachedPromise(url, 'DELETE', propertiesObject.interceptors || []);
+        return app.rest.__createCachedPromise(url, 'DELETE', propertiesObject);
       } else {
         return app.rest.__getDelete(url, 'DELETE', propertiesObject);
       }
@@ -7073,7 +7083,7 @@ app.rest = {
     if (typeof url == 'string') {
 
       if (app.rest.__isCached(url, 'PUT', propertiesObject)) {
-        return app.rest.__createCachedPromise(url, 'PUT', propertiesObject.interceptors || []);
+        return app.rest.__createCachedPromise(url, 'PUT', propertiesObject);
       } else {
         return app.rest.__postPut(url, 'PUT', request, propertiesObject);
       }
@@ -7115,7 +7125,7 @@ app.rest = {
     if (typeof url == 'string') {
 
       if (app.rest.__isCached(url, 'POST', propertiesObject)) {
-        return app.rest.__createCachedPromise(url, 'POST', propertiesObject.interceptors || []);
+        return app.rest.__createCachedPromise(url, 'POST', propertiesObject);
       } else {
         return app.rest.__postPut(url, 'POST', request, propertiesObject);
       }
@@ -7124,6 +7134,27 @@ app.rest = {
       app.system.__throwWarn(app.system.__messages.CACHED_PROMISE_DEPRECADES);
     }
 
+  },
+
+  __prepareUrl: function(url, pathParams, urlParams){
+
+    var preparedUrl = url;
+
+    if (pathParams !== undefined && pathParams !== null) {
+      preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
+
+      if (preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1) {
+        app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
+        preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
+      }
+
+    }
+
+    if (urlParams !== undefined && urlParams !== null) {
+      preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
+    }
+
+    return preparedUrl;
   },
 
   /**
@@ -7148,27 +7179,13 @@ app.rest = {
     var urlParams = propertiesObject.urlParams;
     var interceptors = propertiesObject.interceptors || [];
 
-    var preparedUrl = url;
-
-    if (pathParams !== undefined && pathParams !== null) {
-      preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
-
-      if (preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1) {
-        app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
-        preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
-      }
-
-    }
-
-    if (urlParams !== undefined && urlParams !== null) {
-      preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
-    }
+    var preparedUrl = app.rest.__prepareUrl(url, pathParams, urlParams);
 
     var dataType = "json";
     var contentType = "application/json; charset=utf-8";
 
     if (!app.util.System.isNull(propertiesObject.cache) && app.util.System.isNull(app.rest.__cacheData[url + '_' + method])) {
-      app.rest.__createCacheObject(url, method, propertiesObject.cache);
+      app.rest.__createCacheObject(url, method, propertiesObject, propertiesObject.cache);
     }
 
     var promiseObj = {
@@ -7184,7 +7201,7 @@ app.rest = {
       complete: function (xhr) {
 
         if (!app.util.System.isNull(propertiesObject.cache)) {
-          app.rest.__fillCache(url, method, xhr.responseJSON);
+          app.rest.__fillCache(url, method, propertiesObject, xhr.responseJSON);
         }
 
         if (!app.rest.isSpinnerExcluded(url)) {
@@ -7277,27 +7294,13 @@ app.rest = {
 
     var jsonData = JSON.stringify(request);
 
-    var preparedUrl = url;
-
-    if (pathParams !== undefined && pathParams !== null) {
-      preparedUrl = app.util.System.preparePathDottedParams(url, pathParams);
-
-      if (preparedUrl.indexOf('/undefined') > -1 || preparedUrl.indexOf('/null') > -1) {
-        app.system.__throwWarn(app.system.__messages.REST_API_NULL_PATHPARAM, [preparedUrl]);
-        preparedUrl = app.util.System.removeUndefinedPathParams(preparedUrl);
-      }
-
-    }
-
-    if (urlParams !== undefined && urlParams !== null) {
-      preparedUrl = app.util.System.prepareUrlParams(preparedUrl, urlParams);
-    }
+    var preparedUrl = app.rest.__prepareUrl(url, pathParams, urlParams);
 
     var dataType = "json";
     var contentType = "application/json; charset=utf-8";
 
     if (!app.util.System.isNull(propertiesObject.cache) && app.util.System.isNull(app.rest.__cacheData[url + '_' + method])) {
-      app.rest.__createCacheObject(url, method, propertiesObject.cache);
+      app.rest.__createCacheObject(url, method, propertiesObject, propertiesObject.cache);
     }
 
     var promiseObj = {
@@ -7314,7 +7317,7 @@ app.rest = {
       complete: function (xhr) {
 
         if (!app.util.System.isNull(propertiesObject.cache)) {
-          app.rest.__fillCache(url, method, xhr.responseJSON);
+          app.rest.__fillCache(url, method, propertiesObject, xhr.responseJSON);
         }
 
         if (!app.rest.isSpinnerExcluded(url)) {
@@ -7394,11 +7397,13 @@ app.rest = {
    * Fills cache with data
    *
    */
-  __fillCache: function (url, method, data) {
+  __fillCache: function (url, method, propertiesObject, data) {
 
-    app.rest.__cacheData[url + '_' + method].__filled = true;
-    app.rest.__cacheData[url + '_' + method].__data = data;
-    app.rest.__cacheData[url + '_' + method].__cacheTime = new Date().getTime();
+    url = app.rest.__prepareUrl(url, propertiesObject.pathParams, propertiesObject.urlParams)+'_'+method;
+
+    app.rest.__cacheData[url].__filled = true;
+    app.rest.__cacheData[url].__data = data;
+    app.rest.__cacheData[url].__cacheTime = new Date().getTime();
 
   },
 
@@ -7408,9 +7413,11 @@ app.rest = {
    * Creates new cache object
    *
    */
-  __createCacheObject: function (url, method, cache) {
+  __createCacheObject: function (url, method, propertiesObject, cache) {
 
-    app.rest.__cacheData[url + '_' + method] = {
+    url = app.rest.__prepareUrl(url, propertiesObject.pathParams, propertiesObject.urlParams)+'_'+method;
+
+    app.rest.__cacheData[url] = {
       __filled: false,
       __cacheTime: new Date().getTime(),
       __cacheType: cache == true ? 'PERSIST' : 'TIME',

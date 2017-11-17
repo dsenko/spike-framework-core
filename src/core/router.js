@@ -808,7 +808,13 @@ app.router = {
   getCurrentRoute: function () {
 
     if (app.router.__routerHTML5Mode == true) {
-      return app.router.getPathName().substring(1, app.router.getPathName().length);
+
+      if(app.router.getPathName().indexOf('/') == 1){
+        return app.router.getPathName().substring(1, app.router.getPathName().length);
+      }
+
+      return app.router.getPathName();
+
     }
 
     return window.location.hash.replace('#/', '');
