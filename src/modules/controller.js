@@ -72,7 +72,7 @@ app.controller = {
         //Setting self helper
         controllerObject.self = function () {
             return app.controller[controllerName];
-        }
+        };
 
         //Setting @public checkNetwork to false if not defined
         if (!controllerObject.checkNetwork) {

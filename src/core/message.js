@@ -118,6 +118,7 @@ app.message = {
 
         var message = app.message.__messages[app.config.lang][messageName];
         if(!message){
+            message = messageName;
             app.system.__throwWarn(app.system.__messages.TRANSLATION_MESSAGE_NOT_FOUND, [messageName])
         }
 
