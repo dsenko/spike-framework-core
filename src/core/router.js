@@ -176,7 +176,7 @@ app.router = {
       app.system.__throwError(app.system.__messages.PATH_ALREADY_EXIST, [pathValue]);
     }
 
-    if (routeName && app.router.__routeNameExist(routeName)) {
+    if (routeName && typeof routeName !== 'function' && app.router.__routeNameExist(routeName)) {
       app.system.__throwError(app.system.__messages.ROUTE_NAME_EXIST, [routeName]);
     }
 
@@ -198,6 +198,21 @@ app.router = {
       __routeName: routeName,
       __isModal: !app.util.System.isEmpty(pathModal)
     };
+
+  },
+
+  __initRouteFunctions: function(){
+
+    for(var pathValue in app.router.__endpoints){
+
+      if(typeof app.router.__endpoints[pathValue].__routeName === 'function'){
+
+        var routeNameFn = app.router.__endpoints[pathValue].__routeName;
+        var routeName = routeNameFn();
+        app.router.__endpoints[pathValue].__routeName = routeName;
+      }
+
+    }
 
   },
 

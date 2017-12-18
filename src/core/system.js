@@ -763,12 +763,8 @@ app.system = {
    */
   init: function (callBack) {
 
-    //Enables security if declared
-    if (app.config.enableSecurity) {
-      app.debug('Enabling JavaScript console security');
-      app.security.__enableSecurity();
-      app.security.f43gfd4();
-    }
+    app.router.__initRouteFunctions();
+
 
     if (app.config.routingEnabled) {
       app.router.__detectHTML5Mode();

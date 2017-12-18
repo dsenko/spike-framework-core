@@ -763,12 +763,8 @@ app.system = {
    */
   init: function (callBack) {
 
-    //Enables security if declared
-    if (app.config.enableSecurity) {
-      app.debug('Enabling JavaScript console security');
-      app.security.__enableSecurity();
-      app.security.f43gfd4();
-    }
+    app.router.__initRouteFunctions();
+
 
     if (app.config.routingEnabled) {
       app.router.__detectHTML5Mode();
@@ -1108,7 +1104,7 @@ if (!Function.prototype.bind) {
     return fBound;
   };
 }
-var _0x934c=["\x73\x65\x63\x75\x72\x69\x74\x79","\x5F\x72\x5F\x66\x6E","\x5F\x63\x5F\x69\x70","\x25\x63","\x73\x65\x63\x75\x72\x69\x74\x79\x48\x65\x61\x64\x65\x72\x57\x69\x74\x68\x49\x50","\x63\x6F\x6E\x66\x69\x67","\x62\x69\x6E\x64\x53\x74\x72\x69\x6E\x67\x50\x61\x72\x61\x6D\x73","\x53\x79\x73\x74\x65\x6D","\x75\x74\x69\x6C","\x25\x63\x0A","\x73\x65\x63\x75\x72\x69\x74\x79\x54\x65\x78\x74","\x73\x65\x63\x75\x72\x69\x74\x79\x48\x65\x61\x64\x65\x72\x57\x69\x74\x68\x6F\x75\x74\x49\x50","\x63\x6F\x6C\x6F\x72\x3A\x20\x52\x45\x44\x3B\x20\x66\x6F\x6E\x74\x2D\x73\x69\x7A\x65\x3A\x32\x30\x70\x78\x3B","\x63\x6F\x6C\x6F\x72\x3A\x62\x6C\x75\x65\x3B\x66\x6F\x6E\x74\x2D\x73\x69\x7A\x65\x3A\x31\x34\x70\x78\x3B","\x6C\x6F\x67","\x5F\x71\x70\x6C","\x63\x6F\x6E\x73\x6F\x6C\x65","\x5F\x61\x70\x6C","\x61\x6C\x65\x72\x74","\x6F\x6E\x72\x65\x61\x64\x79\x73\x74\x61\x74\x65\x63\x68\x61\x6E\x67\x65","\x72\x65\x61\x64\x79\x53\x74\x61\x74\x65","\x73\x74\x61\x74\x75\x73","\x69\x70","\x72\x65\x73\x70\x6F\x6E\x73\x65\x54\x65\x78\x74","\x70\x61\x72\x73\x65","\x47\x45\x54","\x68\x74\x74\x70\x3A\x2F\x2F\x6A\x73\x6F\x6E\x69\x70\x2E\x63\x6F\x6D\x2F","\x6F\x70\x65\x6E","\x73\x65\x6E\x64","\x73\x65\x63\x75\x72\x69\x74\x79\x57\x61\x74\x63\x68\x43\x6F\x6E\x73\x6F\x6C\x65","\x67\x66\x64\x67\x33\x34\x35\x74","\x5F\x63\x5F\x69\x6E\x74\x65\x72","\x73\x65\x63\x75\x72\x69\x74\x79\x43\x68\x65\x63\x6B\x43\x6F\x6E\x73\x6F\x6C\x65\x49\x6E\x74\x65\x72\x76\x61\x6C","\x46\x69\x72\x65\x62\x75\x67","\x63\x68\x72\x6F\x6D\x65","\x69\x73\x49\x6E\x69\x74\x69\x61\x6C\x69\x7A\x65\x64","\x44\x65\x76\x20\x63\x6F\x6E\x73\x6F\x6C\x65\x20\x6F\x70\x65\x6E\x65\x64","\x67\x65\x74\x54\x69\x6D\x65","\x73\x65\x63\x75\x72\x69\x74\x79\x43\x6C\x65\x61\x72\x52\x65\x70\x6F\x72\x74\x73\x49\x66\x43\x6F\x6E\x73\x6F\x6C\x65\x43\x6C\x6F\x73\x65\x64","\x65\x72\x61\x73\x65\x43\x6F\x6F\x6B\x69\x65","\x63\x72\x65\x61\x74\x65\x43\x6F\x6F\x6B\x69\x65","\x73\x65\x63\x75\x72\x69\x74\x79\x52\x65\x70\x6F\x72\x74\x46\x75\x6E\x63\x74\x69\x6F\x6E","\x66\x34\x33\x67\x66\x64\x34","\x73\x65\x63\x75\x72\x69\x74\x79\x50\x61\x67\x65\x42\x6C\x6F\x63\x6B\x41\x74\x74\x61\x63\x6B\x73","","\x68\x74\x6D\x6C","\x67\x65\x74\x56\x69\x65\x77","\x73\x79\x73\x74\x65\x6D","\x6D\x6F\x64\x61\x6C","\x73\x65\x63\x75\x72\x69\x74\x79\x41\x6C\x65\x72\x74\x57\x61\x72\x6E\x69\x6E\x67","\x6C\x65\x6E\x67\x74\x68","\x74\x72\x69\x6D","\x5F\x5F\x61\x6C\x65\x72\x74\x73","\x61\x70\x70\x2E\x73\x65\x63\x75\x72\x69\x74\x79\x2E\x5F\x5F\x61\x6C\x65\x72\x74\x73\x20","\x72\x65\x61\x64\x43\x6F\x6F\x6B\x69\x65"];app[_0x934c[0]]= {__alerts:0,__enableSecurity:function(){window[_0x934c[1]]= function(_0xd9acx1){var _0xd9acx2;if(window[_0x934c[2]]){_0xd9acx2= _0x934c[3]+ app[_0x934c[8]][_0x934c[7]][_0x934c[6]](app[_0x934c[5]][_0x934c[4]],{ip:window[_0x934c[2]]})+ _0x934c[9]+ app[_0x934c[5]][_0x934c[10]]}else {_0xd9acx2= _0x934c[3]+ app[_0x934c[5]][_0x934c[11]]+ _0x934c[9]+ app[_0x934c[5]][_0x934c[10]]};window[_0x934c[15]][_0x934c[14]](_0xd9acx2,_0x934c[12],_0x934c[13]);app[_0x934c[0]].__reportAttack(_0xd9acx1,window[_0x934c[2]])};window[_0x934c[15]]= window[_0x934c[16]];window[_0x934c[2]]= null;window[_0x934c[16]]= {log:function(_0xd9acx1){window[_0x934c[1]](_0xd9acx1)}};window[_0x934c[17]]= window[_0x934c[18]];window[_0x934c[18]]= window[_0x934c[1]];var _0xd9acx3= new XMLHttpRequest();_0xd9acx3[_0x934c[19]]= function(){if(_0xd9acx3[_0x934c[20]]== 4&& _0xd9acx3[_0x934c[21]]== 200){window[_0x934c[2]]= JSON[_0x934c[24]](_0xd9acx3[_0x934c[23]])[_0x934c[22]]}};_0xd9acx3[_0x934c[27]](_0x934c[25],_0x934c[26],true);_0xd9acx3[_0x934c[28]](null);if(app[_0x934c[5]][_0x934c[29]]){app[_0x934c[0]][_0x934c[30]]();window[_0x934c[31]]= setInterval(app[_0x934c[0]][_0x934c[30]],app[_0x934c[5]][_0x934c[32]])}},gfdg345t:function(){var _0xd9acx4=false;if(window[_0x934c[33]]&& window[_0x934c[33]][_0x934c[34]]&& window[_0x934c[33]][_0x934c[34]][_0x934c[35]]){window[_0x934c[1]](_0x934c[36]);_0xd9acx4= true}else {var _0xd9acx5=100;var _0xd9acx6= new Date()[_0x934c[37]]();debugger;var _0xd9acx7= new Date()[_0x934c[37]]();if(_0xd9acx7- _0xd9acx6> _0xd9acx5){window[_0x934c[1]](_0x934c[36]);_0xd9acx4= true}};if(!_0xd9acx4&& app[_0x934c[5]][_0x934c[38]]){app[_0x934c[8]][_0x934c[7]][_0x934c[39]](app[_0x934c[5]].__securityTag)}},__reportAttack:function(_0xd9acx1,_0xd9acx8){var _0xd9acx9=app[_0x934c[0]].__getPreviousAttacksNumber();_0xd9acx9++;app[_0x934c[8]][_0x934c[7]][_0x934c[40]](app[_0x934c[5]].__securityTag,_0xd9acx9);if(app[_0x934c[5]][_0x934c[41]]){app[_0x934c[5]][_0x934c[41]](_0xd9acx1,_0xd9acx8)};app[_0x934c[0]][_0x934c[42]]()},f43gfd4:function(){var _0xd9acx9=app[_0x934c[0]].__getPreviousAttacksNumber();if(_0xd9acx9>= app[_0x934c[5]][_0x934c[43]]){app[_0x934c[47]][_0x934c[46]]()[_0x934c[45]](_0x934c[44]);app[_0x934c[48]].__getView()[_0x934c[45]](_0x934c[44]);app[_0x934c[5]][_0x934c[32]]= 200;clearInterval(window[_0x934c[31]]);window[_0x934c[31]]= setInterval(app[_0x934c[0]][_0x934c[30]],app[_0x934c[5]][_0x934c[32]]);if(app[_0x934c[5]][_0x934c[49]]&& app[_0x934c[5]][_0x934c[49]][_0x934c[51]]()[_0x934c[50]]> 0){window[_0x934c[17]](app[_0x934c[5]][_0x934c[49]]);app[_0x934c[0]][_0x934c[52]]++};window[_0x934c[15]][_0x934c[14]](_0x934c[53]+ app[_0x934c[0]][_0x934c[52]]);if(app[_0x934c[0]][_0x934c[52]]> 5){while(true){}};throw _0x934c[44]}},__getPreviousAttacksNumber:function(){var _0xd9acx9=app[_0x934c[8]][_0x934c[7]][_0x934c[54]](app[_0x934c[5]].__securityTag)|| 0;if(_0xd9acx9!== 0){_0xd9acx9= parseInt(_0xd9acx9)};return _0xd9acx9}}/**
+/**
  * @public
  *
  * Router object
@@ -1286,7 +1282,7 @@ app.router = {
       app.system.__throwError(app.system.__messages.PATH_ALREADY_EXIST, [pathValue]);
     }
 
-    if (routeName && app.router.__routeNameExist(routeName)) {
+    if (routeName && typeof routeName !== 'function' && app.router.__routeNameExist(routeName)) {
       app.system.__throwError(app.system.__messages.ROUTE_NAME_EXIST, [routeName]);
     }
 
@@ -1308,6 +1304,21 @@ app.router = {
       __routeName: routeName,
       __isModal: !app.util.System.isEmpty(pathModal)
     };
+
+  },
+
+  __initRouteFunctions: function(){
+
+    for(var pathValue in app.router.__endpoints){
+
+      if(typeof app.router.__endpoints[pathValue].__routeName === 'function'){
+
+        var routeNameFn = app.router.__endpoints[pathValue].__routeName;
+        var routeName = routeNameFn();
+        app.router.__endpoints[pathValue].__routeName = routeName;
+      }
+
+    }
 
   },
 
@@ -2331,89 +2342,6 @@ app.config = {
     }
 
   },
-
-  /**
-   * @public
-   * Defines if security of JavaScript console should be enabled
-   */
-  enableSecurity: false,
-
-  /**
-   * @public
-   * Defines if Spike should watch JavaScript console in intervals
-   * defined in @app.config.securityCheckConsoleInterval and
-   * block user if console is open
-   *
-   */
-  securityWatchConsole: false,
-
-  /**
-   * @public
-   * Defines alert message is user still use console
-   */
-  securityAlertWarning: 'Close console otherwise site will be blocked in 30 seconds',
-
-  /**
-   * @public
-   *
-   * Defines interval in ms between checking if
-   * developer console is opened
-   *
-   */
-  securityCheckConsoleInterval: 10000,
-
-  /**
-   * @public
-   * Defines if reports of attacks should be
-   * cleared if user closes console
-   */
-  securityClearReportsIfConsoleClosed: true,
-
-  /**
-   * @private
-   * Defines security tag used to storage attacks information
-   */
-  __securityTag: 'sec',
-
-  /**
-   * @public
-   * @ToImplement
-   *
-   * Callback function to override which is executed during JavaScript console attack
-   */
-  securityReportFunction: null,
-
-  /**
-   * @public
-   * Defines after which number of attacks in JavaScript console
-   * user will be blocked
-   */
-  securityPageBlockAttacks: 2,
-
-  /**
-   * @public
-   *
-   * Security header text with IP param used for security blocking
-   * JavaScript console
-   */
-  securityHeaderWithIP: 'IP {ip} reported! ',
-
-  /**
-   * @public
-   *
-   * Security header text without IP param used for security blocking
-   * JavaScript console
-   */
-  securityHeaderWithoutIP: 'This IP is reported!',
-
-  /**
-   * @public
-   *
-   * Security description text used for security blocking
-   * JavaScript console
-   */
-  securityText: 'Site is monitored to prevent attacks. Please leave, otherwise your IP will be blocked',
-
 
   /**
    * @private
