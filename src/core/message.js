@@ -35,18 +35,6 @@ app.message = {
     /**
      * @public
      *
-     * Substitute method for register
-     *
-     * @param languageName
-     * @param languageFilePath
-     */
-    add: function (languageName, languageFilePath) {
-        return this.register(languageName, languageFilePath);
-    },
-
-    /**
-     * @public
-     *
      * Registering new language translation from hosted file
      * File can be hosted locally or from server
      *
@@ -147,44 +135,11 @@ app.message = {
         setTimeout(function () {
 
             if (app.message.__waitingForTranslations[app.config.lang] == true) {
-                app.message.__translateDOM();
             } else if (app.message.__waitingForTranslations[app.config.lang] == false) {
                 app.message.__translate();
             }
 
-        }, 100);
-
-    },
-
-    /**
-     * @private
-     *
-     * Function to translate all existing messages in DOM based on @attr spike-translation
-     *
-     * @param html
-     */
-    __translateDOM: function () {
-
-        app.log('__translateDOM');
-
-        //$(document).ready(function () {
-
-        $('[' + app.__attributes.TRANSLATION + ']').each(function () {
-
-            var messageName = $(this).attr(app.__attributes.TRANSLATION);
-
-            if(!app.message.__messages[app.config.lang][messageName]){
-                app.system.__throwWarn(app.system.__messages.TRANSLATION_MESSAGE_NOT_FOUND, [messageName])
-            }
-
-            $(this).removeAttr(app.__attributes.TRANSLATION);
-            $(this).attr('translation', messageName);
-
-            $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
-
-        });
-
-        //});
+        }, 20);
 
     },
 

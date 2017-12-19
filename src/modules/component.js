@@ -153,9 +153,6 @@ app.component = {
             app.system.__bindEvents(componentSelector);
             app.system.__bindLinks(componentSelector);
 
-            //Translate DOM
-            app.message.__translate();
-
             componentDataPassed = $.extend( componentDataPassed, app.router.__getCurrentView());
 
             //Setting ready of module

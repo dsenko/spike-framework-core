@@ -764,11 +764,7 @@ app.system = {
   init: function (callBack) {
 
     app.router.__initRouteFunctions();
-
-
-    if (app.config.routingEnabled) {
-      app.router.__detectHTML5Mode();
-    }
+    app.router.__detectHTML5Mode();
 
     app.debug('Invoke system.init with params', []);
 
@@ -827,11 +823,7 @@ app.system = {
    */
   changeLanguage: function (langCode) {
     app.debug('Invoke system.changeLanguage with params: {0}', [langCode]);
-
-    app.config.lang = langCode;
-
-    app.message.__translate();
-
+    window.reload();
   },
 
   /**
@@ -884,11 +876,6 @@ app.system = {
     app.ok('Spike application ready to work...');
 
     app.debug('Try to invoke system.render with controller: {0}', [app.config.mainController]);
-
-    if (!app.config.routingEnabled) {
-      app.system.render(app.controller[app.config.mainController], null, callBack);
-      app.__starting = false;
-    }
 
   },
 

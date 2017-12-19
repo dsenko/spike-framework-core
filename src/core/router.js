@@ -341,8 +341,6 @@ app.router = {
    */
   __registerRouter: function () {
 
-    if (app.config.routingEnabled) {
-
       app.ok('HTML5 router mode status: {0}', [app.router.__routerHTML5Mode]);
 
       if (app.util.System.isEmpty(app.config.routing)) {
@@ -359,8 +357,6 @@ app.router = {
       if (app.router.__routerHTML5Mode == false) {
         $(window).bind('hashchange', app.router.__onHashChanges);
       }
-
-    }
 
   },
 

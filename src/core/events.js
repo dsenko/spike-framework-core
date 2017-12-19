@@ -123,9 +123,13 @@ app.events = {
      */
     extend: function (eventsMap) {
 
-        $.each(eventsMap, function (eventName, eventCallback) {
-            app.events.__extend(eventName, eventCallback);
-        })
+        for(var eventName in eventsMap){
+
+            if(eventsMap.hasOwnProperty(eventName)){
+              app.events.__extend(eventName, eventsMap[eventName]);
+            }
+
+        }
 
     },
 
@@ -166,9 +170,7 @@ app.events = {
      * @param eventCallback
      */
     __extend: function (eventName, eventCallback) {
-
         app.events[app.events.__functionName(eventName)] = eventCallback;
-
     },
 
 
@@ -291,7 +293,7 @@ app.events = {
 
         app.events.__applicationEvents[eventName] = [];
 
-    },
+    }
 
 
 };
