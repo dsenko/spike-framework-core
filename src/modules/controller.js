@@ -202,10 +202,6 @@ app.controller = {
             app.ctx.selector = selectorsObj.selectors;
             templateHtml = selectorsObj.html;
 
-            if (app.config.replaceLangKeys) {
-                templateHtml = app.message.__replaceTemplateKeys(templateHtml);
-            }
-
             app.ctx.__plainTemplate = templateHtml;
             app.ctx.__template = templateHtml;
 

@@ -270,10 +270,6 @@ app.modal = {
 
             templateHtml = selectorsObj.html;
 
-            if (app.config.replaceLangKeys) {
-                templateHtml = app.message.__replaceTemplateKeys(templateHtml);
-            }
-
             app.mCtx[modalObject.__name].__plainTemplate = templateHtml;
 
             app.mCtx[modalObject.__name].__template = templateHtml;

@@ -24,7 +24,7 @@ app.message = {
      * @private
      * Information if translations has been downloaded
      */
-    __waitingForTranslations: {},
+    __waitingForTranslation: {},
 
     /**
      * @private
@@ -41,11 +41,11 @@ app.message = {
      * @param languageName
      * @param languageFilePath
      */
-    register: function (languageName, languageFilePath) {
+    addLanguage: function (languageName, languageFilePath) {
 
         app.log('register translation {0}', [languageName]);
 
-        app.message.__waitingForTranslations[languageName] = false;
+        app.message.__waitingForTranslation[languageName] = false;
 
         var promise = $.ajax({
             url: languageFilePath,
@@ -141,24 +141,6 @@ app.message = {
 
         }, 20);
 
-    },
-
-    /**
-     * @private
-     *
-     * Replaces all occurences of translation keys to translations
-     * in template html
-     * @param templateHtml
-     */
-    __replaceTemplateKeys: function (templateHtml) {
-
-        for (var messageName in app.message.__messages[app.config.lang]) {
-
-            templateHtml = templateHtml.split('>' + messageName + '<').join('>' + app.message.__messages[app.config.lang][messageName] + '<');
-
-        }
-
-        return templateHtml;
     },
 
     __bindParams: function (string, objectOrArrayParams) {

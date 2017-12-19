@@ -158,9 +158,6 @@ app.partial = {
       //Includes static templates
       renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
 
-      if (app.config.replaceLangKeys) {
-        renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);
-      }
 
       if (__partialObject.__replace) {
         selector = app.partial.__replacePartial(selector, renderedTemplate);

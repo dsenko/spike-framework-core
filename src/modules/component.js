@@ -212,10 +212,6 @@ app.component = {
             app.component[componentObject.__name].selector = selectorsObj.selectors;
             templateHtml = selectorsObj.html;
 
-            if(app.config.replaceLangKeys){
-              templateHtml = app.message.__replaceTemplateKeys(templateHtml);
-            }
-
             app.component[componentObject.__name].__plainTemplate = templateHtml;
             app.component[componentObject.__name].__template = templateHtml;
 
