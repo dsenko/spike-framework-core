@@ -133,7 +133,7 @@ app.controller = {
                 app.controller.__getView().before('<div style="display: none;" id="' + transitionViewId + '">' + app.controller.__getView().html() + '</div>');
                 app.controller.__getView().html(app.ctx.__template);
 
-                app.config.transitionAnimation($('#' + transitionViewId), app.controller.__getView(), app.__starting, __oldControllerName, app.ctx.__name, function () {
+                app.config.transitionAnimation($('#' + transitionViewId), app.controller.__getView(), app.isStarting, __oldControllerName, app.ctx.__name, function () {
                     $('#' + transitionViewId).remove();
                 });
 

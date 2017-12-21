@@ -352,7 +352,7 @@ app.router = {
       }
 
       app.router.__renderCurrentView();
-      app.__starting = false;
+      app.isStarting = false;
 
       if (app.router.__routerHTML5Mode == false) {
         $(window).bind('hashchange', app.router.__onHashChanges);
