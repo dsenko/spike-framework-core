@@ -1960,6 +1960,14 @@ app.router = {
   redirectToViewHandler: null,
 
   /**
+   * @public
+   * @ToImplement
+   *
+   */
+  lastPathHandler: null,
+
+
+  /**
    * @private
    *
    * Function redirects to given @path defined in @app.config.routing
@@ -1994,11 +2002,11 @@ app.router = {
       app.router.__preventReloadPage = path;
     }
 
-    app.router.__lastPath = path;
-
     if (app.router.__routerHTML5Mode == true) {
+      app.router.__lastPath = app.router.lastPathHandler ? app.router.lastPathHandler(window.location.pathname) : window.location.pathname;
       app.router.__pushState(path);
     } else {
+      app.router.__lastPath = app.router.lastPathHandler ? app.router.lastPathHandler(window.location.hash.replace('#/','/')) : window.location.hash.replace('#/','/');
       window.location.hash = path;
     }
 
