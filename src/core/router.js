@@ -859,7 +859,7 @@ app.router = {
 
     app.router.__clearCacheViewData();
 
-    if (!path) {
+    if (app.util.System.isNull(path)) {
       app.system.__throwError(app.system.__messages.REDIRECT_NO_PATH);
     }
 
