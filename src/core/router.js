@@ -38,6 +38,13 @@ app.router = {
   /**
    * @private
    *
+   * Stores information about last entered path
+   */
+  __lastPath: null,
+
+  /**
+   * @private
+   *
    * Stores information about path which should be prevented
    * to reload page
    */
@@ -875,9 +882,12 @@ app.router = {
     if(app.router.redirectToViewHandler){
      path = app.router.redirectToViewHandler(path, pathParams, urlParams, preventReloadPage);
     }
+
     if (preventReloadPage == true) {
       app.router.__preventReloadPage = path;
     }
+
+    app.router.__lastPath = path;
 
     if (app.router.__routerHTML5Mode == true) {
       app.router.__pushState(path);
