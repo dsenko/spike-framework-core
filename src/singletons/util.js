@@ -250,7 +250,13 @@ app.util = {
                 }
 
                 if (app.util.System.isInt(parseFloat(obj))) {
+
+                    if(obj.charAt(0) === '0'){
+                      return obj;
+                    }
+
                     return parseInt(obj, 10);
+
                 } else {
                     return parseFloat(obj);
                 }
