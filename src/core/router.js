@@ -533,6 +533,16 @@ app.router = {
   /**
    * @public
    *
+   * Function returns current route routing params
+   *
+   */
+  getRoutingParams: function () {
+    return app.router.__getCurrentViewData().data.routingParams || {};
+  },
+
+  /**
+   * @public
+   *
    * Function returns current route path params
    *
    */
