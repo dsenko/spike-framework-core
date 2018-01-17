@@ -1644,7 +1644,7 @@ app.router = {
    *
    */
   getRoutingParams: function () {
-    return app.router.__getCurrentViewData().data.routingParams || {};
+    return app.router.__getCurrentViewData().endpoint.routingParams || {};
   },
 
   /**
