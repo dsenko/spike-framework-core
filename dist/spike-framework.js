@@ -2009,7 +2009,7 @@ app.router = {
     }
 
     if (preventReloadPage == true) {
-      app.router.__preventReloadPage = path;
+      app.router.__preventReloadPage = path.length > 0 && path.charAt(0) === '/' ? path : '/'+path;
     }
 
     if (app.router.__routerHTML5Mode == true) {
