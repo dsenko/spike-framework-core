@@ -1161,7 +1161,7 @@ app.router = {
 
     var controllerEndpoint = app.router.findClosestControllerEndpointForController(controllerName);
     if(controllerEndpoint != null){
-      app.router.__redirectToView(controllerEndpoint.__pathValue, {}, {}, true);
+      app.router.__redirectToView(controllerEndpoint.__pathValue, {}, {}, false);
     }
 
   },
