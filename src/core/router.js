@@ -404,7 +404,7 @@ app.router = {
 
       app.debug('Executes app.router.__onHistoryChanges');
 
-      if (app.router.getPathName() == '/'+app.router.__preventReloadPage) {
+      if (app.router.getPathName() === app.router.__preventReloadPage) {
         app.router.__preventReloadPage = null;
         app.router.__fireRouteEvents({});
         return false;
