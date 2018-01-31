@@ -1256,7 +1256,7 @@ app.router = {
       app.system.__throwError(app.system.__messages.PATH_DEFINITION);
     }
 
-    if(app.router.pathFunctionHandler){
+    if (app.router.pathFunctionHandler) {
       pathValue = app.router.pathFunctionHandler(pathValue, pathObject);
     }
 
@@ -1315,11 +1315,11 @@ app.router = {
 
   },
 
-  __initRouteFunctions: function(){
+  __initRouteFunctions: function () {
 
-    for(var pathValue in app.router.__endpoints){
+    for (var pathValue in app.router.__endpoints) {
 
-      if(typeof app.router.__endpoints[pathValue].__routeName === 'function'){
+      if (typeof app.router.__endpoints[pathValue].__routeName === 'function') {
 
         var routeNameFn = app.router.__endpoints[pathValue].__routeName;
         var routeName = routeNameFn();
@@ -1703,12 +1703,12 @@ app.router = {
 
   },
 
-  __setCacheViewData: function(type, data) {
+  __setCacheViewData: function (type, data) {
 
-    if(type == 'DATA'){
+    if (type == 'DATA') {
       app.router.__getCurrentViewDataCache = data;
       app.router.__getCurrentViewDataRouteCache = app.router.getCurrentRoute();
-    }else {
+    } else {
       app.router.__getCurrentViewCache = data;
       app.router.__getCurrentViewRouteCache = app.router.getCurrentRoute();
     }
@@ -1948,7 +1948,7 @@ app.router = {
 
     if (app.router.__routerHTML5Mode == true) {
 
-      if(app.router.getPathName().indexOf('/') == 1){
+      if (app.router.getPathName().indexOf('/') == 1) {
         return app.router.getPathName().substring(1, app.router.getPathName().length);
       }
 
@@ -2004,19 +2004,19 @@ app.router = {
     path = app.util.System.preparePathDottedParams(path, pathParams);
     path = app.util.System.prepareUrlParams(path, urlParams);
 
-    if(app.router.redirectToViewHandler){
-     path = app.router.redirectToViewHandler(path, pathParams, urlParams, preventReloadPage);
+    if (app.router.redirectToViewHandler) {
+      path = app.router.redirectToViewHandler(path, pathParams, urlParams, preventReloadPage);
     }
 
     if (preventReloadPage == true) {
-      app.router.__preventReloadPage = path.length > 0 && path.charAt(0) === '/' ? path : '/'+path;
+      app.router.__preventReloadPage = path.length > 0 && path.charAt(0) === '/' ? path : '/' + path;
     }
 
     if (app.router.__routerHTML5Mode == true) {
       app.router.__lastPath = app.router.lastPathHandler ? app.router.lastPathHandler(window.location.pathname) : window.location.pathname;
       app.router.__pushState(path);
     } else {
-      app.router.__lastPath = app.router.lastPathHandler ? app.router.lastPathHandler(window.location.hash.replace('#/','/')) : window.location.hash.replace('#/','/');
+      app.router.__lastPath = app.router.lastPathHandler ? app.router.lastPathHandler(window.location.hash.replace('#/', '/')) : window.location.hash.replace('#/', '/');
       window.location.hash = path;
     }
 
@@ -2231,7 +2231,7 @@ app.router = {
     path = app.util.System.preparePathDottedParams(path, pathParams);
     path = app.util.System.prepareUrlParams(path, urlParams);
 
-    if(app.router.createLinkHandler){
+    if (app.router.createLinkHandler) {
       path = app.router.createLinkHandler(path, pathParams, urlParams);
     }
 
@@ -2255,9 +2255,47 @@ app.router = {
    *
    * @returns {string}
    */
-  getPathName: function(){
+  getPathName: function () {
     return window.location.pathname;
+  },
+
+
+  /**
+   * Redirects to constroller
+   * @param controllerName
+   */
+  redirectController: function (controllerName) {
+
+    var controllerEndpoint = app.router.findClosestControllerEndpointForController(controllerName);
+    if(controllerEndpoint != null){
+      app.router.__redirectToView(controllerEndpoint.__pathValue, {}, {}, true);
+    }
+
+  },
+
+  findClosestControllerEndpointForController: function (controllerName) {
+
+    var controllers = [];
+    for (var path in app.router.__endpoints) {
+
+      if (app.router.__endpoints[path].controller === controllerName) {
+        controllers.push(app.router.__endpoints[path]);
+      }
+
+    }
+
+    controllers.sort(function (c1, c2) {
+      return c1.__pathPattern.pattern.length > c2.__pathPattern.pattern.length ? 1 : -1;
+    });
+
+    if(controllers.length > 0){
+      return controllers[0];
+    }
+
+    return null;
+
   }
+
 
 };
 
