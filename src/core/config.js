@@ -126,6 +126,13 @@ app.config = {
   /**
    * @public
    *
+   * Checks during router registration, if route names are unique
+   */
+  checkRoutesNamesUniqueness: true,
+
+  /**
+   * @public
+   *
    * Defines if logs type 'LOG' shoud be printed in console
    */
   showLog: true,

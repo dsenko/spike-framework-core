@@ -183,8 +183,10 @@ app.router = {
       app.system.__throwError(app.system.__messages.PATH_ALREADY_EXIST, [pathValue]);
     }
 
-    if (routeName && typeof routeName !== 'function' && app.router.__routeNameExist(routeName)) {
-      app.system.__throwError(app.system.__messages.ROUTE_NAME_EXIST, [routeName]);
+    if(app.config.checkRoutesNamesUniqueness === true){
+      if (routeName && typeof routeName !== 'function' && app.router.__routeNameExist(routeName)) {
+        app.system.__throwError(app.system.__messages.ROUTE_NAME_EXIST, [routeName]);
+      }
     }
 
     var pathPattern = app.router.__createPathPattern(pathValue);
