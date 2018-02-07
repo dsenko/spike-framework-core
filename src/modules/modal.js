@@ -340,9 +340,6 @@ app.modal = {
 
       app.modal.__getView().append('<div id="' + app.mCtx[modalObject.__name].__modalWrapperId.replace('#', '') + '">' + app.mCtx[modalObject.__name].__template + '</div>');
 
-      //Translate DOM
-      app.message.__translate();
-
       app.mCtx[modalObject.__name].__modalId = 'modal-' + app.util.System.hash();
 
       var modalSelector = app.mCtx[modalObject.__name].__getWrapperModalSelector();

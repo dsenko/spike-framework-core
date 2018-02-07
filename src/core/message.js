@@ -132,65 +132,6 @@ app.message = {
     /**
      * @private
      *
-     * Function to translate all existing messages in DOM
-     * Wait's until translation file is downloaded
-     *
-     *
-     * @param html
-     */
-    __translate: function () {
-
-        if (app.message.__waitingForTranslations[app.config.lang] == undefined) {
-            app.system.__throwError(app.system.__messages.TRANSLATION_NOT_EXIST, [app.config.lang])
-        }
-
-        setTimeout(function () {
-
-            if (app.message.__waitingForTranslations[app.config.lang] == true) {
-                app.message.__translateDOM();
-            } else if (app.message.__waitingForTranslations[app.config.lang] == false) {
-                app.message.__translate();
-            }
-
-        }, 100);
-
-    },
-
-    /**
-     * @private
-     *
-     * Function to translate all existing messages in DOM based on @attr spike-translation
-     *
-     * @param html
-     */
-    __translateDOM: function () {
-
-        app.log('__translateDOM');
-
-        //$(document).ready(function () {
-
-        $('[' + app.__attributes.TRANSLATION + ']').each(function () {
-
-            var messageName = $(this).attr(app.__attributes.TRANSLATION);
-
-            if(!app.message.__messages[app.config.lang][messageName]){
-                app.system.__throwWarn(app.system.__messages.TRANSLATION_MESSAGE_NOT_FOUND, [messageName])
-            }
-
-            $(this).removeAttr(app.__attributes.TRANSLATION);
-            $(this).attr('translation', messageName);
-
-            $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
-
-        });
-
-        //});
-
-    },
-
-    /**
-     * @private
-     *
      * Replaces all occurences of translation keys to translations
      * in template html
      * @param templateHtml

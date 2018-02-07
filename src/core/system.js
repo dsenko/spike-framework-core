@@ -831,8 +831,6 @@ app.system = {
 
     app.config.lang = langCode;
 
-    app.message.__translate();
-
   },
 
   /**
@@ -1052,7 +1050,7 @@ app.system = {
     for (var i = 0; i < templatesIncludes.length; i++) {
 
       if (window[app.__globalTemplates][templatesIncludes[i].templateFullName]) {
-        templateHtml = templateHtml.split(app.__attributes.TEMPLATE_INCLUDE + '(' + templatesIncludes[i].templateInclude + ')').join(window[app.__globalTemplates][templatesIncludes[i].templateFullName]);
+        templateHtml = templateHtml.split(app.__attributes.TEMPLATE_INCLUDE + '(' + templatesIncludes[i].templateInclude + ')').join(window[app.__globalTemplates][templatesIncludes[i].templateFullName]());
       }
 
     }

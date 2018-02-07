@@ -141,9 +141,6 @@ app.controller = {
                 app.controller.__getView().html(app.ctx.__template);
             }
 
-            //Translate DOM
-            app.message.__translate();
-
             //Binds spike events
             app.system.__bindEvents(app.controller.__getView());
             app.system.__bindLinks(app.controller.__getView());

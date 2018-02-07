@@ -251,7 +251,7 @@ app.util = {
 
                 if (app.util.System.isInt(parseFloat(obj))) {
 
-                    if(obj.charAt(0) === '0'){
+                    if(obj.charAt(0) === '0' && obj.length > 1){
                       return obj;
                     }
 

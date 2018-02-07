@@ -831,8 +831,6 @@ app.system = {
 
     app.config.lang = langCode;
 
-    app.message.__translate();
-
   },
 
   /**
@@ -1052,7 +1050,7 @@ app.system = {
     for (var i = 0; i < templatesIncludes.length; i++) {
 
       if (window[app.__globalTemplates][templatesIncludes[i].templateFullName]) {
-        templateHtml = templateHtml.split(app.__attributes.TEMPLATE_INCLUDE + '(' + templatesIncludes[i].templateInclude + ')').join(window[app.__globalTemplates][templatesIncludes[i].templateFullName]);
+        templateHtml = templateHtml.split(app.__attributes.TEMPLATE_INCLUDE + '(' + templatesIncludes[i].templateInclude + ')').join(window[app.__globalTemplates][templatesIncludes[i].templateFullName]());
       }
 
     }
@@ -3234,65 +3232,6 @@ app.message = {
     /**
      * @private
      *
-     * Function to translate all existing messages in DOM
-     * Wait's until translation file is downloaded
-     *
-     *
-     * @param html
-     */
-    __translate: function () {
-
-        if (app.message.__waitingForTranslations[app.config.lang] == undefined) {
-            app.system.__throwError(app.system.__messages.TRANSLATION_NOT_EXIST, [app.config.lang])
-        }
-
-        setTimeout(function () {
-
-            if (app.message.__waitingForTranslations[app.config.lang] == true) {
-                app.message.__translateDOM();
-            } else if (app.message.__waitingForTranslations[app.config.lang] == false) {
-                app.message.__translate();
-            }
-
-        }, 100);
-
-    },
-
-    /**
-     * @private
-     *
-     * Function to translate all existing messages in DOM based on @attr spike-translation
-     *
-     * @param html
-     */
-    __translateDOM: function () {
-
-        app.log('__translateDOM');
-
-        //$(document).ready(function () {
-
-        $('[' + app.__attributes.TRANSLATION + ']').each(function () {
-
-            var messageName = $(this).attr(app.__attributes.TRANSLATION);
-
-            if(!app.message.__messages[app.config.lang][messageName]){
-                app.system.__throwWarn(app.system.__messages.TRANSLATION_MESSAGE_NOT_FOUND, [messageName])
-            }
-
-            $(this).removeAttr(app.__attributes.TRANSLATION);
-            $(this).attr('translation', messageName);
-
-            $(this).html(app.message.__messages[app.config.lang][messageName] || messageName);
-
-        });
-
-        //});
-
-    },
-
-    /**
-     * @private
-     *
      * Replaces all occurences of translation keys to translations
      * in template html
      * @param templateHtml
@@ -3490,9 +3429,6 @@ app.component = {
             //Binds spike events
             app.system.__bindEvents(componentSelector);
             app.system.__bindLinks(componentSelector);
-
-            //Translate DOM
-            app.message.__translate();
 
             componentDataPassed = $.extend( componentDataPassed, app.router.__getCurrentView());
 
@@ -3852,9 +3788,6 @@ app.controller = {
             } else {
                 app.controller.__getView().html(app.ctx.__template);
             }
-
-            //Translate DOM
-            app.message.__translate();
 
             //Binds spike events
             app.system.__bindEvents(app.controller.__getView());
@@ -4305,9 +4238,6 @@ app.modal = {
 
       app.modal.__getView().append('<div id="' + app.mCtx[modalObject.__name].__modalWrapperId.replace('#', '') + '">' + app.mCtx[modalObject.__name].__template + '</div>');
 
-      //Translate DOM
-      app.message.__translate();
-
       app.mCtx[modalObject.__name].__modalId = 'modal-' + app.util.System.hash();
 
       var modalSelector = app.mCtx[modalObject.__name].__getWrapperModalSelector();
@@ -4688,9 +4618,6 @@ app.partial = {
       //Binds spike events
       app.system.__bindEvents(selector);
       app.system.__bindLinks(selector);
-
-      //Translate DOM
-      app.message.__translate();
 
     };
 
@@ -5525,7 +5452,7 @@ app.util = {
 
                 if (app.util.System.isInt(parseFloat(obj))) {
 
-                    if(obj.charAt(0) === '0'){
+                    if(obj.charAt(0) === '0' && obj.length > 1){
                       return obj;
                     }
 
