@@ -322,11 +322,17 @@ app.util = {
          */
         preparePathDottedParams: function (url, params) {
 
-            for (var prop in params) {
-                url = url.replace(':' + prop, params[prop]);
-            }
-
+          if(app.util.System.isNull(params)){
             return url;
+          }
+
+          var sorted = Object.keys(params).sort().reverse();
+
+          for(var i = 0; i < sorted.length; i++){
+            url = url.replace(':' + sorted[i], params[sorted[i]]);
+          }
+
+          return url;
 
         },
 
