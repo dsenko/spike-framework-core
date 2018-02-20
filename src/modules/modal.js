@@ -256,14 +256,16 @@ app.modal = {
       }
 
       //Executing template function
-      try {
+     // try {
         templateHtml = templateHtml();
-      } catch (err) {
-        app.system.__throwError('Error occured when executing modal {0} template {1}', [modalObject.__name, modalObject.__view]);
-      }
+    //  } catch (err) {
+   //     app.system.__throwError('Error occured when executing modal {0} template {1}', [modalObject.__name, modalObject.__view], err);
+    //  }
 
-      //Includes static templates
-      templateHtml = app.system.__replacePlainTemplates(templateHtml);
+      if(app.config.usePlainTemplates) {
+        //Includes static templates
+        templateHtml = app.system.__replacePlainTemplates(templateHtml);
+      }
 
       var selectorsObj = app.system.__createSelectors(templateHtml);
       app.mCtx[modalObject.__name].selector = selectorsObj.selectors;

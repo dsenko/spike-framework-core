@@ -528,11 +528,14 @@ app.system = {
    * @param errorMessageBinding
    *
    **/
-  __throwError: function (errorMessage, errorMessageBinding) {
+  __throwError: function (errorMessage, errorMessageBinding, error) {
 
     var error = 'Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding);
     app.system.__errors.push(error);
     app.system.printExceptions();
+    if(error){
+      console.error(error);
+    }
     throw new Error(error);
   },
 
@@ -1289,7 +1292,7 @@ app.router = {
     }
 
     if(app.config.checkRoutesNamesUniqueness === true){
-      if (routeName && typeof routeName !== 'function' && app.router.__routeNameExist(routeName)) {
+      if (routeName && typeof routeName !== 'function' && app.router.__routeNameExist(pathValue, routeName)) {
         app.system.__throwError(app.system.__messages.ROUTE_NAME_EXIST, [routeName]);
       }
     }
@@ -1358,11 +1361,11 @@ app.router = {
    *
    * @param routeName
    */
-  __routeNameExist: function (routeName) {
+  __routeNameExist: function (pathValueCurrent, routeName) {
 
     for (var pathValue in app.router.__endpoints) {
 
-      if (app.router.__endpoints[pathValue].__routeName == routeName) {
+      if (pathValue == pathValueCurrent && app.router.__endpoints[pathValue].__routeName == routeName) {
         return true;
       }
 
@@ -2427,6 +2430,16 @@ app.config = {
   routing: null,
 
   /**
+   * Enabled plain templates processing
+   */
+  usePlainTemplates: true,
+
+  /**
+   * Enable if you use spike3 templates (spike transpiler)
+   */
+  useSpike3Templates: false,
+
+  /**
    * @public
    *
    * Defines if router should be enabled
@@ -3475,14 +3488,16 @@ app.component = {
             }
 
             //Executing template function
-            try {
+         //   try {
                 templateHtml = templateHtml();
-            }catch (err){
-                app.system.__throwError('Error occured when executing component {0} template {1}', [componentObject.__name, componentObject.__view]);
-            }
+           // }catch (err){
+          //      app.system.__throwError('Error occured when executing component {0} template {1}', [componentObject.__name, componentObject.__view], err);
+          //  }
 
-            //Includes static templates
-            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+            if(app.config.usePlainTemplates){
+              //Includes static templates
+              templateHtml = app.system.__replacePlainTemplates(templateHtml);
+            }
 
             var selectorsObj = app.system.__createSelectors(templateHtml);
 
@@ -3837,14 +3852,16 @@ app.controller = {
             }
 
             //Executing template function
-            try {
+         //   try {
                 templateHtml = templateHtml();
-            } catch (err) {
-                app.system.__throwError('Error occured when executing controller {0} template {1}', [controllerObject.__name, controllerObject.__view]);
-            }
+          //  } catch (err) {
+         //       app.system.__throwError('Error occured when executing controller {0} template {1}', [controllerObject.__name, controllerObject.__view], err);
+          //  }
 
+          if(app.config.usePlainTemplates) {
             //Includes static templates
             templateHtml = app.system.__replacePlainTemplates(templateHtml);
+          }
 
             var selectorsObj = app.system.__createSelectors(templateHtml);
             app.ctx.selector = selectorsObj.selectors;
@@ -4154,14 +4171,16 @@ app.modal = {
       }
 
       //Executing template function
-      try {
+     // try {
         templateHtml = templateHtml();
-      } catch (err) {
-        app.system.__throwError('Error occured when executing modal {0} template {1}', [modalObject.__name, modalObject.__view]);
-      }
+    //  } catch (err) {
+   //     app.system.__throwError('Error occured when executing modal {0} template {1}', [modalObject.__name, modalObject.__view], err);
+    //  }
 
-      //Includes static templates
-      templateHtml = app.system.__replacePlainTemplates(templateHtml);
+      if(app.config.usePlainTemplates) {
+        //Includes static templates
+        templateHtml = app.system.__replacePlainTemplates(templateHtml);
+      }
 
       var selectorsObj = app.system.__createSelectors(templateHtml);
       app.mCtx[modalObject.__name].selector = selectorsObj.selectors;
@@ -4596,8 +4615,10 @@ app.partial = {
 
       var renderedTemplate = __partialObject.__template(partialModel);
 
-      //Includes static templates
-      renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
+      if(app.config.usePlainTemplates) {
+        //Includes static templates
+        renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
+      }
 
       if (app.config.replaceLangKeys) {
         renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);

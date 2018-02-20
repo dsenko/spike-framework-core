@@ -189,14 +189,16 @@ app.controller = {
             }
 
             //Executing template function
-            try {
+         //   try {
                 templateHtml = templateHtml();
-            } catch (err) {
-                app.system.__throwError('Error occured when executing controller {0} template {1}', [controllerObject.__name, controllerObject.__view]);
-            }
+          //  } catch (err) {
+         //       app.system.__throwError('Error occured when executing controller {0} template {1}', [controllerObject.__name, controllerObject.__view], err);
+          //  }
 
+          if(app.config.usePlainTemplates) {
             //Includes static templates
             templateHtml = app.system.__replacePlainTemplates(templateHtml);
+          }
 
             var selectorsObj = app.system.__createSelectors(templateHtml);
             app.ctx.selector = selectorsObj.selectors;

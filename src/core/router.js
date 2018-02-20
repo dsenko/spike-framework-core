@@ -184,7 +184,7 @@ app.router = {
     }
 
     if(app.config.checkRoutesNamesUniqueness === true){
-      if (routeName && typeof routeName !== 'function' && app.router.__routeNameExist(routeName)) {
+      if (routeName && typeof routeName !== 'function' && app.router.__routeNameExist(pathValue, routeName)) {
         app.system.__throwError(app.system.__messages.ROUTE_NAME_EXIST, [routeName]);
       }
     }
@@ -253,11 +253,11 @@ app.router = {
    *
    * @param routeName
    */
-  __routeNameExist: function (routeName) {
+  __routeNameExist: function (pathValueCurrent, routeName) {
 
     for (var pathValue in app.router.__endpoints) {
 
-      if (app.router.__endpoints[pathValue].__routeName == routeName) {
+      if (pathValue == pathValueCurrent && app.router.__endpoints[pathValue].__routeName == routeName) {
         return true;
       }
 

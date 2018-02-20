@@ -528,11 +528,14 @@ app.system = {
    * @param errorMessageBinding
    *
    **/
-  __throwError: function (errorMessage, errorMessageBinding) {
+  __throwError: function (errorMessage, errorMessageBinding, error) {
 
     var error = 'Spike Framework: ' + app.util.System.bindStringParams(errorMessage, errorMessageBinding);
     app.system.__errors.push(error);
     app.system.printExceptions();
+    if(error){
+      console.error(error);
+    }
     throw new Error(error);
   },
 

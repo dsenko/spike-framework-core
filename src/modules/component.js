@@ -198,14 +198,16 @@ app.component = {
             }
 
             //Executing template function
-            try {
+         //   try {
                 templateHtml = templateHtml();
-            }catch (err){
-                app.system.__throwError('Error occured when executing component {0} template {1}', [componentObject.__name, componentObject.__view]);
-            }
+           // }catch (err){
+          //      app.system.__throwError('Error occured when executing component {0} template {1}', [componentObject.__name, componentObject.__view], err);
+          //  }
 
-            //Includes static templates
-            templateHtml = app.system.__replacePlainTemplates(templateHtml);
+            if(app.config.usePlainTemplates){
+              //Includes static templates
+              templateHtml = app.system.__replacePlainTemplates(templateHtml);
+            }
 
             var selectorsObj = app.system.__createSelectors(templateHtml);
 

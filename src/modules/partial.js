@@ -155,8 +155,10 @@ app.partial = {
 
       var renderedTemplate = __partialObject.__template(partialModel);
 
-      //Includes static templates
-      renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
+      if(app.config.usePlainTemplates) {
+        //Includes static templates
+        renderedTemplate = app.system.__replacePlainTemplates(renderedTemplate);
+      }
 
       if (app.config.replaceLangKeys) {
         renderedTemplate = app.message.__replaceTemplateKeys(renderedTemplate);

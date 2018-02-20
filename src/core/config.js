@@ -103,6 +103,16 @@ app.config = {
   routing: null,
 
   /**
+   * Enabled plain templates processing
+   */
+  usePlainTemplates: true,
+
+  /**
+   * Enable if you use spike3 templates (spike transpiler)
+   */
+  useSpike3Templates: false,
+
+  /**
    * @public
    *
    * Defines if router should be enabled
