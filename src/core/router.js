@@ -904,7 +904,7 @@ app.router = {
     }
 
     if (preventReloadPage == true) {
-      app.router.__preventReloadPage = path.length > 0 && path.charAt(0) === '/' ? path : '/' + path;
+      app.router.__preventReloadPage = app.router.preventReloadPageHandler ? app.router.preventReloadPageHandler(path) : (path.length > 0 && path.charAt(0) === '/' ? path : '/' + path);
     }
 
     if (app.router.__routerHTML5Mode == true) {
