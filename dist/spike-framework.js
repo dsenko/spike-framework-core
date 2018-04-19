@@ -4339,8 +4339,12 @@ app.modal = {
      *
      */
     modalObject.hide = function () {
-      app.modal.__onModalHideEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalHideEventDefault);
-
+        try {
+            app.modal.__onModalHideEvent(app.mCtx[modalObject.__name].__selfSelector(), app.mCtx[modalObject.__name], app.modal.__onModalHideEventDefault);
+        } catch(e) {
+            
+        }
+      
       var wrapperSelector = app.modal[modalObject.__name].__getWrapperModalSelector(true);
 
       if (wrapperSelector == null) {
